@@ -7,18 +7,10 @@
   @vite(['resources/css/app.css', 'resources/js/app.js'])
   <script src="https://kit.fontawesome.com/your-kit-id.js" crossorigin="anonymous"></script>
 </head>
-<body class="bg-green-100 min-h-screen flex items-center justify-center">
+<body class="min-h-screen flex items-center justify-center bg-cover bg-center" style="background-image: url('{{ asset('images/bg-pernikahan.png') }}');">
 
   <div class="w-full max-w-sm bg-white rounded-xl shadow-lg p-6">
-    
-    {{-- Ikon User --}}
-    <div class="flex justify-center mb-6">
-      <div class="bg-green-500 p-4 rounded-full">
-        <i class="fas fa-user text-white text-2xl"></i>
-      </div>
-    </div>
-
-    <h2 class="text-xl font-semibold text-center text-gray-700 mb-6">Login</h2>
+    <h2 class="text-xl font-semibold text-center text-gray-700 mb-6">Login Aplikasi </h2>
 
     @if(session('error'))
       <div class="bg-red-100 text-red-700 p-2 rounded mb-4 text-sm">
@@ -30,8 +22,8 @@
       @csrf
 
       <div>
-        <label for="email" class="block text-sm font-medium text-gray-700">Email ID</label>
-        <input type="email" name="email" id="email" required
+        <label for="name" class="block text-sm font-medium text-gray-700">Nama</label>
+        <input type="name" name="name" id="name" required
           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
       </div>
 

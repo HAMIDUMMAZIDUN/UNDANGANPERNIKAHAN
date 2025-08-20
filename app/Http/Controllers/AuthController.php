@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Password;
 
 class AuthController extends Controller
 {
@@ -15,16 +16,17 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email' => ['required', 'email'],
+            'name' => ['required', 'string'],
             'password' => ['required'],
         ]);
 
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
-            return redirect()->intended('/dashboard'); // Ganti sesuai tujuan
-        }
+        if (Auth::attempt(['name' => $credentials['name'], 'password' => $credentials['password']])) {
+        $request->session()->regenerate();
+        return redirect()->intended('/dashboard');
+    }
 
-        return back()->with('error', 'Email atau password salah.');
+
+        return back()->with('error', 'Nama atau password salah.');
     }
 
     public function logout(Request $request)
@@ -63,6 +65,7 @@ public function showForgotForm()
     return view('auth.forgot-password');
 }
 
+
 public function sendResetLink(Request $request)
 {
     $request->validate(['email' => 'required|email']);
@@ -73,6 +76,4 @@ public function sendResetLink(Request $request)
         ? back()->with('status', __($status))
         : back()->withErrors(['email' => __($status)]);
 }
-
-
 }
