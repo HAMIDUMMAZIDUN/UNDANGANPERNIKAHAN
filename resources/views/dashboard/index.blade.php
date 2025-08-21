@@ -1,73 +1,82 @@
 @extends('layouts.app')
 
 @section('page_title', 'Dashboard')
-
-@section('content')
-<div class="max-w-5xl mx-auto px-4 py-6">
-<body class="bg-gray-50 min-h-screen">
-  {{-- Konten Utama --}}
-  <main class="pt-20 px-6 flex flex-col items-center justify-center min-h-screen text-center">
-    <h1 class="text-2xl md:text-3xl font-bold text-pink-600 mb-2">Selamat datang, {{ Auth::user()->name }}!</h1>
-    <p class="text-gray-700 text-sm md:text-base">Silakan pilih fitur dari menu untuk mengelola undangan pernikahan.</p>
-  </main>
-
-  {{-- Popup Form --}}
-  <div id="profilePopup" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6 relative">
-      <button onclick="toggleProfile()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl">×</button>
-      <h2 class="text-xl font-bold text-pink-600 mb-4 text-center">Update User</h2>
-      
-      @if ($errors->any())
-        <div class="bg-red-100 text-red-700 p-2 rounded mb-4 text-sm">
-          <ul class="list-disc pl-5">
-            @foreach ($errors->all() as $error)
-              <li>{{ $error }}</li>
-            @endforeach
-          </ul>
-        </div>
-      @endif
-
-     <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="space-y-4">
-        @csrf
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Foto Profil</label>
-          <input type="file" name="photo" accept="image/*" class="mt-1 block w-full px-4 py-2 border rounded-md">
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Nama</label>
-          <input type="text" name="name" value="{{ Auth::user()->name }}" class="mt-1 block w-full px-4 py-2 border rounded-md">
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Email</label>
-          <input type="email" name="email" value="{{ Auth::user()->email }}" class="mt-1 block w-full px-4 py-2 border rounded-md">
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Password Lama</label>
-          <input type="password" name="current_password" class="mt-1 block w-full px-4 py-2 border rounded-md">
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700">Password Baru</label>
-          <input type="password" name="new_password" placeholder="Kosongkan jika tidak ubah password" class="mt-1 block w-full px-4 py-2 border rounded-md">
-        </div>
-
-        <button type="submit" class="w-full bg-pink-600 text-white py-2 rounded hover:bg-pink-700 transition">Update</button>
-      </form>
-    </div>
-  </div>
+@if (session('error'))
     <script>
-    function toggleSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      sidebar.classList.toggle('translate-x-0');
-      sidebar.classList.toggle('-translate-x-full');
-    }
+        document.addEventListener('DOMContentLoaded', function () {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops!',
+                text: '{{ session('error') }}',
+                confirmButtonColor: '#d33'
+            });
+        });
+    </script>
+@endif
+@section('content')
+<div class="bg-stone-200 min-h-screen font-sans">
+    
+    <!-- Header Gambar & Judul Event -->
+    <div class="relative">
+        <img src="{{ $event->photo_url ?? 'https://placehold.co/1200x600/e2e8f0/64748b?text=Foto+Header' }}" alt="Wedding Header" class="w-full h-48 sm:h-64 object-cover">
+        <div class="absolute inset-0 bg-black bg-opacity-30"></div>
+        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-11/12 max-w-lg">
+            <div class="bg-stone-800 bg-opacity-80 backdrop-blur-sm text-white text-center p-4 rounded-xl shadow-lg">
+                <p class="text-xs uppercase tracking-widest">The Wedding Of</p>
+                <h1 class="text-2xl font-bold">{{ $event->name }}</h1>
+                <p class="text-sm">{{ \Carbon\Carbon::parse($event->date)->isoFormat('dddd, D MMMM YYYY') }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="container mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Kartu Event -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="p-6">
+            </div>
+        <!-- Tabel Tamu Hadir -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-stone-800">Tamu Hadir</h2>
+                        <p class="text-sm text-stone-500">Undangan: <span class="font-semibold">{{ $totalUndangan }}</span> | Hadir: <span class="font-semibold">{{ $jumlahHadir }}</span></p>
+                    </div>
+                    <button class="bg-stone-700 text-white text-sm font-semibold py-2 px-4 rounded-lg hover:bg-stone-800 transition">
+                        Kode Akses
+                    </button>
+                </div>
 
-    function toggleProfile() {
-      const popup = document.getElementById('profilePopup');
-      popup.classList.toggle('hidden');
-    }
-  </script>
+                <!-- Form Pencarian -->
+                <form action="{{ route('dashboard.index') }}" method="GET" class="relative mb-4">
+                    <input type="text" name="search" placeholder="search..." value="{{ request('search') }}" class="w-full pl-4 pr-10 py-2 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-stone-500">
+                    <button type="submit" class="absolute inset-y-0 right-0 flex items-center pr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-stone-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </form>
+
+                <!-- Area Data -->
+                <div class="space-y-3">
+                    @forelse ($guests as $guest)
+                        <div class="p-3 border-b border-stone-200">
+                            <p class="font-semibold text-stone-800">{{ $guest->name }}</p>
+                            <p class="text-sm text-stone-600">{{ $guest->alamat }}</p>
+                        </div>
+                    @empty
+                        <div class="text-center py-16">
+                            <p class="text-stone-500 text-lg">Tidak ada data!</p>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+
+            <!-- Footer Kartu (Pagination) -->
+            <div class="bg-stone-50 p-4">
+                {{ $guests->links() }}
+            </div>
+        </div>
+    </div>
+</div>
 @endsection

@@ -7,6 +7,7 @@
   <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
   <link rel="shortcut icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
   <link rel="apple-touch-icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-gray-50 min-h-screen">
