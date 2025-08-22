@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use App\Models\Event;
 use App\Models\Guest;
-use Illuminate\Http\Response;
 use Illuminate\Http\RedirectResponse;
 
 class DashboardController extends Controller
@@ -19,13 +18,20 @@ class DashboardController extends Controller
     public function index(Request $request): View|RedirectResponse
     {
         try {
-            // Mengambil user yang sedang login
             $user = Auth::user();
 
             // Mengambil event pertama yang dimiliki oleh user
-            $event = Event::where('user_id', $user->id)->firstOrFail();
+            // Menggunakan first() agar tidak error jika data kosong
+            $event = Event::where('user_id', $user->id)->first();
 
-            // Query dasar untuk tamu yang terkait dengan event ini
+            // JIKA EVENT TIDAK DITEMUKAN, arahkan ke halaman untuk membuat event
+            if (!$event) {
+                // Pastikan Anda sudah membuat route 'events.create'
+                return redirect()->route('events.create')
+                    ->with('info', 'Selamat datang! Silakan buat event pertama Anda untuk memulai.');
+            }
+
+            // Kode di bawah ini hanya akan berjalan jika event ditemukan
             $guestsQuery = Guest::where('event_id', $event->id);
 
             // Menghitung statistik
@@ -51,7 +57,8 @@ class DashboardController extends Controller
         } catch (\Exception $e) {
             Log::error('Dashboard error: ' . $e->getMessage());
 
-            return redirect()->back()->with('error', 'Nama Tidak Ada: ' . $e->getMessage());
+            // Mengembalikan pesan error yang lebih umum
+            return redirect()->back()->with('error', 'Terjadi kesalahan pada sistem dashboard.');
         }
     }
 }

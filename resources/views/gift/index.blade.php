@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('page_title', 'Data Kehadiran')
+@section('page_title', 'gift')
 
 @section('content')
 <div class="bg-stone-100 min-h-screen font-sans p-4 sm:p-6 lg:p-8">

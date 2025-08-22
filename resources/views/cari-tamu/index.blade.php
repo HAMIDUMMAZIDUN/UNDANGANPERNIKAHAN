@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('page_title', 'Data Tamu')
+@section('page_title', 'cari-tamu')
 
 @section('content')
 <div class="flex justify-center items-center min-h-screen bg-gray-200">

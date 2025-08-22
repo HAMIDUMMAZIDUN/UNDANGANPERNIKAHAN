@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('page_title', 'Dashboard')
+@section('page_title', 'dashboard')
 @if (session('error'))
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -14,8 +14,6 @@
     </script>
 @endif
 @section('content')
-<div class="bg-stone-200 min-h-screen font-sans">
-    
     <!-- Header Gambar & Judul Event -->
     <div class="relative">
         <img src="{{ $event->photo_url ?? 'https://placehold.co/1200x600/e2e8f0/64748b?text=Foto+Header' }}" alt="Wedding Header" class="w-full h-48 sm:h-64 object-cover">
@@ -77,6 +75,4 @@
                 {{ $guests->links() }}
             </div>
         </div>
-    </div>
-</div>
 @endsection

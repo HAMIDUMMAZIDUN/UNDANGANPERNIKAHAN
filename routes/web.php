@@ -18,6 +18,8 @@ use App\Http\Controllers\ReservasiController;
 use App\Http\Controllers\SocialLoginController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\CheckinController;
+use App\Http\Controllers\EventController;
+
 
 Route::get('/', function () {
     return view('auth.login'); 
@@ -46,7 +48,9 @@ Route::get('/login/{provider}', [SocialLoginController::class, 'redirect'])->nam
 Route::get('/login/{provider}/callback', [SocialLoginController::class, 'callback']);
 Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
 Route::get('/tamu', [TamuController::class, 'index'])->middleware('auth');
-Route::resource('tamu', TamuController::class)->middleware('auth');
+Route::resource('tamu', TamuController::class)->middleware('auth'); Route::post('tamu/import', [TamuController::class, 'import'])->name('tamu.import');
+Route::get('tamu/template', [TamuController::class, 'downloadTemplate'])->name('tamu.template');
+Route::delete('/tamu/{id}', [TamuController::class, 'destroy'])->name('tamu.destroy');
 Route::get('/kehadiran', [KehadiranController::class, 'index'])->name('kehadiran.index');
 Route::get('/rsvp', [ReservasiController::class, 'index'])->name('rsvp.index');
 
@@ -60,3 +64,6 @@ Route::post('/manual', [ManualController::class, 'store'])->name('manual.store')
 Route::get('/souvenir', [SouvenirController::class, 'index'])->name('souvenir.index');
 Route::get('/gift', [GiftController::class, 'index'])->name('gift.index');
 Route::get('/setting', [SettingController::class, 'index'])->name('setting.index');
+Route::get('events/create', [EventController::class, 'create'])->name('events.create');
+Route::post('events', [EventController::class, 'store'])->name('events.store');
+
