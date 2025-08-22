@@ -12,52 +12,49 @@ use Illuminate\Http\RedirectResponse;
 
 class DashboardController extends Controller
 {
-    /**
-     * Menampilkan halaman dashboard utama dengan data event dan tamu.
-     */
     public function index(Request $request): View|RedirectResponse
     {
         try {
             $user = Auth::user();
-
-            // Mengambil event pertama yang dimiliki oleh user
-            // Menggunakan first() agar tidak error jika data kosong
             $event = Event::where('user_id', $user->id)->first();
 
-            // JIKA EVENT TIDAK DITEMUKAN, arahkan ke halaman untuk membuat event
             if (!$event) {
-                // Pastikan Anda sudah membuat route 'events.create'
                 return redirect()->route('events.create')
                     ->with('info', 'Selamat datang! Silakan buat event pertama Anda untuk memulai.');
             }
 
-            // Kode di bawah ini hanya akan berjalan jika event ditemukan
-            $guestsQuery = Guest::where('event_id', $event->id);
+            // Query dasar untuk SEMUA tamu di event ini
+            $baseGuestsQuery = Guest::where('event_id', $event->id);
 
-            // Menghitung statistik
-            $totalUndangan = $guestsQuery->count();
-            $jumlahHadir = (clone $guestsQuery)->where('status', 'hadir')->count();
+            // Hitung statistik (ini tetap sama dan sudah benar)
+            $totalUndangan = (clone $baseGuestsQuery)->count();
+            $jumlahHadir = (clone $baseGuestsQuery)->where('status', 'hadir')->count();
 
-            // Menerapkan filter pencarian jika ada
-            $searchQuery = $request->input('search');
-            if ($searchQuery) {
-                $guestsQuery->where('name', 'like', "%{$searchQuery}%");
+            // [DIUBAH] Ambil SEMUA tamu, bukan hanya yang hadir
+            $allGuestsQuery = Guest::where('event_id', $event->id);
+            
+            // Terapkan filter pencarian jika ada
+            if ($request->filled('search')) {
+                $searchQuery = $request->input('search');
+                $allGuestsQuery->where('name', 'like', "%{$searchQuery}%");
             }
 
-            // Mengambil daftar tamu yang hadir dengan pagination
-            $tamuHadir = (clone $guestsQuery)->where('status', 'hadir')->paginate(10);
+            // [DIUBAH] Ambil data final dengan pagination, urutkan berdasarkan status
+            // Tamu yang hadir akan ditampilkan lebih dulu
+            $guests = $allGuestsQuery->orderByRaw("CASE WHEN status = 'hadir' THEN 0 ELSE 1 END")
+                                     ->latest('updated_at')
+                                     ->paginate(10)
+                                     ->withQueryString();
 
-            // Mengirim semua data ke view
             return view('dashboard.index', [
                 'event' => $event,
-                'guests' => $tamuHadir,
+                'guests' => $guests,
                 'totalUndangan' => $totalUndangan,
                 'jumlahHadir' => $jumlahHadir,
             ]);
+
         } catch (\Exception $e) {
             Log::error('Dashboard error: ' . $e->getMessage());
-
-            // Mengembalikan pesan error yang lebih umum
             return redirect()->back()->with('error', 'Terjadi kesalahan pada sistem dashboard.');
         }
     }

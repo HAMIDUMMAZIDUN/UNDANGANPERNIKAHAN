@@ -13,8 +13,9 @@ class TamuController extends Controller
 {
     public function index(): View
     {
-        $guests = Guest::where('user_id', Auth::id())->get();
-        return view('tamu.index', compact('guests'));
+        $guests = Guest::where('user_id', Auth::id())->paginate(10); 
+        $event = Event::where('user_id', Auth::id())->first();
+        return view('tamu.index', compact('guests', 'event'));
     }
 
     public function create(): View
@@ -46,13 +47,13 @@ class TamuController extends Controller
         return redirect()->route('tamu.index')->with('success', 'Tamu baru berhasil ditambahkan!');
     }
 
-    public function edit(Guest $tamu): View
+    public function edit(Guest $guest): View
     {
         // Pastikan tamu yang diedit milik user yang sedang login
-        if ($tamu->user_id !== Auth::id()) {
+        if ($guest->user_id !== Auth::id()) {
             abort(403);
         }
-        return view('tamu.edit', compact('tamu'));
+        return view('tamu.edit', compact('guest'));
     }
 
     public function update(Request $request, Guest $tamu): RedirectResponse

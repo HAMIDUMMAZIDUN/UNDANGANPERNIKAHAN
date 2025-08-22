@@ -12,6 +12,8 @@
 </head>
 <body class="bg-gray-50 min-h-screen">
 
+    <div id="sidebar-backdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-40 hidden"></div>
+
     {{-- Navbar --}}
     @include('partials.navbar')
 
@@ -19,9 +21,11 @@
     @include('partials.sidebar')
 
     {{-- Konten Utama --}}
-    <main class="pt-20 md:ml-64 transition-all duration-300">
+    <main class="pt-20 transition-all duration-300">
         <div class="px-4 md:px-8 py-6">
-            @yield('content')
+            <div class="max-w-screen-xl mx-auto">
+                @yield('content')
+            </div>
         </div>
     </main>
 
@@ -32,15 +36,13 @@
     <script>
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
-            const mainContent = document.querySelector('main');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            
+            // Menggeser sidebar masuk/keluar layar
             sidebar.classList.toggle('-translate-x-full');
-            if (!sidebar.classList.contains('-translate-x-full')) {
-                mainContent.classList.add('md:ml-0');
-                mainContent.classList.remove('md:ml-64');
-            } else {
-                mainContent.classList.add('md:ml-64');
-                mainContent.classList.remove('md:ml-0');
-            }
+
+            // Menampilkan/menyembunyikan backdrop
+            backdrop.classList.toggle('hidden');
         }
 
         function toggleProfile() {

@@ -1,4 +1,4 @@
-<div id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-slate-800 text-white p-4 flex flex-col transition-transform duration-300 ease-in-out transform -translate-x-full z-30">
+<aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-slate-800 text-white p-4 flex flex-col transition-transform duration-300 ease-in-out transform -translate-x-full z-50">
     
     <div class="px-2 pt-12 pb-6">
         <h2 class="text-xl font-bold text-white tracking-wider">Menu</h2>
@@ -22,12 +22,12 @@
             ];
         @endphp
 
-        @foreach ($menuItems as $route => $data)
-            <a href="/{{ $route }}" 
+       @foreach ($menuItems as $route => $data)
+            <a href="{{ url($route) }}" 
                class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition-colors duration-200
-                      {{ Request::is($route) 
-                          ? 'bg-amber-500 text-slate-900 font-semibold shadow-inner' 
-                          : 'text-slate-300 hover:bg-slate-700 hover:text-white' }}">
+                      {{ Request::is($route.'*') 
+                         ? 'bg-amber-500 text-slate-900 font-semibold shadow-inner' 
+                         : 'text-slate-300 hover:bg-slate-700 hover:text-white' }}">
                 
                 {!! $data['icon'] !!}
                 <span>{{ $data['label'] }}</span>
@@ -48,4 +48,4 @@
             </button>
         </form>
     </div>
-</div>
+</aside>

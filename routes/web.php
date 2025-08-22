@@ -64,6 +64,10 @@ Route::post('/manual', [ManualController::class, 'store'])->name('manual.store')
 Route::get('/souvenir', [SouvenirController::class, 'index'])->name('souvenir.index');
 Route::get('/gift', [GiftController::class, 'index'])->name('gift.index');
 Route::get('/setting', [SettingController::class, 'index'])->name('setting.index');
+Route::resource('events', EventController::class)->except(['index', 'show', 'destroy']);
 Route::get('events/create', [EventController::class, 'create'])->name('events.create');
 Route::post('events', [EventController::class, 'store'])->name('events.store');
-
+Route::get('/checkin/{guest:uuid}', [CheckinController::class, 'process'])->name('checkin.guest');
+Route::get('/checkin/{guest:uuid}', [CheckinController::class, 'handleCheckin'])
+    ->middleware('auth')
+    ->name('checkin.guest');
