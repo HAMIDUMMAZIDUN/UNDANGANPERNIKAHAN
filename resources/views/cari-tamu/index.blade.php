@@ -4,7 +4,6 @@
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    
     <div class="text-center mb-8">
         <h1 class="text-3xl font-bold text-slate-800">Cari Tamu Undangan</h1>
         <p class="text-slate-500 mt-1">Ketik nama tamu atau kategori untuk memulai pencarian.</p>
@@ -23,6 +22,37 @@
     </div>
 
     {{-- Tabel Hasil Pencarian --}}
+    @if(request('search') && $guests->isEmpty())
+    <div class="bg-white shadow-md rounded-lg p-6 mb-8 text-center">
+        <p class="font-semibold text-slate-800">Tamu tidak ditemukan.</p>
+        <p class="text-sm text-slate-500 mt-1">Anda bisa melakukan check-in tamu secara manual:</p>
+        
+        <form action="{{ route('cari-tamu.store') }}" method="POST" class="mt-4">
+            @csrf
+            <input type="hidden" name="name" value="{{ request('search') }}">
+            <div class="space-y-4">
+                <div>
+                    <label for="manual_affiliation" class="sr-only">Kategori / Keterangan</label>
+                    <input type="text" name="affiliation" id="manual_affiliation" placeholder="Kategori / Keterangan (Contoh: Rekan Kerja)" class="w-full px-4 py-2 border border-slate-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500">
+                    @error('affiliation')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div>
+                    <label for="manual_guest_count" class="sr-only">Jumlah Tamu Hadir</label>
+                    <input type="number" name="guest_count" id="manual_guest_count" value="1" min="1" class="w-full px-4 py-2 border border-slate-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500">
+                    @error('guest_count')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+            <button type="submit" class="mt-4 w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-amber-600 hover:bg-amber-700">
+                Check-in Tamu Manual
+            </button>
+        </form>
+    </div>
+    @endif
+
     <div class="bg-white shadow-md rounded-lg">
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-slate-200">
@@ -32,18 +62,12 @@
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Nama</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Kategori</th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Status Kehadiran</th>
+                        <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @forelse ($guests as $guest)
-                        {{-- PERUBAHAN: Baris ini sekarang bisa diklik jika tamu belum hadir --}}
-                        <tr 
-                            @if(!$guest->check_in_time)
-                                class="hover:bg-amber-50 cursor-pointer guest-row" 
-                                data-guest-id="{{ $guest->id }}" 
-                                data-guest-name="{{ $guest->name }}"
-                            @endif
-                        >
+                        <tr>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{{ $loop->iteration + ($guests->currentPage() - 1) * $guests->perPage() }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900 font-medium">{{ $guest->name }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{{ $guest->affiliation }}</td>
@@ -54,10 +78,24 @@
                                     <span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-1 rounded-full">Belum Hadir</span>
                                 @endif
                             </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
+                                @if(!$guest->check_in_time)
+                                    <button 
+                                        type="button" 
+                                        class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 action-checkin"
+                                        data-guest-id="{{ $guest->id }}" 
+                                        data-guest-name="{{ $guest->name }}"
+                                    >
+                                        Check-in
+                                    </button>
+                                @else
+                                    <span class="text-slate-400 text-xs">-</span>
+                                @endif
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="text-center px-6 py-16 text-slate-500">
+                            <td colspan="5" class="text-center px-6 py-16 text-slate-500">
                                 @if(request('search'))
                                     <p class="font-semibold">Tamu tidak ditemukan.</p>
                                     <p class="text-sm mt-1">Tidak ada tamu yang cocok dengan kata kunci "{{ request('search') }}".</p>
@@ -79,19 +117,18 @@
     </div>
 </div>
 
-{{-- BAGIAN BARU: Modal untuk Check-in --}}
+{{-- Modal Check-in (Tamu Terdaftar) --}}
 <div id="checkInModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
         <div class="bg-amber-800 text-white p-4 rounded-t-lg flex justify-between items-center">
-            <h3 class="text-lg font-semibold">Tamu Terdaftar</h3>
+            <h3 class="text-lg font-semibold">Check-in Tamu Terdaftar</h3>
             <button id="closeModalBtn" class="text-white hover:text-amber-200">&times;</button>
         </div>
-        
         <div class="p-6">
-            <form id="checkInForm" method="POST" action=""> {{-- Action akan diisi oleh JavaScript --}}
+            <form id="checkInForm" method="POST" action="">
                 @csrf
                 <input type="hidden" name="search" value="{{ request('search') }}">
-                
+                <input type="hidden" id="guestIdInput" name="guest_id">
                 <p id="guestName" class="text-xl font-bold text-slate-800 mb-2"></p>
                 
                 <label for="jumlah_tamu" class="block text-sm font-medium text-slate-700">Jumlah tamu</label>
@@ -102,7 +139,6 @@
                     </button>
                 </div>
             </form>
-            
             <div class="mt-4 text-right">
                 <button id="cancelModalBtn" class="px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 border border-transparent rounded-md hover:bg-slate-200">
                     Cancel
@@ -117,45 +153,40 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const modal = document.getElementById('checkInModal');
-    const guestRows = document.querySelectorAll('.guest-row');
+    const checkinButtons = document.querySelectorAll('.action-checkin'); 
     const closeModalBtn = document.getElementById('closeModalBtn');
     const cancelModalBtn = document.getElementById('cancelModalBtn');
     const guestNameEl = document.getElementById('guestName');
     const checkInForm = document.getElementById('checkInForm');
 
-    // Fungsi untuk menampilkan modal
     const showModal = (guestId, guestName) => {
-        // 1. Isi nama tamu di modal
         guestNameEl.textContent = guestName;
+        document.getElementById('guestIdInput').value = guestId; // Set guest_id to hidden input
         
-        // 2. Set action form dengan URL yang benar
-        // URL di-generate menggunakan template string dan helper `url()` Laravel
-        let actionUrl = `{{ url('/guests') }}/${guestId}/checkin`;
+        let actionUrl = `/guests/${guestId}/checkin`;
         checkInForm.setAttribute('action', actionUrl);
         
-        // 3. Tampilkan modal
         modal.classList.remove('hidden');
     };
 
-    // Fungsi untuk menyembunyikan modal
     const hideModal = () => {
         modal.classList.add('hidden');
     };
 
-    // Tambahkan event listener untuk setiap baris tamu yang bisa diklik
-    guestRows.forEach(row => {
-        row.addEventListener('click', function () {
+    checkinButtons.forEach(button => {
+        button.addEventListener('click', function () {
             const guestId = this.dataset.guestId;
             const guestName = this.dataset.guestName;
-            showModal(guestId, guestName);
+            
+            if (guestId && guestName) {
+                showModal(guestId, guestName);
+            }
         });
     });
 
-    // Event listener untuk tombol close dan cancel
     closeModalBtn.addEventListener('click', hideModal);
     cancelModalBtn.addEventListener('click', hideModal);
 
-    // Event listener untuk menutup modal saat klik di luar area modal
     modal.addEventListener('click', function (event) {
         if (event.target === modal) {
             hideModal();

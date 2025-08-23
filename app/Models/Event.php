@@ -1,58 +1,50 @@
 <?php
+// app/Models/Event.php
 
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Event extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
-        'user_id', // Ditambahkan untuk mengizinkan mass assignment
+        'user_id',
+        'uuid',
         'name',
         'date',
+        'photo_url',
+        // Tambahkan semua kolom baru di sini
+        'groom_name',
+        'groom_photo',
+        'groom_parents',
+        'groom_instagram',
+        'bride_name',
+        'bride_photo',
+        'bride_parents',
+        'bride_instagram',
+        'love_story',
         'description',
         'location',
-        'photo_url',
+        'location_url',
+        'rekening_bank',
+        'rekening_atas_nama',
+        'rekening_nomor',
     ];
 
-    /**
-     * Get the user that owns the event.
-     */
-    public function user()
+    protected static function boot()
     {
-        return $this->belongsTo(User::class);
-    }
-
-    /**
-     * Get the guests for the event.
-     */
-    public function guests()
-    {
-        return $this->hasMany(Guest::class);
-    }
-     protected static function booted(): void // <-- 2. Tambahkan method ini
-    {
+        parent::boot();
         static::creating(function ($event) {
-            if (empty($event->uuid)) {
-                $event->uuid = (string) Str::uuid();
-            }
+            $event->uuid = Str::uuid();
         });
     }
 
-    /**
-     * Get the route key for the model.
-     * Ini memberitahu Laravel untuk menggunakan 'uuid' di URL, bukan 'id'.
-     */
-    public function getRouteKeyName(): string
+    public function guests()
     {
-        return 'uuid';
+        return $this->hasMany(Guest::class);
     }
 }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Wedding of {{ $event->name }}</title>
+    <title>The Wedding of {{ $event->groom_name }} & {{ $event->bride_name }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -32,12 +32,12 @@
 <body class="text-slate-700">
 
     <div id="cover" class="cover-section h-screen w-full flex flex-col justify-center items-center text-center p-4" 
-         style="background-image: url('{{ $event->photo_url ? asset('storage/' . $event->photo_url) : 'https://placehold.co/1080x1920/e2e8f0/64748b?text=Wedding+Cover' }}');">
+        style="background-image: url('{{ $event->photo_url ? asset('storage/' . $event->photo_url) : 'https://placehold.co/1080x1920/e2e8f0/64748b?text=Wedding+Cover' }}');">
         
         <div class="absolute inset-0 bg-white/30 backdrop-blur-sm"></div>
         <div class="relative z-10 bg-white/60 backdrop-blur-md p-6 sm:p-8 rounded-2xl shadow-xl max-w-md">
             <p class="text-lg">The Wedding of</p>
-            <h1 class="font-playfair text-4xl sm:text-5xl font-bold my-4">{{ $event->name }}</h1>
+            <h1 class="font-playfair text-4xl sm:text-5xl font-bold my-4">{{ $event->groom_name }} & {{ $event->bride_name }}</h1>
             <p class="text-lg">{{ \Carbon\Carbon::parse($event->date)->isoFormat('DD.MM.YYYY') }}</p>
 
             <div class="mt-6 text-center">
@@ -58,30 +58,34 @@
             <div class="relative z-10">
                 <p class="text-lg">The Wedding of</p>
                 <img src="{{ $event->photo_url ? asset('storage/' . $event->photo_url) : 'https://placehold.co/300x300/e2e8f0/64748b?text=Photo' }}" class="w-48 h-48 rounded-full object-cover mx-auto my-6 border-4 border-white shadow-lg">
-                <h1 class="font-playfair text-6xl md:text-8xl font-bold my-4">{{ $event->name }}</h1>
+                <h1 class="font-playfair text-6xl md:text-8xl font-bold my-4">{{ $event->groom_name }} & {{ $event->bride_name }}</h1>
                 <p class="text-xl">{{ \Carbon\Carbon::parse($event->date)->isoFormat('dddd, D MMMM YYYY') }}</p>
             </div>
         </section>
 
         <section class="py-20 px-4 text-center section-bg">
             <div class="max-w-4xl mx-auto bg-white/80 backdrop-blur-md p-8 sm:p-12 rounded-2xl shadow-lg">
-                <h3 class="font-playfair text-4xl font-bold mt-4">{{ $event->bride_name ?? 'Aprilla Firdausya' }}</h3>
-                <p class="mt-2 text-slate-600">Putri dari</p>
-                <p class="font-semibold">{{ $event->bride_parents ?? 'Bpk. H. Bambang & Ibu Hj. Yuyum' }}</p>
-                <a href="#" class="inline-block mt-2 text-sm text-amber-600">@{{ $event->bride_instagram ?? 'aprillafn' }}</a>
+                <h3 class="font-playfair text-4xl font-bold mt-4">{{ $event->groom_name }}</h3>
+                <p class="mt-2 text-slate-600">Putra dari</p>
+                <p class="font-semibold">{{ $event->groom_parents }}</p>
+                @if($event->groom_instagram)
+                    <a href="https://instagram.com/{{ $event->groom_instagram }}" class="inline-block mt-2 text-sm text-amber-600">{{ '@' . $event->groom_instagram }}</a>
+                @endif
                 
                 <p class="font-playfair text-5xl my-8">&</p>
 
-                <h3 class="font-playfair text-4xl font-bold mt-4">{{ $event->groom_name ?? 'Agesta Putrama' }}</h3>
-                <p class="mt-2 text-slate-600">Putra dari</p>
-                <p class="font-semibold">{{ $event->groom_parents ?? 'Bpk. Azwar Arifin & Ibu Norita' }}</p>
-                <a href="#" class="inline-block mt-2 text-sm text-amber-600">@{{ $event->groom_instagram ?? 'agestaputrama' }}</a>
+                <h3 class="font-playfair text-4xl font-bold mt-4">{{ $event->bride_name }}</h3>
+                <p class="mt-2 text-slate-600">Putri dari</p>
+                <p class="font-semibold">{{ $event->bride_parents }}</p>
+                @if($event->bride_instagram)
+                    <a href="https://instagram.com/{{ $event->bride_instagram }}" class="inline-block mt-2 text-sm text-amber-600">{{ '@' . $event->bride_instagram }}</a>
+                @endif
             </div>
         </section>
 
         <section class="py-20 px-4 text-center bg-slate-800 text-white" style="background-image: url('{{ $event->photo_url ? asset('storage/' . $event->photo_url) : '' }}'); background-size: cover; background-position: center; background-attachment: fixed;">
-             <div class="absolute inset-0 bg-slate-800/80"></div>
-             <div class="relative z-10 max-w-4xl mx-auto">
+            <div class="absolute inset-0 bg-slate-800/80"></div>
+            <div class="relative z-10 max-w-4xl mx-auto">
                 <h2 class="font-playfair text-4xl font-bold">Save The Date</h2>
                 <div id="countdown" class="grid grid-cols-4 gap-4 mt-8 text-center max-w-lg mx-auto">
                     <div><p id="days" class="text-4xl font-bold">00</p><p class="text-sm">Days</p></div>
@@ -103,7 +107,7 @@
                 <h3 class="font-playfair text-3xl font-semibold text-slate-700">Resepsi</h3>
                 <p class="mt-4 text-xl">{{ \Carbon\Carbon::parse($event->date)->isoFormat('MMMM YYYY') }}</p>
                 <p class="mt-2 text-slate-500">Pukul 11:00 - 14:00 WIB</p>
-                <p class="mt-6 font-semibold text-slate-600">{{ $event->location ?? 'Pendopo Papuri, Bandung' }}</p>
+                <p class="mt-6 font-semibold text-slate-600">{{ $event->location }}</p>
                 <a href="#" class="mt-4 inline-block bg-slate-800 text-white font-semibold py-3 px-6 rounded-full shadow-lg hover:bg-slate-700 transition">Lihat Lokasi</a>
             </div>
         </section>

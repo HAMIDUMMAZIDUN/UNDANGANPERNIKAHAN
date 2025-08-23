@@ -17,10 +17,8 @@ class SapaController extends Controller
      */
     public function index(Event $event = null): View
     {
-        // Jika tidak ada event spesifik yang diberikan di URL,
-        // cari event yang paling terakhir diupdate sebagai default.
         if (is_null($event)) {
-            $event = Event::latest('updated_at')->first();
+            $event = Event::latest('updated_at')->firstOrFail();
         }
 
         return view('sapa.index', compact('event'));
@@ -31,26 +29,35 @@ class SapaController extends Controller
      */
     public function getData(Event $event): JsonResponse
     {
-        // Mengambil ucapan terbaru dari tamu yang statusnya 'hadir'
         $rsvps = Rsvp::where('event_id', $event->id)
                      ->where('status', 'hadir')
                      ->whereNotNull('message')
                      ->latest()
-                     ->limit(15)
                      ->get(['name', 'message']);
 
-        // Mengambil semua path foto untuk event ini
         $photos = EventPhoto::where('event_id', $event->id)
                             ->latest()
                             ->get(['path']);
 
-        // Menggabungkan data untuk slideshow
         $slideshowItems = [];
+
+        // Gabungkan ucapan RSVP
         foreach ($rsvps as $rsvp) {
-            $slideshowItems[] = ['type' => 'rsvp', 'data' => $rsvp];
+            $slideshowItems[] = [
+                'type' => 'rsvp', 
+                'data' => [
+                    'name' => $rsvp->name,
+                    'message' => $rsvp->message,
+                ]
+            ];
         }
+
+        // Gabungkan foto
         foreach ($photos as $photo) {
-            $slideshowItems[] = ['type' => 'photo', 'data' => asset('storage/' . $photo->path)];
+            $slideshowItems[] = [
+                'type' => 'photo', 
+                'data' => asset('storage/' . $photo->path)
+            ];
         }
 
         // Acak urutan agar lebih dinamis

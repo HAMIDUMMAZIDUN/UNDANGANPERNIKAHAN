@@ -41,7 +41,10 @@ Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name(
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
     Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
-
+    Route::get('/cari-tamu', [CariTamuController::class, 'index'])->name('cari-tamu.index');
+    Route::post('/guests/{guest}/checkin', [CariTamuController::class, 'checkIn'])->name('guests.checkin');
+    Route::post('/cari-tamu/store', [CariTamuController::class, 'store'])->name('cari-tamu.store');
+   
     // Tamu
     Route::resource('tamu', TamuController::class);
     Route::post('tamu/import', [TamuController::class, 'import'])->name('tamu.import');
@@ -54,7 +57,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/kehadiran', [KehadiranController::class, 'index'])->name('kehadiran.index');
     Route::get('/kehadiran/export/pdf', [KehadiranController::class, 'exportPdf'])->name('kehadiran.export.pdf');
     Route::get('/kehadiran/export/excel', [KehadiranController::class, 'exportExcel'])->name('kehadiran.export.excel');
-
     // RSVP
     Route::controller(ReservasiController::class)->prefix('rsvp')->name('rsvp.')->group(function () {
         Route::get('/', 'index')->name('index');
@@ -105,8 +107,6 @@ Route::middleware('auth')->group(function () {
 // Publicly Accessible Routes
 Route::get('/sapa/{event:uuid?}', [SapaController::class, 'index'])->name('sapa.index');
 Route::get('/sapa/{event:uuid}/data', [SapaController::class, 'getData'])->name('sapa.data');
-Route::get('/cari-tamu', [CariTamuController::class, 'index'])->name('cari-tamu.index');
-Route::post('/guests/{guest}/checkin', [CariTamuController::class, 'checkIn'])->name('guests.checkin');
 Route::post('/guests/{guest}', [GuestController::class, 'update'])->name('guests.update');
 Route::middleware('auth:sanctum')->get('/tamu/search', [CariTamuController::class, 'search'])->name('api.tamu.search');
 Route::get('/checkin/{guest:uuid}', [CheckinController::class, 'process'])->name('checkin.guest');

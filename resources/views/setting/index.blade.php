@@ -15,17 +15,6 @@
 
         <div class="bg-white rounded-lg shadow-md overflow-hidden">
             <div class="p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <p class="text-slate-600 font-medium">Jumlah Event: <span class="font-bold text-slate-800">{{ $events->count() }}</span></p>
-                </div>
-                
-                <div class="relative mb-6">
-                    <input type="text" placeholder="Cari event..." class="w-full pl-4 pr-10 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500">
-                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" /></svg>
-                    </div>
-                </div>
-
                 <div class="space-y-6">
                     @forelse ($events as $event)
                     <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">

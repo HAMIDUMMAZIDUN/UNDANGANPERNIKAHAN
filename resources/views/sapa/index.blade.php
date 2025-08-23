@@ -21,46 +21,59 @@
 
     {{-- Tampilan Slideshow --}}
     <div id="slideshow-container" class="relative w-screen h-screen flex items-center justify-center p-8">
-        <!-- Konten slideshow akan dimuat di sini -->
-    </div>
+        </div>
 
+    {{-- Footer dengan detail event dan QR code --}}
     <footer class="absolute bottom-0 left-0 w-full p-6 flex justify-between items-center bg-gradient-to-t from-black/50 to-transparent">
         <div>
             <h1 class="font-serif-display text-3xl italic">{{ $event->name }}</h1>
             <p class="text-slate-300">{{ \Carbon\Carbon::parse($event->date)->isoFormat('D MMMM YYYY') }}</p>
         </div>
+        <div id="qrcode-container">
+            </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const slideshowContainer = document.getElementById('slideshow-container');
-            const dataUrl = `{{ route('sapa.data', $event) }}`;
+            const dataUrl = `{{ route('sapa.data', ['event' => $event->uuid]) }}`;
             let slideshowItems = [];
             let currentIndex = 0;
+            let intervalId;
 
-            new QRCode(document.getElementById("qrcode"), {
+            // Generate QR code saat halaman dimuat
+            new QRCode(document.getElementById("qrcode-container"), {
                 text: "{{ url('/undangan/' . $event->uuid) }}",
                 width: 80,
                 height: 80,
+                colorDark: "#FFF",
+                colorLight: "transparent"
             });
 
             async function fetchData() {
                 try {
                     const response = await fetch(dataUrl);
-                    slideshowItems = await response.json();
-                    if (slideshowItems.length > 0 && slideshowContainer.innerHTML.trim() === '') {
-                        showNextItem();
+                    const data = await response.json();
+                    if (data && data.length > 0) {
+                        slideshowItems = data;
+                        if (slideshowContainer.innerHTML.trim() === '') {
+                             // Jika ini pertama kali, tampilkan item pertama
+                             showNextItem();
+                        }
+                    } else {
+                         // Tampilkan pesan jika tidak ada data
+                         slideshowContainer.innerHTML = `<div class="text-center fade-in"><p class="text-2xl">Belum ada ucapan atau foto untuk ditampilkan.</p></div>`;
                     }
                 } catch (error) {
                     console.error('Gagal mengambil data:', error);
-                    slideshowContainer.innerHTML = `<div class="text-center"><p class="text-2xl">Gagal memuat data ucapan dan foto.</p></div>`;
+                    slideshowContainer.innerHTML = `<div class="text-center fade-in"><p class="text-2xl">Gagal memuat data ucapan dan foto.</p></div>`;
                 }
             }
 
             function showNextItem() {
                 if (slideshowItems.length === 0) {
-                    slideshowContainer.innerHTML = `<div class="text-center"><p class="text-2xl">Belum ada ucapan atau foto untuk ditampilkan.</p></div>`;
+                    slideshowContainer.innerHTML = `<div class="text-center fade-in"><p class="text-2xl">Belum ada ucapan atau foto untuk ditampilkan.</p></div>`;
                     return;
                 }
 
@@ -77,7 +90,7 @@
                 } else if (item.type === 'photo') {
                     content = `
                         <div class="w-full h-full flex items-center justify-center">
-                            <img src="${item.data}" alt="Galeri Foto" class="max-w-full max-h-[80vh] rounded-lg shadow-2xl">
+                            <img src="${item.data}" alt="Galeri Foto" class="max-w-full max-h-[80vh] rounded-lg shadow-2xl object-contain">
                         </div>
                     `;
                 }
@@ -86,9 +99,12 @@
                 currentIndex = (currentIndex + 1) % slideshowItems.length;
             }
 
+            // Panggil fetchData setiap 60 detik untuk memperbarui data
             fetchData();
             setInterval(fetchData, 60000);
-            setInterval(showNextItem, 8000);
+
+            // Panggil showNextItem setiap 8 detik untuk menampilkan item berikutnya
+            intervalId = setInterval(showNextItem, 8000);
         });
     </script>
 </body>
