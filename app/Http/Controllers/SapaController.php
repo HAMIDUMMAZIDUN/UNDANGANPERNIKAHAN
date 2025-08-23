@@ -13,24 +13,30 @@ class SapaController extends Controller
 {
     /**
      * Menampilkan halaman utama Layar Sapa.
+     * Jika tidak ada event di URL, akan menampilkan event terbaru.
      */
-    public function index(Event $event): View
+    public function index(Event $event = null): View
     {
+        // Jika tidak ada event spesifik yang diberikan di URL,
+        // cari event yang paling terakhir diupdate sebagai default.
+        if (is_null($event)) {
+            $event = Event::latest('updated_at')->first();
+        }
+
         return view('sapa.index', compact('event'));
     }
 
     /**
      * Menyediakan data (ucapan & foto) untuk di-fetch oleh JavaScript.
-     * Ini memungkinkan halaman untuk update secara real-time.
      */
     public function getData(Event $event): JsonResponse
     {
-        // Mengambil 10 ucapan terbaru dari tamu yang statusnya 'hadir'
+        // Mengambil ucapan terbaru dari tamu yang statusnya 'hadir'
         $rsvps = Rsvp::where('event_id', $event->id)
                      ->where('status', 'hadir')
                      ->whereNotNull('message')
                      ->latest()
-                     ->limit(10)
+                     ->limit(15)
                      ->get(['name', 'message']);
 
         // Mengambil semua path foto untuk event ini
@@ -38,7 +44,7 @@ class SapaController extends Controller
                             ->latest()
                             ->get(['path']);
 
-        // Menggabungkan dan mengacak data untuk slideshow
+        // Menggabungkan data untuk slideshow
         $slideshowItems = [];
         foreach ($rsvps as $rsvp) {
             $slideshowItems[] = ['type' => 'rsvp', 'data' => $rsvp];

@@ -68,8 +68,8 @@ Route::controller(ReservasiController::class)->middleware('auth')->group(functio
     Route::get('rsvp/export', 'exportExcel')->name('rsvp.export');
     Route::delete('rsvp/{rsvp}', 'destroy')->name('rsvp.destroy');
 });
-Route::get('/sapa/{event:uuid}', [SapaController::class, 'index'])->name('sapa.index');
-Route::get('/sapa/{event:uuid}/data', [SapaController::class, 'getData'])->name('sapa.data');
+Route::get('/sapa/{event:uuid?}', [App\Http\Controllers\SapaController::class, 'index'])->name('sapa.index');
+Route::get('/sapa/{event:uuid}/data', [App\Http\Controllers\SapaController::class, 'getData'])->name('sapa.data');
 Route::get('/cari-tamu', [CariTamuController::class, 'index'])->name('cari-tamu.index'); 
 Route::get('/manual', [ManualController::class, 'index'])->name('manual.index');
 Route::post('/manual', [ManualController::class, 'store'])->name('manual.store');

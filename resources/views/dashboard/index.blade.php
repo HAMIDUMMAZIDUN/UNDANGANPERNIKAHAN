@@ -19,7 +19,8 @@
     <div class="relative">
     
         <div class="rounded-t-lg overflow-hidden">
-             <img src="{{ $event->photo_url ? asset($event->photo_url) : 'https://placehold.co/1200x600/e2e8f0/64748b?text=Foto+Header' }}" alt="Wedding Header" class="w-full h-48 sm:h-64 object-cover">
+            {{-- PERBAIKAN: Menambahkan 'storage/' pada path asset --}}
+            <img src="{{ $event->photo_url ? asset('storage/' . $event->photo_url) : 'https://placehold.co/1200x600/f59e0b/334155?text=Wedding+Header' }}" alt="Wedding Header" class="w-full h-48 sm:h-64 object-cover">
         </div>
 
         <div class="bg-white rounded-b-lg shadow-md overflow-hidden">

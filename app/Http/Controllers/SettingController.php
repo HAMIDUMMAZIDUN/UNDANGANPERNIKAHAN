@@ -90,7 +90,7 @@ class SettingController extends Controller
         if ($event->user_id !== Auth::id()) {
             abort(403);
         }
-        $request->validate(['photo' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048']);
+        $request->validate(['photo' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5000']);
         $path = $request->file('photo')->store('event_photos', 'public');
         EventPhoto::create(['user_id' => Auth::id(), 'event_id' => $event->id, 'path' => $path]);
         return back()->with('success', 'Foto berhasil diunggah ke galeri!');
