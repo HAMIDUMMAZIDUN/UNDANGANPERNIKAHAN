@@ -38,4 +38,21 @@ class Event extends Model
     {
         return $this->hasMany(Guest::class);
     }
+     protected static function booted(): void // <-- 2. Tambahkan method ini
+    {
+        static::creating(function ($event) {
+            if (empty($event->uuid)) {
+                $event->uuid = (string) Str::uuid();
+            }
+        });
+    }
+
+    /**
+     * Get the route key for the model.
+     * Ini memberitahu Laravel untuk menggunakan 'uuid' di URL, bukan 'id'.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
 }

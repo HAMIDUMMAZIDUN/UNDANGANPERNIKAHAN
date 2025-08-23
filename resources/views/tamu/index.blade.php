@@ -51,7 +51,7 @@
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @forelse ($guests as $guest)
-                    <tr id="guest-row-{{$guest->id}}" data-guest-name="{{ $guest->name }}" data-guest-qr-data="{{ route('checkin.guest', ['guest' => $guest->uuid]) }}">
+                    <tr id="guest-row-{{$guest->id}}" data-guest-name="{{ $guest->name }}" data-guest-qr-data="{{ $guest->name }}">
                         <td class="p-4">
                             <input type="checkbox" name="guest_ids[]" value="{{ $guest->id }}" class="guest-checkbox h-4 w-4 text-amber-600 border-slate-300 rounded focus:ring-amber-500">
                         </td>
@@ -59,7 +59,13 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900 font-medium">{{ $guest->name }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{{ $guest->affiliation }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
-                            {{-- ... Tombol aksi Anda ... --}}
+                            <form action="{{ route('tamu.destroy', $guest) }}" method="POST" class="inline delete-form">
+    @csrf
+    @method('DELETE')
+    <button type="submit" class="text-red-600 hover:text-red-800 font-medium">
+        Hapus
+    </button>
+</form>
                         </td>
                     </tr>
                     @empty
@@ -80,13 +86,93 @@
         @endif
     </div>
 </div>
+{{-- LETAKKAN INI DI BAGIAN BAWAH FILE TAMU/INDEX.BLADE.PHP --}}
 
-{{-- ... Modal import Anda ... --}}
+<div id="importModal" class="fixed inset-0 bg-slate-900 bg-opacity-50 z-50 hidden items-center justify-center">
+    <div class="bg-white rounded-lg shadow-xl p-6 md:p-8 w-full max-w-lg m-4" onclick="event.stopPropagation()">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-bold text-slate-800">Import Data Tamu</h2>
+            <button onclick="closeImportModal()" class="text-slate-500 hover:text-slate-800">&times;</button>
+        </div>
+        
+        <form action="{{ route('tamu.import') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <div class="space-y-4">
+                <div>
+                    <p class="text-sm text-slate-600 mb-2">
+                        Silakan unggah file Excel (.xlsx, .xls) atau CSV (.csv) dengan format yang sesuai.
+                        Kolom yang wajib diisi adalah **Nama** dan **Kategori**.
+                    </p>
+                    <a href="{{ route('tamu.import.template') }}" class="text-sm text-amber-600 hover:text-amber-700 font-medium">
+                        Unduh Template Format di sini &rarr;
+                    </a>
+                </div>
+
+                <div>
+                    <label for="file" class="block text-sm font-medium text-slate-700">Pilih File</label>
+                    <div class="mt-1">
+                        <input type="file" name="file" id="file" required class="block w-full text-sm text-slate-500
+                            file:mr-4 file:py-2 file:px-4
+                            file:rounded-md file:border-0
+                            file:text-sm file:font-semibold
+                            file:bg-amber-50 file:text-amber-700
+                            hover:file:bg-amber-100
+                            cursor-pointer"/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-8 flex justify-end gap-3">
+                <button type="button" onclick="closeImportModal()" class="bg-white py-2 px-4 border border-slate-300 rounded-md shadow-sm text-sm font-medium text-slate-700 hover:bg-slate-50">
+                    Batal
+                </button>
+                <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-slate-900 bg-amber-500 hover:bg-amber-600">
+                    Import Data
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <script>
+ document.querySelectorAll('.delete-form').forEach(form => {
+        form.addEventListener('submit', function (event) {
+            event.preventDefault(); // Mencegah form dikirim langsung
+
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Data tamu yang dihapus tidak dapat dikembalikan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Jika pengguna mengklik "Ya, hapus!", kirim formnya
+                    this.submit();
+                }
+            });
+        });
+    });
+const importModal = document.getElementById('importModal');
+
+function openImportModal() {
+    importModal.classList.remove('hidden');
+    importModal.classList.add('flex');
+}
+
+function closeImportModal() {
+    importModal.classList.add('hidden');
+    importModal.classList.remove('flex');
+}
+
+// Menutup modal saat klik di luar area konten
+importModal.addEventListener('click', closeImportModal);
     document.addEventListener('DOMContentLoaded', function () {
         const selectAllCheckbox = document.getElementById('selectAllCheckbox');
         const guestCheckboxes = document.querySelectorAll('.guest-checkbox');

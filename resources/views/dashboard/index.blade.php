@@ -29,9 +29,6 @@
                         <h2 class="text-xl font-bold text-stone-800">Daftar Tamu</h2>
                         <p class="text-sm text-stone-500">Total Undangan: <span class="font-semibold text-stone-800">{{ $totalUndangan }}</span> | Hadir: <span class="font-semibold text-stone-800">{{ $jumlahHadir }}</span></p>
                     </div>
-                    <button class="bg-amber-500 text-white text-sm font-semibold py-2 px-4 rounded-lg hover:bg-stone-800 transition">
-                        Kode Akses
-                    </button>
                 </div>
 
                 <form action="{{ route('dashboard.index') }}" method="GET" class="relative mb-4">

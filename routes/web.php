@@ -19,6 +19,7 @@ use App\Http\Controllers\SocialLoginController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\CheckinController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\SapaController; 
 
 
 Route::get('/', function () {
@@ -51,19 +52,42 @@ Route::get('/tamu', [TamuController::class, 'index'])->middleware('auth');
 Route::resource('tamu', TamuController::class)->middleware('auth'); Route::post('tamu/import', [TamuController::class, 'import'])->name('tamu.import');
 Route::get('tamu/template', [TamuController::class, 'downloadTemplate'])->name('tamu.template');
 Route::delete('/tamu/{id}', [TamuController::class, 'destroy'])->name('tamu.destroy');
+Route::controller(TamuController::class)->middleware('auth')->group(function () {
+Route::get('tamu', 'index')->name('tamu.index');
+Route::get('tamu/create', 'create')->name('tamu.create');
+Route::post('tamu', 'store')->name('tamu.store');
+Route::post('tamu/import', 'import')->name('tamu.import');
+Route::get('tamu/import/template', 'downloadTemplate')->name('tamu.import.template');
 Route::get('/kehadiran', [KehadiranController::class, 'index'])->name('kehadiran.index');
+Route::get('/kehadiran', [KehadiranController::class, 'index'])->name('kehadiran.index');
+Route::get('/kehadiran/export/pdf', [KehadiranController::class, 'exportPdf'])->name('kehadiran.export.pdf');
+Route::get('/kehadiran/export/excel', [KehadiranController::class, 'exportExcel'])->name('kehadiran.export.excel');
 Route::get('/rsvp', [ReservasiController::class, 'index'])->name('rsvp.index');
-
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::controller(ReservasiController::class)->middleware('auth')->group(function () {
+    Route::get('rsvp', 'index')->name('rsvp.index');
+    Route::get('rsvp/export', 'exportExcel')->name('rsvp.export');
+    Route::delete('rsvp/{rsvp}', 'destroy')->name('rsvp.destroy');
 });
-
+Route::get('/sapa/{event:uuid}', [SapaController::class, 'index'])->name('sapa.index');
+Route::get('/sapa/{event:uuid}/data', [SapaController::class, 'getData'])->name('sapa.data');
 Route::get('/cari-tamu', [CariTamuController::class, 'index'])->name('cari-tamu.index'); 
 Route::get('/manual', [ManualController::class, 'index'])->name('manual.index');
 Route::post('/manual', [ManualController::class, 'store'])->name('manual.store');
 Route::get('/souvenir', [SouvenirController::class, 'index'])->name('souvenir.index');
 Route::get('/gift', [GiftController::class, 'index'])->name('gift.index');
-Route::get('/setting', [SettingController::class, 'index'])->name('setting.index');
+Route::controller(SettingController::class)
+    ->middleware('auth')
+    ->prefix('setting') 
+    ->name('setting.') 
+    ->group(function () {
+    
+    Route::get('/', 'index')->name('index'); 
+Route::get('/event/{event}/edit', 'edit')->name('events.edit');
+Route::put('/event/{event}', 'update')->name('events.update'); 
+Route::get('/event/{event}/gallery', 'gallery')->name('gallery');
+Route::post('/event/{event}/gallery', 'uploadPhoto')->name('gallery.upload');
+Route::delete('/gallery/{photo}', 'deletePhoto')->name('gallery.delete');
+});
 Route::resource('events', EventController::class)->except(['index', 'show', 'destroy']);
 Route::get('events/create', [EventController::class, 'create'])->name('events.create');
 Route::post('events', [EventController::class, 'store'])->name('events.store');
@@ -71,3 +95,9 @@ Route::get('/checkin/{guest:uuid}', [CheckinController::class, 'process'])->name
 Route::get('/checkin/{guest:uuid}', [CheckinController::class, 'handleCheckin'])
     ->middleware('auth')
     ->name('checkin.guest');
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
+});
+        Route::put('event/{event}', 'update')->name('events.update');
+    });
+    

@@ -49,6 +49,29 @@
             const popup = document.getElementById('profilePopup');
             popup.classList.toggle('hidden');
         }
+         @if(session('success'))
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: '{{ session('success') }}',
+                showConfirmButton: false,
+                timer: 3500, // Durasi notifikasi dalam milidetik
+                timerProgressBar: true
+            });
+        @endif
+
+        @if(session('error'))
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: '{{ session('error') }}',
+                showConfirmButton: false,
+                timer: 5000, // Error ditampilkan sedikit lebih lama
+                timerProgressBar: true
+            });
+        @endif
     </script>
 
     {{-- PENAMBAHAN PENTING: Tempat untuk menampung script dari halaman individual --}}

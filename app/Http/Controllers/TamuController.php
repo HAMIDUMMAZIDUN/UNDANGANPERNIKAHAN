@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use App\Imports\GuestsImport;   
+use Maatwebsite\Excel\Facades\Excel; 
 
 class TamuController extends Controller
 {
@@ -82,5 +84,39 @@ class TamuController extends Controller
         
         $tamu->delete();
         return redirect()->route('tamu.index')->with('success', 'Tamu berhasil dihapus.');
+    }
+     public function import(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv'
+        ]);
+
+        try {
+            $user = Auth::user();
+            $event = Event::where('user_id', $user->id)->firstOrFail();
+
+            Excel::import(new GuestsImport($user->id, $event->id), $request->file('file'));
+            
+            return redirect()->route('tamu.index')->with('success', 'Data tamu berhasil diimpor!');
+
+        } catch (\Exception $e) {
+            // Tangani error jika event tidak ditemukan atau error lainnya
+            return redirect()->route('tamu.index')->with('error', 'Terjadi kesalahan saat mengimpor data: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Menyediakan file template untuk diunduh.
+     */
+    public function downloadTemplate()
+    {
+        $filePath = public_path('templates/template_import_tamu.xlsx');
+        
+        if (!file_exists($filePath)) {
+            // Beri pesan error jika file template tidak ada
+            abort(404, 'File template tidak ditemukan.');
+        }
+
+        return response()->download($filePath);
     }
 }
