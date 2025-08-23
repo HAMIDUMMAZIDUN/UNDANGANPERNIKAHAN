@@ -71,7 +71,15 @@
                                     </div>
                                 </div>
                                 <div class="mt-4">
-                                    <a href="{{ url('/undangan/' . $event->uuid) }}" target="_blank" class="text-sm text-amber-600 hover:underline break-all">Lihat Undangan &rarr;</a>
+                                    @if($event->guests->isNotEmpty())
+                                        <a href="{{ route('undangan.show', ['event' => $event, 'guest' => $event->guests->first()]) }}" target="_blank" class="text-sm text-amber-600 hover:underline break-all">
+                                            Lihat Undangan &rarr;
+                                        </a>
+                                    @else
+                                        <span class="text-sm text-slate-400 cursor-not-allowed" title="Tidak ada tamu untuk membuat pratinjau undangan">
+                                            Lihat Undangan &rarr;
+                                        </span>
+                                    @endif
                                 </div>
                             </div>
                         </div>

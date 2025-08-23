@@ -18,6 +18,10 @@ class SettingController extends Controller
     public function index(Request $request): View
     {
         $query = Event::withCount('guests')
+                      // [DIUBAH] Mengambil data tamu pertama untuk setiap event
+                      ->with(['guests' => function ($query) {
+                          $query->limit(1);
+                      }])
                       ->where('user_id', Auth::id());
 
         if ($search = $request->query('search')) {

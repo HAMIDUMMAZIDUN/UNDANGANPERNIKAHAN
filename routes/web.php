@@ -117,4 +117,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
         Route::put('event/{event}', 'update')->name('events.update');
     });
+Route::get('/undangan/{event:uuid}/{guest:uuid}', [App\Http\Controllers\UndanganController::class, 'show'])->name('undangan.show');
+
     
