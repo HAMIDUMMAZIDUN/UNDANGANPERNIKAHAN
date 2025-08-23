@@ -29,10 +29,6 @@
             <h1 class="font-serif-display text-3xl italic">{{ $event->name }}</h1>
             <p class="text-slate-300">{{ \Carbon\Carbon::parse($event->date)->isoFormat('D MMMM YYYY') }}</p>
         </div>
-        <div class="text-right">
-            <div id="qrcode" class="bg-white p-2 rounded-md"></div>
-            <p class="text-xs mt-2 text-slate-300">Scan untuk Kirim Ucapan</p>
-        </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>

@@ -45,9 +45,7 @@ class ManualController extends Controller
             'event_id' => $event->id,
             'name' => $validatedData['name'],
             'affiliation' => $validatedData['affiliation'],
-            // 'guest_count' tidak ada di tabel guests, jadi kita abaikan untuk saat ini
-            // Jika Anda punya kolomnya, tambahkan di sini.
-            'check_in_time' => now(), // Tandai sebagai sudah check-in
+            'check_in_time' => now(), 
         ]);
 
         // 3. Redirect kembali dengan pesan sukses

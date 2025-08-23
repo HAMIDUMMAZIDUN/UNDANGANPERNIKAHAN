@@ -18,7 +18,7 @@
 
         <!-- Form Upload -->
         <div class="bg-white p-6 rounded-lg shadow-md mb-8">
-            <form action="{{ route('setting.gallery.upload', $event) }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('setting.events.gallery.upload', $event) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <label for="photo" class="block text-sm font-medium text-slate-700 mb-2">Unggah Foto Baru</label>
                 <div class="flex flex-col sm:flex-row items-center gap-4">

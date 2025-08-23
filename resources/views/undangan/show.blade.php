@@ -31,7 +31,6 @@
 </head>
 <body class="text-slate-700">
 
-    <!-- BAGIAN COVER UNDANGAN -->
     <div id="cover" class="cover-section h-screen w-full flex flex-col justify-center items-center text-center p-4" 
          style="background-image: url('{{ $event->photo_url ? asset('storage/' . $event->photo_url) : 'https://placehold.co/1080x1920/e2e8f0/64748b?text=Wedding+Cover' }}');">
         
@@ -40,6 +39,12 @@
             <p class="text-lg">The Wedding of</p>
             <h1 class="font-playfair text-4xl sm:text-5xl font-bold my-4">{{ $event->name }}</h1>
             <p class="text-lg">{{ \Carbon\Carbon::parse($event->date)->isoFormat('DD.MM.YYYY') }}</p>
+
+            <div class="mt-6 text-center">
+                <p class="text-sm text-slate-600">Kepada Yth. Bapak/Ibu/Saudara/i</p>
+                <p class="font-semibold text-xl text-slate-800 mt-1">{{ $guest->name }}</p>
+            </div>
+
             <button id="open-invitation" class="mt-8 bg-slate-800 text-white py-3 px-8 rounded-full shadow-lg hover:bg-slate-700 transition-transform hover:scale-105 flex items-center gap-2 mx-auto">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 2l7.997 3.884A2 2 0 0019 7.616l-7.5 3.64-7.5-3.64A2 2 0 002.003 5.884z" /><path d="M19 9.616l-7.5 3.639L4 9.616v4.764A2 2 0 006 16h8a2 2 0 002-1.62V9.616z" /></svg>
                 <span>Buka Undangan</span>
@@ -47,10 +52,8 @@
         </div>
     </div>
 
-    <!-- BAGIAN ISI UTAMA UNDANGAN -->
     <div id="main-content">
         
-        <!-- Section: Header Utama -->
         <section class="h-screen bg-slate-800 text-white flex flex-col justify-center items-center text-center p-8 section-bg">
             <div class="relative z-10">
                 <p class="text-lg">The Wedding of</p>
@@ -60,10 +63,8 @@
             </div>
         </section>
 
-        <!-- Section: Pasangan -->
         <section class="py-20 px-4 text-center section-bg">
             <div class="max-w-4xl mx-auto bg-white/80 backdrop-blur-md p-8 sm:p-12 rounded-2xl shadow-lg">
-                <img src="{{ $event->bride_photo ? asset('storage/' . $event->bride_photo) : 'https://placehold.co/200x200/e2e8f0/64748b?text=Bride' }}" class="w-40 h-40 rounded-full object-cover mx-auto border-4 border-slate-200 shadow-md">
                 <h3 class="font-playfair text-4xl font-bold mt-4">{{ $event->bride_name ?? 'Aprilla Firdausya' }}</h3>
                 <p class="mt-2 text-slate-600">Putri dari</p>
                 <p class="font-semibold">{{ $event->bride_parents ?? 'Bpk. H. Bambang & Ibu Hj. Yuyum' }}</p>
@@ -71,7 +72,6 @@
                 
                 <p class="font-playfair text-5xl my-8">&</p>
 
-                <img src="{{ $event->groom_photo ? asset('storage/' . $event->groom_photo) : 'https://placehold.co/200x200/e2e8f0/64748b?text=Groom' }}" class="w-40 h-40 rounded-full object-cover mx-auto border-4 border-slate-200 shadow-md">
                 <h3 class="font-playfair text-4xl font-bold mt-4">{{ $event->groom_name ?? 'Agesta Putrama' }}</h3>
                 <p class="mt-2 text-slate-600">Putra dari</p>
                 <p class="font-semibold">{{ $event->groom_parents ?? 'Bpk. Azwar Arifin & Ibu Norita' }}</p>
@@ -79,7 +79,6 @@
             </div>
         </section>
 
-        <!-- Section: Countdown -->
         <section class="py-20 px-4 text-center bg-slate-800 text-white" style="background-image: url('{{ $event->photo_url ? asset('storage/' . $event->photo_url) : '' }}'); background-size: cover; background-position: center; background-attachment: fixed;">
              <div class="absolute inset-0 bg-slate-800/80"></div>
              <div class="relative z-10 max-w-4xl mx-auto">
@@ -94,7 +93,6 @@
             </div>
         </section>
 
-        <!-- Section: Detail Acara -->
         <section class="py-20 px-4 text-center section-bg">
             <div class="max-w-md mx-auto bg-white/80 backdrop-blur-md p-8 sm:p-12 rounded-2xl shadow-lg">
                 <h3 class="font-playfair text-3xl font-semibold text-slate-700">Akad Nikah</h3>
@@ -110,7 +108,6 @@
             </div>
         </section>
 
-        <!-- Section: Galeri -->
         @if($photos->isNotEmpty())
         <section class="py-20 px-4 text-center bg-white">
             <h2 class="font-playfair text-4xl font-bold text-slate-800">Our Gallery</h2>
@@ -124,16 +121,13 @@
         </section>
         @endif
         
-        <!-- Section: Gift & RSVP -->
         <section class="py-20 px-4 text-center section-bg">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                <!-- Wedding Gift -->
                 <div class="bg-white/80 backdrop-blur-md p-8 rounded-2xl shadow-lg">
                     <h3 class="font-playfair text-3xl font-semibold text-slate-700">Wedding Gift</h3>
                     <p class="mt-4 text-slate-600">Doa restu Anda adalah karunia terindah. Jika ingin memberikan tanda kasih, Anda dapat melakukannya secara cashless.</p>
                     <button class="mt-6 bg-slate-800 text-white font-semibold py-3 px-6 rounded-full shadow-lg hover:bg-slate-700 transition">Amplop Online</button>
                 </div>
-                <!-- RSVP -->
                 <div class="bg-white/80 backdrop-blur-md p-8 rounded-2xl shadow-lg">
                     <h3 class="font-playfair text-3xl font-semibold text-slate-700">Konfirmasi Kehadiran</h3>
                     <p class="mt-4 text-slate-600">Mohon konfirmasi kehadiran Anda untuk membantu kami mempersiapkan acara.</p>

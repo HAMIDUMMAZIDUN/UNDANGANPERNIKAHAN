@@ -18,7 +18,6 @@ class SettingController extends Controller
     public function index(Request $request): View
     {
         $query = Event::withCount('guests')
-                      // [DIUBAH] Mengambil data tamu pertama untuk setiap event
                       ->with(['guests' => function ($query) {
                           $query->limit(1);
                       }])
@@ -50,8 +49,6 @@ class SettingController extends Controller
      */
     public function update(Request $request, Event $event): RedirectResponse
     {
-        // Otorisasi ini penting agar user tidak bisa mengedit event milik orang lain.
-        // Error 403 terjadi jika URL salah dan route-model binding gagal.
         if ($event->user_id !== Auth::id()) {
             abort(403);
         }

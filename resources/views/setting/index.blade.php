@@ -11,18 +11,12 @@
                 <h1 class="text-2xl font-bold text-slate-800">Setting Event</h1>
                 <p class="text-sm text-slate-500 mt-1">Kelola semua event yang telah Anda buat.</p>
             </div>
-            <button class="bg-slate-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md hover:bg-slate-800 transition duration-300">
-                Akun Saya
-            </button>
         </div>
 
         <div class="bg-white rounded-lg shadow-md overflow-hidden">
             <div class="p-6">
                 <div class="flex justify-between items-center mb-4">
                     <p class="text-slate-600 font-medium">Jumlah Event: <span class="font-bold text-slate-800">{{ $events->count() }}</span></p>
-                    <a href="{{-- route('events.create') --}}" class="inline-flex items-center justify-center bg-amber-500 text-slate-900 px-4 py-2 rounded-lg shadow-md hover:bg-amber-600 transition-colors text-sm font-medium">
-                        + Buat Event Baru
-                    </a>
                 </div>
                 
                 <div class="relative mb-6">
@@ -58,14 +52,31 @@
                                         </button>
                                         <div id="dropdown-event-{{ $event->id }}" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-slate-100 z-50 hidden origin-top-right">
                                             <div class="py-1">
-                                                <a href="{{ route('setting.events.edit', $event) }}" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Edit Event</a>
-                                                <a href="{{ route('setting.gallery', $event) }}" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Galeri Foto</a>
+                                                {{-- Link untuk Edit Event --}}
+                                                <a href="{{ route('setting.events.edit', $event) }}" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">
+                                                    Edit Event
+                                                </a>
+
+                                                {{-- Link untuk Galeri --}}
+                                                <a href="{{ route('setting.events.gallery', $event) }}" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">
+                                                    Galeri Foto
+                                                </a>
+
+                                                {{-- Link untuk Layar Sapa --}}
                                                 @if ($event->uuid)
-                                                    <a href="{{ route('sapa.index', $event) }}" target="_blank" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Layar Sapa</a>
+                                                    <a href="{{ route('sapa.index', $event) }}" target="_blank" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">
+                                                        Layar Sapa
+                                                    </a>
                                                 @else
-                                                    <span class="block px-4 py-2 text-sm text-slate-400 cursor-not-allowed" title="Event ini tidak memiliki UUID untuk ditampilkan.">Layar Sapa (Error)</span>
+                                                    <span class="block px-4 py-2 text-sm text-slate-400 cursor-not-allowed" title="Event ini tidak memiliki UUID untuk ditampilkan.">
+                                                        Layar Sapa (Error)
+                                                    </span>
                                                 @endif
-                                                <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">QR Check-in</a>
+
+                                                {{-- Link untuk QR Check-in --}}
+                                                <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">
+                                                    QR Check-in
+                                                </a>
                                             </div>
                                         </div>
                                     </div>

@@ -10,19 +10,33 @@ use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use App\Imports\GuestsImport;   
 use Maatwebsite\Excel\Facades\Excel; 
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class TamuController extends Controller
 {
-    public function index(): View
+    public function index()
     {
-        $guests = Guest::where('user_id', Auth::id())->paginate(10); 
-        $event = Event::where('user_id', Auth::id())->first();
+        // 1. Fetch a single event. You might get this from a database,
+        //    a session, or a URL parameter. Here's an example:
+        $event = Event::first(); // This fetches the first event in your database
+
+        // 2. Get the guests related to that event.
+        if ($event) {
+            $guests = $event->guests()->paginate(10);
+        } else {
+            // Handle the case where no event is found
+            $guests = collect(); // Return an empty collection
+        }
+
+        // 3. Pass both variables to the view using compact()
         return view('tamu.index', compact('guests', 'event'));
     }
 
-    public function create(): View
+    // Example for a method that already has the event as a parameter
+    public function create(Event $event)
     {
-        return view('tamu.create');
+        // The $event is already available thanks to route model binding
+        return view('tamu.create', compact('event'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -119,4 +133,23 @@ class TamuController extends Controller
 
         return response()->download($filePath);
     }
+
+
+public function printQr($uuid)
+{
+    $guest = Guest::where('uuid', $uuid)->firstOrFail();
+
+    // Menggunakan QrCode untuk membuat string SVG
+    $qrCodeSvg = QrCode::size(250)->generate(route('undangan.show', ['event' => $event->uuid, 'guest' => $guest->uuid]));
+
+    // Buat view dan kirimkan data QR
+    $data = [
+        'guest' => $guest,
+        'qrCodeSvg' => $qrCodeSvg
+    ];
+
+    $pdf = PDF::loadView('tamu.pdf_template', $data);
+
+    return $pdf->download('qrcode-'.$guest->name.'.pdf');
+}
 }

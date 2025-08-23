@@ -6,23 +6,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
-    {{-- Font Awesome untuk ikon, tambahkan jika belum ada --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-gray-50 min-h-screen">
+{{-- TAMBAHKAN pb-20 agar konten tidak tertutup bottom nav di mobile --}}
+<body class="bg-gray-50 min-h-screen pb-20 md:pb-0">
 
-    <div id="sidebar-backdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-40 hidden"></div>
+    {{-- HAPUS BAGIAN INI KARENA SUDAH TIDAK DIPERLUKAN --}}
+    {{-- <div id="sidebar-backdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-40 hidden"></div> --}}
 
     {{-- Navbar --}}
     @include('partials.navbar')
 
-    {{-- Sidebar --}}
+    {{-- Sidebar asli untuk Desktop --}}
     @include('partials.sidebar')
 
+    {{-- Bottom Navigation untuk Mobile --}}
+    @include('partials.bottom-nav')
+
     {{-- Konten Utama --}}
-    <main class="pt-20 transition-all duration-300">
+    {{-- UBAH padding kiri untuk desktop menjadi md:pl-64 --}}
+    <main class="pt-20 transition-all duration-300 md:pl-64">
         <div class="px-4 md:px-8 py-6">
             <div class="max-w-screen-xl mx-auto">
                 @yield('content')
@@ -33,31 +38,40 @@
     {{-- Popup Form --}}
     @include('partials.profile-popup')
 
-    {{-- Skrip Global untuk semua halaman (seperti Sidebar & Profile) --}}
+    {{-- Skrip Global --}}
     <script>
+        // FUNGSI INI MASIH DIPERLUKAN UNTUK MEMBUKA/TUTUP SIDEBAR DI DESKTOP
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const backdrop = document.getElementById('sidebar-backdrop');
+            const mainContent = document.querySelector('main');
             
-            // Menggeser sidebar masuk/keluar layar
             sidebar.classList.toggle('-translate-x-full');
+            
+            // Logika untuk backdrop jika masih ingin digunakan di mobile
+            // backdrop.classList.toggle('hidden');
 
-            // Menampilkan/menyembunyikan backdrop
-            backdrop.classList.toggle('hidden');
+            // Sesuaikan margin konten utama saat sidebar terbuka di desktop
+            if (!sidebar.classList.contains('-translate-x-full')) {
+                mainContent.classList.add('md:ml-64');
+            } else {
+                mainContent.classList.remove('md:ml-64');
+            }
         }
 
         function toggleProfile() {
             const popup = document.getElementById('profilePopup');
             popup.classList.toggle('hidden');
         }
-         @if(session('success'))
+
+        @if(session('success'))
             Swal.fire({
                 toast: true,
                 position: 'top-end',
                 icon: 'success',
                 title: '{{ session('success') }}',
                 showConfirmButton: false,
-                timer: 3500, // Durasi notifikasi dalam milidetik
+                timer: 3500,
                 timerProgressBar: true
             });
         @endif
@@ -69,13 +83,12 @@
                 icon: 'error',
                 title: '{{ session('error') }}',
                 showConfirmButton: false,
-                timer: 5000, // Error ditampilkan sedikit lebih lama
+                timer: 5000,
                 timerProgressBar: true
             });
         @endif
     </script>
 
-    {{-- PENAMBAHAN PENTING: Tempat untuk menampung script dari halaman individual --}}
     @stack('scripts')
 
 </body>
