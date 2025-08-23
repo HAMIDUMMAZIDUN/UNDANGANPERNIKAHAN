@@ -71,10 +71,27 @@ Route::controller(ReservasiController::class)->middleware('auth')->group(functio
 Route::get('/sapa/{event:uuid?}', [App\Http\Controllers\SapaController::class, 'index'])->name('sapa.index');
 Route::get('/sapa/{event:uuid}/data', [App\Http\Controllers\SapaController::class, 'getData'])->name('sapa.data');
 Route::get('/cari-tamu', [CariTamuController::class, 'index'])->name('cari-tamu.index'); 
+Route::middleware('auth:sanctum')->get('/tamu/search', [CariTamuController::class, 'search'])->name('api.tamu.search');
 Route::get('/manual', [ManualController::class, 'index'])->name('manual.index');
 Route::post('/manual', [ManualController::class, 'store'])->name('manual.store');
 Route::get('/souvenir', [SouvenirController::class, 'index'])->name('souvenir.index');
-Route::get('/gift', [GiftController::class, 'index'])->name('gift.index');
+ Route::controller(SouvenirController::class)
+        ->prefix('souvenir') 
+        ->name('souvenir.')   
+        ->group(function () {
+        
+        Route::get('/', 'index')->name('index');
+        Route::get('/scan', 'scan')->name('scan');
+        Route::post('/redeem', 'redeem')->name('redeem');
+        Route::get('/export', 'exportExcel')->name('export'); 
+    });
+ Route::controller(App\Http\Controllers\GiftController::class)
+        ->prefix('gift')
+        ->name('gift.')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/export', 'exportExcel')->name('export'); // <-- Tambahkan ini
+    });
 Route::controller(SettingController::class)
     ->middleware('auth')
     ->prefix('setting') 

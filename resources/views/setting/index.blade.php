@@ -58,7 +58,8 @@
                                         </button>
                                         <div id="dropdown-event-{{ $event->id }}" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-slate-100 z-50 hidden origin-top-right">
                                             <div class="py-1">
-                                                <a href="{{ route('setting.events.edit', $event) }}" ...>Edit Event</a>{{-- Updated Code Block --}}
+                                                <a href="{{ route('setting.events.edit', $event) }}" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Edit Event</a>
+                                                <a href="{{ route('setting.gallery', $event) }}" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Galeri Foto</a>
                                                 @if ($event->uuid)
                                                     <a href="{{ route('sapa.index', $event) }}" target="_blank" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">Layar Sapa</a>
                                                 @else

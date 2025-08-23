@@ -3,46 +3,44 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Event;
+use App\Models\Guest;
 
 class CariTamuController extends Controller
 {
     /**
-     * Menampilkan halaman utama yang berisi tombol untuk membuka modal.
+     * Menampilkan halaman pencarian tamu dengan hasil dari database.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        return view('cari-tamu.index');
-    }
+        $user = Auth::user();
+        $event = Event::where('user_id', $user->id)->first();
 
-    /**
-     * Menangani request pencarian tamu via API.
-     */
-    public function search(Request $request): JsonResponse
-    {
-        $query = $request->input('q');
-        $allGuests = [
-            ['id' => 1, 'name' => 'Asep Suryatna, S.Kep', 'address' => 'Primaya Rajawali Hospital Bandung'],
-            ['id' => 2, 'name' => 'H. Asep Wargana dan Hj. Euis Siti', 'address' => 'Alumni KBIH Al Ihsan'],
-            ['id' => 3, 'name' => 'Asep Anwar', 'address' => 'Keluarga Putu Abah Suhatmi'],
-            ['id' => 4, 'name' => 'Asep Mulyana', 'address' => 'Keluarga Putu Abah Suhatmi'],
-            ['id' => 5, 'name' => 'Asep Agus', 'address' => 'Keluarga Putu Abah Suhatmi'],
-            ['id' => 6, 'name' => 'Asep Erva, AMK', 'address' => 'IBS RSUD Welas Asih Bandung'],
-            ['id' => 7, 'name' => 'Budi Santoso', 'address' => 'Rekan Kerja Kantor Pusat'],
-            ['id' => 8, 'name' => 'Citra Lestari', 'address' => 'Sahabat SMA'],
-        ];
+        // Menyiapkan query builder, tapi belum mengambil data
+        $guestsQuery = Guest::query();
 
-        if (empty($query)) {
-            return response()->json([]);
+        if ($event) {
+            $guestsQuery->where('event_id', $event->id);
+
+            // Terapkan filter pencarian jika ada input
+            if ($search = $request->query('search')) {
+                $guestsQuery->where(function ($q) use ($search) {
+                    $q->where('name', 'LIKE', "%{$search}%")
+                      ->orWhere('affiliation', 'LIKE', "%{$search}%");
+                });
+            } else {
+                // Jika tidak ada pencarian, jangan tampilkan apa-apa
+                $guestsQuery->whereRaw('1=0'); // Trik untuk mengembalikan hasil kosong
+            }
+        } else {
+            // Jika user tidak punya event, jangan tampilkan apa-apa
+            $guestsQuery->whereRaw('1=0');
         }
 
-        // Filter data dummy berdasarkan query
-        $filteredGuests = array_filter($allGuests, function ($guest) use ($query) {
-            return stripos($guest['name'], $query) !== false;
-        });
+        $guests = $guestsQuery->paginate(15)->withQueryString();
 
-        // Mengembalikan hasil dalam format JSON
-        return response()->json(array_values($filteredGuests));
+        return view('cari-tamu.index', compact('guests', 'event'));
     }
 }

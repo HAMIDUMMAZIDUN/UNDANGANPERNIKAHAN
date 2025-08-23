@@ -50,22 +50,23 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
-                    @forelse ($guests as $guest)
-                    <tr id="guest-row-{{$guest->id}}" data-guest-name="{{ $guest->name }}" data-guest-qr-data="{{ $guest->name }}">
-                        <td class="p-4">
-                            <input type="checkbox" name="guest_ids[]" value="{{ $guest->id }}" class="guest-checkbox h-4 w-4 text-amber-600 border-slate-300 rounded focus:ring-amber-500">
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{{ $loop->iteration + ($guests->currentPage() - 1) * $guests->perPage() }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900 font-medium">{{ $guest->name }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{{ $guest->affiliation }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
-                            <form action="{{ route('tamu.destroy', $guest) }}" method="POST" class="inline delete-form">
-    @csrf
-    @method('DELETE')
-    <button type="submit" class="text-red-600 hover:text-red-800 font-medium">
-        Hapus
-    </button>
-</form>
+                            @forelse ($guests as $guest)
+                            {{-- [PERBAIKAN] data-guest-qr-data sekarang berisi URL check-in yang benar --}}
+                            <tr id="guest-row-{{$guest->id}}" data-guest-name="{{ $guest->name }}" data-guest-qr-data="{{ route('checkin.guest', $guest) }}">
+                                <td class="p-4">
+                                    <input type="checkbox" name="guest_ids[]" value="{{ $guest->id }}" class="guest-checkbox h-4 w-4 text-amber-600 border-slate-300 rounded focus:ring-amber-500">
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{{ $loop->iteration + ($guests->currentPage() - 1) * $guests->perPage() }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900 font-medium">{{ $guest->name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">{{ $guest->affiliation }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
+                                <form action="{{ route('tamu.destroy', $guest) }}" method="POST" class="inline delete-form">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="text-red-600 hover:text-red-800 font-medium">
+                                Hapus
+                            </button>
+                        </form>
                         </td>
                     </tr>
                     @empty
