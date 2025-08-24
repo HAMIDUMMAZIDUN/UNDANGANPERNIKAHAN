@@ -22,17 +22,43 @@
             ];
         @endphp
 
-       @foreach ($menuItems as $route => $data)
-            <a href="{{ url($route) }}" 
-               class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition-colors duration-200
-                      {{ Request::is($route.'*') 
-                         ? 'bg-amber-500 text-slate-900 font-semibold shadow-inner' 
-                         : 'text-slate-300 hover:bg-slate-700 hover:text-white' }}">
+       @php
+    // Mengambil event pertama milik user yang sedang login untuk digunakan di link Tamu
+    $firstEvent = Auth::user()->events()->first();
+@endphp
+
+@foreach ($menuItems as $route => $data)
+
+    {{-- KONDISI KHUSUS UNTUK LINK 'TAMU' --}}
+    @if ($route === 'tamu')
+        
+        {{-- Tampilkan link hanya jika user punya event --}}
+        @if ($firstEvent)
+            <a href="{{ route('events.tamu.index', ['event' => $firstEvent->uuid]) }}"
+                class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition-colors duration-200
+                        {{ request()->routeIs('events.tamu.*') 
+                            ? 'bg-amber-500 text-slate-900 font-semibold shadow-inner' 
+                            : 'text-slate-300 hover:bg-slate-700 hover:text-white' }}">
                 
                 {!! $data['icon'] !!}
                 <span>{{ $data['label'] }}</span>
             </a>
-        @endforeach
+        @endif
+
+    {{-- UNTUK SEMUA LINK LAINNYA, GUNAKAN CARA NORMAL --}}
+    @else
+        <a href="{{ url($route) }}" 
+            class="flex items-center space-x-3 px-3 py-2.5 rounded-lg transition-colors duration-200
+                    {{ Request::is($route.'*') 
+                        ? 'bg-amber-500 text-slate-900 font-semibold shadow-inner' 
+                        : 'text-slate-300 hover:bg-slate-700 hover:text-white' }}">
+            
+            {!! $data['icon'] !!}
+            <span>{{ $data['label'] }}</span>
+        </a>
+    @endif
+
+@endforeach
     </nav>
 
     <div class="mt-auto pb-4">

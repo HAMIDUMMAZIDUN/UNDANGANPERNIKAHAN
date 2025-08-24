@@ -14,6 +14,7 @@ class DashboardController extends Controller
 {
 // app/Http/Controllers/DashboardController.php
 
+
 public function index(Request $request): View|RedirectResponse
 {
     try {
@@ -28,24 +29,31 @@ public function index(Request $request): View|RedirectResponse
                 ->with('info', 'Selamat datang! Silakan buat event pertama Anda untuk memulai.');
         }
 
+        // --- Statistik (Tidak berubah, sudah benar) ---
         $baseGuestsQuery = Guest::where('event_id', $event->id);
         
         $totalUndangan = (clone $baseGuestsQuery)->count();
         $hadirQuery = (clone $baseGuestsQuery)->whereNotNull('check_in_time');
-        $jumlahHadir = (clone $hadirQuery)->count();
-        $totalOrangHadir = (clone $hadirQuery)->sum('number_of_guests');
+        $jumlahHadir = (clone $hadirQuery)->count(); // Jumlah undangan yang hadir
+        $totalOrangHadir = (clone $hadirQuery)->sum('number_of_guests'); // Jumlah orang (termasuk rombongan)
         $totalPotensiOrang = (clone $baseGuestsQuery)->sum('number_of_guests');
 
-        $allGuestsQuery = Guest::where('event_id', $event->id);
+        // --- Logika Baru untuk Daftar Tamu ---
+        $listQuery = Guest::where('event_id', $event->id);
         
         if ($request->filled('search')) {
+            // JIKA MENCARI: Cari dari SEMUA tamu berdasarkan nama
             $searchQuery = $request->input('search');
-            $allGuestsQuery->where('name', 'like', "%{$searchQuery}%");
+            $listQuery->where('name', 'like', "%{$searchQuery}%")
+                      ->orderBy('name', 'asc'); // Urutkan berdasarkan nama agar mudah dicari
+        } else {
+            // JIKA TIDAK MENCARI: Hanya tampilkan tamu yang SUDAH HADIR
+            $listQuery->whereNotNull('check_in_time')
+                      ->orderBy('check_in_time', 'desc'); // Urutkan berdasarkan yang paling baru hadir
         }
 
-        $guests = $allGuestsQuery->orderBy('check_in_time', 'desc')
-                                 ->paginate(10)
-                                 ->withQueryString();
+        // Lakukan paginasi pada query yang sudah disiapkan
+        $guests = $listQuery->paginate(10)->withQueryString();
 
         return view('dashboard.index', [
             'event' => $event,

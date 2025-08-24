@@ -10,13 +10,13 @@
             <h1 class="text-2xl font-bold text-slate-800">Tambah Tamu Baru</h1>
             <p class="text-sm text-slate-500 mt-1">Isi detail tamu pada form di bawah ini.</p>
         </div>
-        <a href="{{ route('tamu.index') }}" class="text-sm font-medium text-slate-600 hover:text-amber-600">
+        <a href="{{ route('events.tamu.index', $event) }}"class="text-sm font-medium text-slate-600 hover:text-amber-600">
             &larr; Kembali ke Daftar Tamu
         </a>
     </div>
 
     <div class="bg-white shadow-md rounded-lg p-6 md:p-8">
-        <form action="{{ route('tamu.store') }}" method="POST">
+        <form action="{{ route('events.tamu.store', $event) }}" method="POST">
             @csrf
             <div class="space-y-6">
                 
@@ -57,7 +57,7 @@
             </div>
 
             <div class="pt-8 flex justify-end gap-3">
-                <a href="{{ route('tamu.index') }}" class="bg-white py-2 px-4 border border-slate-300 rounded-md shadow-sm text-sm font-medium text-slate-700 hover:bg-slate-50">
+                <a href="{{ route('events.tamu.index', $event) }}" class="bg-white py-2 px-4 border border-slate-300 rounded-md shadow-sm text-sm font-medium text-slate-700 hover:bg-slate-50">
                     Batal
                 </a>
                 <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-slate-900 bg-amber-500 hover:bg-amber-600">

@@ -27,7 +27,13 @@
     <div class="pt-20 px-6 pb-6"> 
         <div class="flex justify-between items-center mb-4">
             <div>
-                <h2 class="text-2xl font-bold text-stone-800">Tamu Hadir</h2>
+                <h2 class="text-2xl font-bold text-stone-800">
+                    @if (request('search'))
+                        Hasil Pencarian Tamu
+                    @else
+                        Tamu Sudah Hadir
+                    @endif
+                </h2>
             </div>
         </div>
 
@@ -55,7 +61,7 @@
                     <div class="flex justify-between items-start">
                         <!-- Info Tamu -->
                         <div>
-                            <p class="font-bold text-stone-800">{{ $loop->iteration + ($guests->currentPage() - 1) * $guests->perPage() }}. {{ $guest->name }}</p>
+                            <p class="font-bold text-stone-800">#{{ $guest->id }}. {{ $guest->name }}</p>
                             <p class="text-sm text-stone-500 mt-1">
                                 {{ $guest->address?: '-' }} | {{ $guest->number_of_guests ?: '1' }} Orang
                             </p>

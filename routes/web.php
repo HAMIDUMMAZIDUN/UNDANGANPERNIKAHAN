@@ -18,6 +18,7 @@ use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SouvenirController;
 use App\Http\Controllers\TamuController;
 use App\Http\Controllers\UndanganController;
+use App\Http\Controllers\RsvpController;
 
 /*
 |--------------------------------------------------------------------------
@@ -46,13 +47,26 @@ Route::middleware('auth')->group(function () {
     Route::post('/cari-tamu/store', [CariTamuController::class, 'store'])->name('cari-tamu.store');
    
     // Tamu
-    Route::resource('tamu', TamuController::class);
-    Route::post('tamu/import', [TamuController::class, 'import'])->name('tamu.import');
-    Route::get('tamu/template', [TamuController::class, 'downloadTemplate'])->name('tamu.import.template');
-    Route::get('/tamu/{guest}/edit', [TamuController::class, 'edit'])->name('tamu.edit');
-    Route::put('/tamu/{guest}', [TamuController::class, 'update'])->name('tamu.update');
-    Route::delete('/tamu/{guest}', [TamuController::class, 'destroy'])->name('tamu.destroy');
-    Route::get('/tamu/{uuid}/print-qr', [TamuController::class, 'printQr'])->name('tamu.print_qr');
+     Route::prefix('events/{event:uuid}')->name('events.')->group(function () {
+        
+        // --- KELOMPOK TAMU (RESTRUCTURED) ---
+        Route::get('/tamu', [TamuController::class, 'index'])->name('tamu.index');
+        Route::get('/tamu/create', [TamuController::class, 'create'])->name('tamu.create');
+        Route::post('/tamu', [TamuController::class, 'store'])->name('tamu.store');
+        
+        // Route untuk tamu spesifik
+        Route::get('/tamu/{guest:uuid}/edit', [TamuController::class, 'edit'])->name('tamu.edit');
+        Route::put('/tamu/{guest:uuid}', [TamuController::class, 'update'])->name('tamu.update');
+        Route::delete('/tamu/{guest:uuid}', [TamuController::class, 'destroy'])->name('tamu.destroy');
+
+        // Route untuk fitur tambahan tamu
+        Route::post('/tamu/import', [TamuController::class, 'import'])->name('tamu.import');
+        Route::get('/tamu/import/template', [TamuController::class, 'downloadTemplate'])->name('tamu.import.template');
+        Route::get('/tamu/print-qr', [TamuController::class, 'printMultipleQr'])->name('tamu.print_multiple_qr'); 
+        Route::get('tamu/{guest:uuid}/download-qr', [TamuController::class, 'downloadQr'])->name('tamu.download_qr');
+
+    });
+
     // Kehadiran
     Route::get('/kehadiran', [KehadiranController::class, 'index'])->name('kehadiran.index');
     Route::get('/kehadiran/export/pdf', [KehadiranController::class, 'exportPdf'])->name('kehadiran.export.pdf');
@@ -111,3 +125,10 @@ Route::post('/guests/{guest}', [GuestController::class, 'update'])->name('guests
 Route::middleware('auth:sanctum')->get('/tamu/search', [CariTamuController::class, 'search'])->name('api.tamu.search');
 Route::get('/checkin/{guest:uuid}', [CheckinController::class, 'process'])->name('checkin.guest');
 Route::get('/undangan/{event:uuid}/{guest:uuid}', [UndanganController::class, 'show'])->name('undangan.show');
+Route::post('/rsvp/{event:uuid}', [RsvpController::class, 'store'])->name('rsvp.store');
+Route::get('/undangan/{event:uuid}', [UndanganController::class, 'showPublic'])->name('undangan.public');
+Route::get('/sapa/{event:uuid?}', [SapaController::class, 'index'])->name('sapa.index');
+
+
+
+

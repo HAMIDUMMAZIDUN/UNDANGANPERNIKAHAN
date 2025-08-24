@@ -4,7 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str; // <-- Tambahkan ini
+use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Guest extends Model
 {
@@ -12,7 +13,6 @@ class Guest extends Model
 
     /**
      * The attributes that are mass assignable.
-     * (Pastikan semua kolom Anda ada di sini)
      */
     protected $fillable = [
         'user_id',
@@ -23,12 +23,12 @@ class Guest extends Model
         'address',
         'phone_number',
         'check_in_time',
+        'number_of_guests',
         'souvenir_taken_at',
     ];
 
     /**
      * The "booted" method of the model.
-     * Ini akan otomatis mengisi UUID saat tamu baru dibuat.
      */
     protected static function booted(): void
     {
@@ -41,10 +41,19 @@ class Guest extends Model
 
     /**
      * Get the route key for the model.
-     * Ini memberitahu Laravel untuk menggunakan 'uuid' di URL, bukan 'id'.
      */
     public function getRouteKeyName(): string
     {
         return 'uuid';
+    }
+
+    // --- TAMBAHKAN METHOD INI ---
+    /**
+     * Mendefinisikan relasi "belongsTo" ke model Event.
+     * Setiap Tamu dimiliki oleh satu Event.
+     */
+    public function event(): BelongsTo
+    {
+        return $this->belongsTo(Event::class);
     }
 }

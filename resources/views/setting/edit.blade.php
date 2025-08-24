@@ -44,7 +44,44 @@
                             <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
+                    {{-- Lokasi Event --}}
+                    <div class="border-t border-slate-200 pt-6 mt-6">
+                        <h2 class="text-xl font-bold text-slate-800">Detail Acara (Akad & Resepsi)</h2>
 
+                        {{-- Detail Akad --}}
+                        <div class="mt-6 space-y-4">
+                            <h3 class="text-lg font-semibold text-slate-700">Akad Nikah</h3>
+                            <div>
+                                <label for="akad_location" class="block text-sm font-medium text-slate-700">Lokasi Akad</label>
+                                <textarea name="akad_location" id="akad_location" rows="2" class="mt-1 shadow-sm block w-full sm:text-sm border-slate-300 rounded-md">{{ old('akad_location', $event->akad_location) }}</textarea>
+                            </div>
+                            <div>
+                                <label for="akad_time" class="block text-sm font-medium text-slate-700">Waktu Akad</label>
+                                <input type="text" name="akad_time" id="akad_time" value="{{ old('akad_time', $event->akad_time) }}" placeholder="Contoh: 09:00 WIB" class="mt-1 shadow-sm block w-full sm:text-sm border-slate-300 rounded-md">
+                            </div>
+                            <div>
+                                <label for="akad_maps_url" class="block text-sm font-medium text-slate-700">Link Google Maps Akad (Opsional)</label>
+                                <input type="url" name="akad_maps_url" id="akad_maps_url" value="{{ old('akad_maps_url', $event->akad_maps_url) }}" placeholder="https://maps.app.goo.gl/..." class="mt-1 shadow-sm block w-full sm:text-sm border-slate-300 rounded-md">
+                            </div>
+                        </div>
+
+                        {{-- Detail Resepsi --}}
+                        <div class="mt-6 space-y-4">
+                            <h3 class="text-lg font-semibold text-slate-700">Resepsi</h3>
+                            <div>
+                                <label for="resepsi_location" class="block text-sm font-medium text-slate-700">Lokasi Resepsi</label>
+                                <textarea name="resepsi_location" id="resepsi_location" rows="2" class="mt-1 shadow-sm block w-full sm:text-sm border-slate-300 rounded-md">{{ old('resepsi_location', $event->resepsi_location) }}</textarea>
+                            </div>
+                            <div>
+                                <label for="resepsi_time" class="block text-sm font-medium text-slate-700">Waktu Resepsi</label>
+                                <input type="text" name="resepsi_time" id="resepsi_time" value="{{ old('resepsi_time', $event->resepsi_time) }}" placeholder="Contoh: 11:00 - 14:00 WIB" class="mt-1 shadow-sm block w-full sm:text-sm border-slate-300 rounded-md">
+                            </div>
+                            <div>
+                                <label for="resepsi_maps_url" class="block text-sm font-medium text-slate-700">Link Google Maps Resepsi (Opsional)</label>
+                                <input type="url" name="resepsi_maps_url" id="resepsi_maps_url" value="{{ old('resepsi_maps_url', $event->resepsi_maps_url) }}" placeholder="https://maps.app.goo.gl/..." class="mt-1 shadow-sm block w-full sm:text-sm border-slate-300 rounded-md">
+                            </div>
+                        </div>
+                    </div>
                     {{-- Upload Foto Utama Event --}}
                     <div>
                         <label for="photo_url" class="block text-sm font-medium text-slate-700">Ganti Foto Utama Event (Opsional)</label>

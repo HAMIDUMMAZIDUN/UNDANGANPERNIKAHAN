@@ -12,16 +12,30 @@ use Illuminate\View\View;
 class UndanganController extends Controller
 {
     /**
-     * Menampilkan halaman undangan online untuk tamu spesifik.
+     * Menampilkan halaman undangan online untuk tamu SPESIFIK.
      */
-    public function show(Event $event, Guest $guest): View
+    public function show(Request $request, Event $event, Guest $guest): View
     {
-        // Mengambil data galeri foto untuk event ini
-        $photos = EventPhoto::where('event_id', $event->id)->latest()->get();
-
-        // Mengambil data ucapan (RSVP) untuk event ini
-        $rsvps = Rsvp::where('event_id', $event->id)->latest()->paginate(5);
+        $photos = $event->photos()->latest()->get();
+        $rsvps = $event->rsvps()->latest()->paginate(5);
+        $isPreview = $request->has('preview');
         
-        return view('undangan.show', compact('event', 'guest', 'photos', 'rsvps'));
+        // Memuat view 'undangan.show' untuk tamu pribadi
+        return view('undangan.show', compact('event', 'guest', 'photos', 'rsvps', 'isPreview'));
     }
+
+    /**
+     * Menampilkan halaman undangan online versi UMUM (untuk grup).
+     */
+    public function showPublic(Event $event): View
+{
+    $photos = $event->photos()->latest()->get();
+    $rsvps = $event->rsvps()->latest()->paginate(5);
+
+    // BUAT OBJEK GUEST KOSONG SEBAGAI PENGGANTI
+    $guest = new Guest();
+
+    // Memuat view 'undangan.public' untuk undangan umum
+    return view('undangan.public', compact('event', 'photos', 'rsvps', 'guest'));
+}
 }

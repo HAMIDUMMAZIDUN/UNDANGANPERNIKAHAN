@@ -19,53 +19,56 @@ class CheckInController extends Controller
      * Memproses data dari hasil scan QR (berdasarkan NAMA TAMU).
      */
     public function processQrCheckIn(Request $request)
-    {
-        // Validasi request
-        $request->validate(['qr_code' => 'required|string']);
+{
+    // 1. Validasi request
+    $request->validate(['qr_code' => 'required|url']);
 
-        $guestName = $request->qr_code; // Data dari QR sekarang adalah nama tamu
-        $event = Event::where('user_id', Auth::id())->first();
+    // 2. Dapatkan URL dari hasil scan
+    $invitationUrl = $request->qr_code;
+    $guestUuid = null;
 
-        if (!$event) {
-            return response()->json(['success' => false, 'message' => 'Event tidak ditemukan.'], 404);
-        }
-
-        // --- PERUBAHAN LOGIKA UTAMA DI SINI ---
-        // Cari tamu berdasarkan NAMA yang belum pernah check-in
-        $guest = Guest::where('name', $guestName)
-                      ->where('event_id', $event->id)
-                      ->whereNull('check_in_time') // <-- Kunci untuk menangani nama duplikat
-                      ->first();
-
-        // Jika tidak ada tamu dengan nama tersebut yang belum check-in
-        if (!$guest) {
-            // Kita cek apakah ada tamu dengan nama itu tapi SUDAH check-in
-            $alreadyCheckedIn = Guest::where('name', $guestName)
-                                     ->where('event_id', $event->id)
-                                     ->whereNotNull('check_in_time')
-                                     ->exists();
-
-            if ($alreadyCheckedIn) {
-                return response()->json([
-                    'success' => false, 
-                    'message' => 'Tamu ' . $guestName . ' sudah melakukan check-in sebelumnya.'
-                ], 409); // 409 Conflict
-            }
-
-            return response()->json(['success' => false, 'message' => 'Tamu tidak ditemukan atau QR Code tidak valid.'], 44);
-        }
-
-        // Jika tamu ditemukan dan belum check-in, lakukan proses check-in
-        $guest->update([
-            'check_in_time' => now(),
-            'number_of_guests' => $guest->number_of_guests ?: 1
-        ]);
-
-        // Kirim response sukses
-        return response()->json([
-            'success' => true, 
-            'message' => 'Selamat datang, ' . $guest->name . '!',
-            'guest_name' => $guest->name
-        ]);
+    // 3. Ekstrak UUID tamu dari URL menggunakan regular expression
+    // Ini akan mencari pola /undangan/.../.../{uuid}
+    if (preg_match('/\/([a-f0-9\-]{36})$/', $invitationUrl, $matches)) {
+        $guestUuid = $matches[1];
     }
+    
+    // Jika UUID tidak ditemukan dalam format URL
+    if (!$guestUuid) {
+        return response()->json(['success' => false, 'message' => 'Format QR Code tidak valid.'], 400); // 400 Bad Request
+    }
+
+    // 4. Cari tamu berdasarkan UUID
+    $guest = Guest::where('uuid', $guestUuid)->first();
+
+    // Jika tamu tidak ditemukan dengan UUID tersebut
+    if (!$guest) {
+        return response()->json(['success' => false, 'message' => 'Tamu tidak terdaftar.'], 404); // 404 Not Found
+    }
+    
+    // Periksa apakah event milik user yang login
+    if ($guest->event->user_id !== Auth::id()) {
+        return response()->json(['success' => false, 'message' => 'Akses ditolak.'], 403); // 403 Forbidden
+    }
+
+    // Periksa apakah tamu sudah pernah check-in
+    if ($guest->check_in_time) {
+        return response()->json([
+            'success' => false, 
+            'message' => 'Tamu ' . $guest->name . ' sudah melakukan check-in sebelumnya.'
+        ], 409); // 409 Conflict
+    }
+
+    // 5. Jika semua validasi lolos, lakukan proses check-in
+    $guest->update([
+        'check_in_time' => now(),
+    ]);
+
+    // 6. Kirim response sukses
+    return response()->json([
+        'success' => true, 
+        'message' => 'Selamat datang, ' . $guest->name . '!',
+        'guest_name' => $guest->name
+    ]);
+}
 }

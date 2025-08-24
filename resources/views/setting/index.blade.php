@@ -63,7 +63,7 @@
                                                 @endif
 
                                                 {{-- Link untuk QR Check-in --}}
-                                                <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">
+                                                <a href="{{ route('check-in.index') }}" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">
                                                     QR Check-in
                                                 </a>
                                             </div>
@@ -71,15 +71,9 @@
                                     </div>
                                 </div>
                                 <div class="mt-4">
-                                    @if($event->guests->isNotEmpty())
-                                        <a href="{{ route('undangan.show', ['event' => $event, 'guest' => $event->guests->first()]) }}" target="_blank" class="text-sm text-amber-600 hover:underline break-all">
-                                            Lihat Undangan &rarr;
-                                        </a>
-                                    @else
-                                        <span class="text-sm text-slate-400 cursor-not-allowed" title="Tidak ada tamu untuk membuat pratinjau undangan">
-                                            Lihat Undangan &rarr;
-                                        </span>
-                                    @endif
+                                     <a href="{{ route('undangan.public', ['event' => $event]) }}" target="_blank" class="text-slate-700 block px-4 py-2 text-sm hover:bg-slate-100" role="menuitem">
+                                        Undangan Umum (Buat ke Group Whatsapp)
+                                    </a>
                                 </div>
                             </div>
                         </div>

@@ -46,6 +46,7 @@ class ManualController extends Controller
             'name' => $validatedData['name'],
             'affiliation' => $validatedData['affiliation'],
             'check_in_time' => now(), 
+            'number_of_guests' => $validatedData['guest_count'],
         ]);
 
         // 3. Redirect kembali dengan pesan sukses
