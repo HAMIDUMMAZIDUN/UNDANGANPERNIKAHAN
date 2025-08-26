@@ -5,7 +5,14 @@
 @section('content')
 <div class="bg-slate-50 min-h-screen p-4 sm:p-6 lg:p-8">
     <div class="max-w-7xl mx-auto">
+        {{-- Menampilkan pesan sukses dari controller --}}
+        @if (session('success'))
+            <div class="bg-emerald-500 text-white p-4 rounded-md mb-6 shadow-md text-sm">
+                {{ session('success') }}
+            </div>
+        @endif
 
+        {{-- Menampilkan pesan error dari controller --}}
         <div class="flex items-center justify-between mb-8">
             <div>
                 <h1 class="text-2xl font-bold text-slate-800">Galeri Foto: {{ $event->name }}</h1>
@@ -30,7 +37,7 @@
                         Unggah
                     </button>
                 </div>
-                 @error('photo')
+                @error('photo')
                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                 @enderror
             </form>
@@ -52,7 +59,7 @@
                             @method('DELETE')
                             <button type="submit" class="text-white opacity-0 group-hover:opacity-100 transition-all duration-300 p-3 bg-red-600/80 rounded-full hover:bg-red-700 transform scale-75 group-hover:scale-100">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                 </svg>
                             </button>
                         </form>
@@ -77,28 +84,39 @@
 @endsection
 
 @push('scripts')
-{{-- Pastikan Anda sudah punya SweetAlert di layouts/app.blade.php --}}
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('.delete-form').forEach(form => {
-        form.addEventListener('submit', function (event) {
-            event.preventDefault();
-            Swal.fire({
-                title: 'Hapus foto ini?',
-                text: "Anda tidak akan dapat mengembalikannya!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#64748b',
-                confirmButtonText: 'Ya, hapus!',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    this.submit();
+    // Memastikan skrip dieksekusi setelah seluruh DOM dimuat
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.delete-form').forEach(form => {
+            form.addEventListener('submit', function (event) {
+                event.preventDefault(); // Mencegah form submit secara default
+                
+                // Memastikan SweetAlert2 tersedia sebelum memanggilnya
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: 'Hapus foto ini?',
+                        text: "Anda tidak akan dapat mengembalikannya!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#64748b',
+                        confirmButtonText: 'Ya, hapus!',
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Jika pengguna mengonfirmasi, submit form
+                            this.submit();
+                        }
+                    });
+                } else {
+                    console.error('SweetAlert2 tidak ditemukan. Pastikan sudah dimuat.');
+                    // Fallback: Jika SweetAlert tidak dimuat, bisa langsung submit atau memberi alert sederhana
+                    if (confirm('SweetAlert2 tidak ditemukan. Apakah Anda yakin ingin menghapus foto ini?')) {
+                        this.submit();
+                    }
                 }
             });
         });
     });
-});
 </script>
 @endpush

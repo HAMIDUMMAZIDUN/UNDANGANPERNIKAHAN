@@ -62,4 +62,8 @@ class Event extends Model
     {
         return $this->hasMany(Rsvp::class);
     }
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
 }

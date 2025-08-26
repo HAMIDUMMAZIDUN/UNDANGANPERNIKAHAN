@@ -53,7 +53,7 @@
 
                                                 {{-- Link untuk Layar Sapa --}}
                                                 @if ($event->uuid)
-                                                    <a href="{{ route('sapa.index', $event) }}" target="_blank" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">
+                                                    <a href="{{ route('sapa.index', $event->uuid) }}" target="_blank" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">
                                                         Layar Sapa
                                                     </a>
                                                 @else

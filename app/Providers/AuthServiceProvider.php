@@ -2,31 +2,29 @@
 
 namespace App\Providers;
 
-// ... (use statements)
 use App\Models\Event;
 use App\Policies\EventPolicy;
+use App\Models\EventPhoto; // Tambahkan ini
+use App\Policies\EventPhotoPolicy; // Tambahkan ini
+use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
 {
     /**
-     * The policy mappings for the application.
+     * The model to policy mappings for the application.
      *
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        // 'App\Models\Model' => 'App\Policies\ModelPolicy',
-        Event::class => EventPolicy::class, // <-- TAMBAHKAN BARIS INI
+        Event::class => EventPolicy::class,
+        EventPhoto::class => EventPhotoPolicy::class, // Daftarkan EventPhotoPolicy
     ];
 
     /**
      * Register any authentication / authorization services.
-     *
-     * @return void
      */
-    public function boot()
+    public function boot(): void
     {
-        $this->registerPolicies();
-
         //
     }
 }

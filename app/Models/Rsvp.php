@@ -18,7 +18,7 @@ class Rsvp extends Model
         'user_id',
         'event_id',
         'name',
-        'status',
         'message',
+        'status',
     ];
 }

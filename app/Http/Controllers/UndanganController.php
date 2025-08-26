@@ -38,4 +38,25 @@ class UndanganController extends Controller
     // Memuat view 'undangan.public' untuk undangan umum
     return view('undangan.public', compact('event', 'photos', 'rsvps', 'guest'));
 }
+public function store(Request $request, Event $event): RedirectResponse
+    {
+        // 1. Validasi input dari form
+        $validatedData = $request->validate([
+            'name'    => 'required|string|max:255',
+            'message' => 'required|string',
+            'status'  => 'required|in:Hadir,Tidak Hadir', // Sesuaikan value dengan di form Anda
+        ]);
+
+        // 2. Simpan data ke dalam database
+        Rsvp::create([
+            'event_id' => $event->id,          // Ambil ID dari event yang dibuka
+            'user_id'  => $event->user_id,     // Ambil ID pemilik event
+            'name'     => $validatedData['name'],
+            'message'  => $validatedData['message'],
+            'status'   => strtolower(str_replace(' ', '_', $validatedData['status'])), // Mengubah "Tidak Hadir" -> "tidak_hadir"
+        ]);
+
+        // 3. Kembalikan ke halaman sebelumnya dengan pesan sukses
+        return back()->with('success', 'Terima kasih, ucapan dan konfirmasi Anda telah terkirim!');
+    }
 }

@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Rsvp; // Pastikan Anda memiliki model ini
+use App\Models\Rsvp;
+use App\Models\Event; // <-- Penting: Tambahkan ini
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -38,6 +39,37 @@ class ReservasiController extends Controller
 
         return view('rsvp.index', compact('rsvps', 'stats'));
     }
+
+    /**
+     * [BARU] Menyimpan data RSVP baru dari form undangan.
+     *
+     * @param Request $request
+     * @param Event $event
+     * @return RedirectResponse
+     */
+    public function store(Request $request, Event $event): RedirectResponse
+    {
+        // 1. Validasi input dari form
+        $validatedData = $request->validate([
+            'name'    => 'required|string|max:255',
+            'message' => 'required|string',
+            'status'  => 'required|in:Hadir,Tidak Hadir', // Sesuaikan dengan value di form
+        ]);
+
+        // 2. Simpan data ke dalam database
+        Rsvp::create([
+            'event_id' => $event->id,
+            'user_id'  => $event->user_id, // Mengambil user_id dari event terkait
+            'name'     => $validatedData['name'],
+            'message'  => $validatedData['message'],
+            // Mengubah format status agar sesuai dengan database (cth: "Tidak Hadir" -> "tidak_hadir")
+            'status'   => strtolower(str_replace(' ', '_', $validatedData['status'])),
+        ]);
+
+        // 3. Kembalikan ke halaman sebelumnya dengan pesan sukses
+        return back()->with('success', 'Terima kasih, ucapan Anda telah berhasil dikirim!');
+    }
+
 
     /**
      * Menghapus data RSVP.

@@ -225,11 +225,13 @@
              <form action="{{ route('rsvp.store', $event) }}" method="POST">
                  @csrf
                  <input type="hidden" name="guest_uuid" value="{{ $guest->uuid }}">
-                 <div class="mb-4">
-                     <label for="name" class="block text-sm font-medium text-slate-700">Nama</label>
-                     <textarea id="message" name="message" rows="4" class="mt-1 block w-full border-slate-300 rounded-md shadow-sm @error('message') border-red-500 @enderror" placeholder="Tulis Nama Anda di sini..." required>{{ old('message') }}</textarea>
-                     @error('name') <p class="text-sm text-red-500 mt-1">{{ $message }}</p> @enderror
-                 </div>
+                 {{-- INI KODE PERBAIKANNYA --}}
+                    <div class="mb-4">
+                        <label for="name" class="block text-sm font-medium text-slate-700">Nama</label>
+                        {{-- Gunakan input text, dan pastikan id="name" dan name="name" --}}
+                        <input type="text" id="name" name="name" class="mt-1 block w-full border-slate-300 rounded-md shadow-sm @error('name') border-red-500 @enderror" placeholder="Tulis Nama Anda di sini..." value="{{ $guest->name ?? old('name') }}" required>
+                        @error('name') <p class="text-sm text-red-500 mt-1">{{ $message }}</p> @enderror
+                    </div>
                  <div class="mb-4">
                      <label for="message" class="block text-sm font-medium text-slate-700">Ucapan & Doa</label>
                      <textarea id="message" name="message" rows="4" class="mt-1 block w-full border-slate-300 rounded-md shadow-sm @error('message') border-red-500 @enderror" placeholder="Tulis ucapan Anda di sini..." required>{{ old('message') }}</textarea>
