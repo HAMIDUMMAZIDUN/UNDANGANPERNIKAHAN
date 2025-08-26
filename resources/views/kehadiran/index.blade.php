@@ -12,11 +12,12 @@
     </div>
 
     <!-- Start: Bagian Statistik -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+    {{-- PERBAIKAN: Grid diubah menjadi 4 kolom --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <!-- Card Undangan -->
       <div class="bg-amber-500/50 p-6 rounded-lg shadow-lg text-center">
         <h2 class="text-4xl font-bold text-amber-900">{{ $totalUndangan }}</h2>
-        <p class="text-white-700 uppercase tracking-wider mt-1">Undangan</p>
+        <p class="text-amber-700 uppercase tracking-wider mt-1">Undangan</p>
       </div>
       <!-- Card Hadir -->
       <div class="bg-green-500/50 p-6 rounded-lg shadow-lg text-center">
@@ -27,6 +28,11 @@
       <div class="bg-blue-500/50 p-6 rounded-lg shadow-lg text-center">
         <h2 class="text-4xl font-bold text-blue-900">{{ $jumlahTamuHadir }}</h2>
         <p class="text-blue-700 uppercase tracking-wider mt-1">Jml Tamu</p>
+      </div>
+      <!-- Card Tidak Hadir -->
+      <div class="bg-red-500/50 p-6 rounded-lg shadow-lg text-center">
+        <h2 class="text-4xl font-bold text-red-900">{{ $totalTidakHadir }}</h2>
+        <p class="text-red-700 uppercase tracking-wider mt-1">Tidak Hadir</p>
       </div>
     </div>
     <!-- End: Bagian Statistik -->
@@ -136,13 +142,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const exportPdfLink = document.getElementById('exportPdfLink');
     const exportExcelLink = document.getElementById('exportExcelLink');
 
-    // Fungsi untuk memperbarui link ekspor
     function updateExportLinks() {
         const searchValue = searchInput.value;
         const currentUrlPdf = new URL(exportPdfLink.href);
         const currentUrlExcel = new URL(exportExcelLink.href);
 
-        // Update parameter 'search' untuk PDF
         if (searchValue) {
             currentUrlPdf.searchParams.set('search', searchValue);
         } else {
@@ -150,7 +154,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         exportPdfLink.href = currentUrlPdf.toString();
 
-        // Update parameter 'search' untuk Excel
         if (searchValue) {
             currentUrlExcel.searchParams.set('search', searchValue);
         } else {
@@ -159,11 +162,7 @@ document.addEventListener('DOMContentLoaded', function () {
         exportExcelLink.href = currentUrlExcel.toString();
     }
 
-    // Panggil fungsi sekali saat halaman dimuat untuk memastikan link awal sudah benar
     updateExportLinks();
-
-    // Tambahkan event listener ke input pencarian
-    // Setiap kali pengguna mengetik, perbarui link ekspor
     searchInput.addEventListener('keyup', updateExportLinks);
 });
 </script>

@@ -30,7 +30,7 @@
                     <div>
                         <label for="affiliation" class="block text-sm font-medium text-slate-700">Kategori / Keterangan</label>
                         <div class="mt-1">
-                            <input type="text" name="affiliation" id="affiliation" value="{{ old('affiliation') }}" placeholder="Contoh: Rekan Kerja Ayah" class="shadow-sm focus:ring-amber-500 focus:border-amber-500 block w-full sm:text-sm border-slate-300 rounded-md @error('affiliation') border-red-500 @enderror" required>
+                            <input type="text" name="affiliation" id="affiliation" value="{{ old('affiliation') }}" placeholder="Contoh: Rekan Kerja Ayah (Opsional)" class="shadow-sm focus:ring-amber-500 focus:border-amber-500 block w-full sm:text-sm border-slate-300 rounded-md @error('affiliation') border-red-500 @enderror">
                         </div>
                         @error('affiliation')
                             <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
@@ -60,3 +60,33 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Menampilkan notifikasi sukses
+    @if(session('success'))
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: '{{ session('success') }}',
+            showConfirmButton: false,
+            timer: 3500,
+            timerProgressBar: true
+        });
+    @endif
+
+    // Menampilkan notifikasi error
+    @if(session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            // PERBAIKAN: Menghapus tanda kutip yang tidak perlu
+            text: `{!! session('error') !!}`,
+            confirmButtonColor: '#d33'
+        });
+    @endif
+});
+</script>
+@endpush

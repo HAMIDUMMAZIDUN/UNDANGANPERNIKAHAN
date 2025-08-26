@@ -6,28 +6,22 @@ use App\Models\Guest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
-use App\Exports\GuestsKehadiranExport; // <-- Import class export
-use Maatwebsite\Excel\Facades\Excel;   // <-- Import Facade Excel
-use Barryvdh\DomPDF\Facade\Pdf;          // <-- Import Facade PDF
+use App\Exports\GuestsKehadiranExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class KehadiranController extends Controller
 {
-    /**
-     * Method private untuk mengambil data tamu berdasarkan filter dan pencarian.
-     * Ini digunakan oleh index, exportPdf, dan exportExcel agar tidak duplikat kode.
-     */
     private function getFilteredGuests(Request $request)
     {
         $query = Guest::where('user_id', Auth::id());
 
-        // Filter: 'hadir' (default) atau 'tidak-hadir'
         if ($request->query('filter') === 'tidak-hadir') {
             $query->whereNull('check_in_time');
         } else {
             $query->whereNotNull('check_in_time');
         }
 
-        // Filter Pencarian berdasarkan nama
         if ($search = $request->query('search')) {
             $query->where('name', 'LIKE', "%{$search}%");
         }
@@ -35,19 +29,22 @@ class KehadiranController extends Controller
         return $query;
     }
 
-    /**
-     * Menampilkan halaman statistik kehadiran tamu.
-     */
     public function index(Request $request): View
     {
         $userId = Auth::id();
+        $baseQuery = Guest::where('user_id', $userId);
+        
+        // --- PERBAIKAN LOGIKA STATISTIK ---
+        $totalUndangan = (clone $baseQuery)->count();
+        
+        $hadirQuery = (clone $baseQuery)->whereNotNull('check_in_time');
+        $totalHadir = (clone $hadirQuery)->count();
+        $jumlahTamuHadir = (clone $hadirQuery)->sum('number_of_guests');
+        
+        // Menambahkan statistik untuk yang tidak hadir
+        $totalTidakHadir = (clone $baseQuery)->whereNull('check_in_time')->count();
+        // --- AKHIR PERBAIKAN ---
 
-        // Statistik
-        $totalUndangan = Guest::where('user_id', $userId)->count();
-        $totalHadir = Guest::where('user_id', $userId)->whereNotNull('check_in_time')->count();
-        $jumlahTamuHadir = $totalHadir;
-
-        // Mengambil data tamu dengan filter dan search
         $query = $this->getFilteredGuests($request);
         $guests = $query->latest('check_in_time')->paginate(15);
 
@@ -55,18 +52,16 @@ class KehadiranController extends Controller
             'totalUndangan',
             'totalHadir',
             'jumlahTamuHadir',
+            'totalTidakHadir', // Mengirim data baru ke view
             'guests'
         ));
     }
 
-    /**
-     * Export data ke PDF.
-     */
     public function exportPdf(Request $request)
     {
         $query = $this->getFilteredGuests($request);
         $guests = $query->get();
-        $status = $request->query('filter', 'hadir'); // default 'hadir'
+        $status = $request->query('filter', 'hadir');
 
         $pdf = Pdf::loadView('kehadiran.pdf', [
             'guests' => $guests,
@@ -76,9 +71,6 @@ class KehadiranController extends Controller
         return $pdf->download('laporan-kehadiran-'. $status .'-'. date('Y-m-d') .'.pdf');
     }
 
-    /**
-     * Export data ke Excel.
-     */
     public function exportExcel(Request $request)
     {
         $query = $this->getFilteredGuests($request);

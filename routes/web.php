@@ -43,12 +43,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
     Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
     Route::get('/cari-tamu', [CariTamuController::class, 'index'])->name('cari-tamu.index');
-    Route::post('/guests/{guest}/checkin', [CariTamuController::class, 'checkIn'])->name('guests.checkin');
+    Route::get('/tamu/search', [CariTamuController::class, 'search'])->name('api.tamu.search');
+    Route::post('/guests/{guestId}/checkin', [CariTamuController::class, 'checkIn'])->name('guests.checkin');
     Route::post('/cari-tamu/store', [CariTamuController::class, 'store'])->name('cari-tamu.store');
-   
-    // Tamu
-     Route::prefix('events/{event:uuid}')->name('events.')->group(function () {
-        
+    Route::get('/tamu/search', [CariTamuController::class, 'search'])->name('api.tamu.search');
+
+    // Rute yang berhubungan dengan Event spesifik
+    Route::prefix('events/{event:uuid}')->name('events.')->group(function () {
         // --- KELOMPOK TAMU (RESTRUCTURED) ---
         Route::get('/tamu', [TamuController::class, 'index'])->name('tamu.index');
         Route::get('/tamu/create', [TamuController::class, 'create'])->name('tamu.create');
@@ -64,13 +65,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/tamu/import/template', [TamuController::class, 'downloadTemplate'])->name('tamu.import.template');
         Route::get('/tamu/print-qr', [TamuController::class, 'printMultipleQr'])->name('tamu.print_multiple_qr'); 
         Route::get('tamu/{guest:uuid}/download-qr', [TamuController::class, 'downloadQr'])->name('tamu.download_qr');
-
     });
 
     // Kehadiran
     Route::get('/kehadiran', [KehadiranController::class, 'index'])->name('kehadiran.index');
     Route::get('/kehadiran/export/pdf', [KehadiranController::class, 'exportPdf'])->name('kehadiran.export.pdf');
     Route::get('/kehadiran/export/excel', [KehadiranController::class, 'exportExcel'])->name('kehadiran.export.excel');
+    
     // RSVP
     Route::controller(ReservasiController::class)->prefix('rsvp')->name('rsvp.')->group(function () {
         Route::get('/', 'index')->name('index');
@@ -122,13 +123,22 @@ Route::middleware('auth')->group(function () {
 Route::get('/sapa/{event:uuid?}', [SapaController::class, 'index'])->name('sapa.index');
 Route::get('/sapa/{event:uuid}/data', [SapaController::class, 'getData'])->name('sapa.data');
 Route::post('/guests/{guest}', [GuestController::class, 'update'])->name('guests.update');
-Route::middleware('auth:sanctum')->get('/tamu/search', [CariTamuController::class, 'search'])->name('api.tamu.search');
 Route::get('/checkin/{guest:uuid}', [CheckinController::class, 'process'])->name('checkin.guest');
 Route::get('/undangan/{event:uuid}/{guest:uuid}', [UndanganController::class, 'show'])->name('undangan.show');
 Route::post('/rsvp/{event:uuid}', [RsvpController::class, 'store'])->name('rsvp.store');
 Route::get('/undangan/{event:uuid}', [UndanganController::class, 'showPublic'])->name('undangan.public');
-Route::get('/sapa/{event:uuid?}', [SapaController::class, 'index'])->name('sapa.index');
-
-
-
-
+Route::get('/undangan/{event:uuid}/preview', [UndanganController::class, 'preview'])->name('undangan.preview');
+Route::get('/undangan/{event:uuid}/gallery', [UndanganController::class, 'gallery'])->name('undangan.gallery');
+Route::get('/undangan/{event:uuid}/video', [UndanganController::class, 'video'])->name('undangan.video');
+Route::get('/undangan/{event:uuid}/cerita', [UndanganController::class, 'story'])->name('undangan.story');
+Route::get('/undangan/{event:uuid}/lokasi', [UndanganController::class, 'location'])->name('undangan.location');
+Route::get('/undangan/{event:uuid}/acara', [UndanganController::class, 'events'])->name('undangan.events');
+Route::get('/undangan/{event:uuid}/protokol', [UndanganController::class, 'protocols'])->name('undangan.protocols');
+Route::get('/undangan/{event:uuid}/ucapan', [UndanganController::class, 'greetings'])->name('undangan.greetings');
+Route::post('/undangan/{event:uuid}/ucapan', [UndanganController::class, 'storeGreeting'])->name('undangan.greetings.store');
+Route::get('/undangan/{event:uuid}/gift', [UndanganController::class, 'gift'])->name('undangan.gift');
+Route::get('/undangan/{event:uuid}/souvenir', [UndanganController::class, 'souvenir'])->name('undangan.souvenir');
+Route::post('/undangan/{event:uuid}/souvenir/redeem', [UndanganController::class, 'redeemSouvenir'])->name('undangan.souvenir.redeem');
+Route::get('/undangan/{event:uuid}/gift/transfer', [UndanganController::class, 'giftTransferForm'])->name('undangan.gift.transfer.form');
+Route::post('/undangan/{event:uuid}/gift/transfer', [UndanganController::class, 'giftTransferProcess'])->name('undangan.gift.transfer.process');
+Route::get('/undangan/{event:uuid}/gift/transfer/success', [UndanganController::class, 'giftTransferSuccess'])->name('undangan.gift.transfer.success');

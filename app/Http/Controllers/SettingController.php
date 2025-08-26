@@ -53,7 +53,7 @@ public function update(Request $request, Event $event): RedirectResponse
     $validated = $request->validate([
         'name' => 'required|string|max:255',
         'date' => 'required|date',
-        'photo_url' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+        'photo_url' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5000',
         'groom_name' => 'nullable|string|max:255',
         'groom_parents' => 'nullable|string|max:255', 
         'groom_instagram' => 'nullable|string|max:255',
@@ -61,8 +61,7 @@ public function update(Request $request, Event $event): RedirectResponse
         'bride_name' => 'nullable|string|max:255',
         'bride_parents' => 'nullable|string|max:255', 
         'bride_instagram' => 'nullable|string|max:255',
-        'bride_photo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-        // --- Validasi untuk field baru ---
+        'bride_photo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:500',
         'akad_location' => 'nullable|string|max:255',
         'akad_time' => 'nullable|string|max:255',
         'akad_maps_url' => 'nullable|url|max:255',

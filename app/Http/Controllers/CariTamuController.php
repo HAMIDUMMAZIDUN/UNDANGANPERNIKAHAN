@@ -8,13 +8,17 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Event;
 use App\Models\Guest;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 
 class CariTamuController extends Controller
 {
-    /**
-     * Menampilkan halaman pencarian tamu dengan hasil dari database.
-     */
     public function index(Request $request): View
+    {
+        $guests = collect();
+        return view('cari-tamu.index', compact('guests'));
+    }
+
+    public function search(Request $request): View
     {
         $user = Auth::user();
         $event = Event::where('user_id', $user->id)->first();
@@ -22,11 +26,10 @@ class CariTamuController extends Controller
 
         if ($event) {
             $guestsQuery->where('event_id', $event->id);
-
             if ($search = $request->query('search')) {
                 $guestsQuery->where(function ($q) use ($search) {
                     $q->where('name', 'LIKE', "%{$search}%")
-                        ->orWhere('affiliation', 'LIKE', "%{$search}%");
+                      ->orWhere('affiliation', 'LIKE', "%{$search}%");
                 });
             } else {
                 $guestsQuery->whereRaw('1=0');
@@ -34,17 +37,22 @@ class CariTamuController extends Controller
         } else {
             $guestsQuery->whereRaw('1=0');
         }
-
-        $guests = $guestsQuery->paginate(15)->withQueryString();
-
-        return view('cari-tamu.index', compact('guests', 'event'));
+        
+        $guests = $guestsQuery->take(20)->get(); 
+        return view('cari-tamu._guest-list', compact('guests'));
     }
 
     /**
-     * Method untuk memproses check-in tamu terdaftar dari modal.
+     * PERBAIKAN: Mengganti Route Model Binding dengan pencarian manual.
      */
-    public function checkIn(Request $request, Guest $guest): RedirectResponse
+    public function checkIn(Request $request, $guestId): JsonResponse
     {
+        $guest = Guest::find($guestId);
+
+        if (!$guest) {
+            return response()->json(['message' => 'Tamu dengan ID yang diberikan tidak ditemukan.'], 404);
+        }
+
         $request->validate([
             'jumlah_tamu' => 'required|integer|min:1',
         ]);
@@ -53,11 +61,11 @@ class CariTamuController extends Controller
         $event = Event::where('user_id', $user->id)->first();
 
         if (!$event || $guest->event_id !== $event->id) {
-            return back()->with('error', 'Akses tidak diizinkan.');
+            return response()->json(['message' => 'Akses tidak diizinkan.'], 403);
         }
 
         if ($guest->check_in_time !== null) {
-            return back()->with('error', 'Tamu sudah check-in.');
+            return response()->json(['message' => 'Tamu ini sudah check-in sebelumnya.'], 422);
         }
         
         $guest->update([
@@ -65,21 +73,16 @@ class CariTamuController extends Controller
             'number_of_guests' => $request->jumlah_tamu,
         ]);
         
-        $searchQuery = $request->input('search');
-
-        return redirect()->route('cari-tamu.index', ['search' => $searchQuery])
-            ->with('success', 'Tamu "' . $guest->name . '" berhasil check-in.');
+        return response()->json([
+            'message' => 'Tamu "' . $guest->name . '" berhasil check-in.'
+        ]);
     }
 
-    /**
-     * Menyimpan data check-in tamu manual baru.
-     * Logika ini sama dengan ManualController@store.
-     */
     public function store(Request $request): RedirectResponse
     {
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
-            'affiliation' => 'nullable|string|max:255', // Buat affiliation opsional
+            'affiliation' => 'required|string|max:255',
             'guest_count' => 'required|integer|min:1',
         ]);
 
@@ -94,11 +97,11 @@ class CariTamuController extends Controller
             'user_id' => $user->id,
             'event_id' => $event->id,
             'name' => $validatedData['name'],
-            'affiliation' => $validatedData['affiliation'] ?? 'Tamu Manual',
+            'affiliation' => $validatedData['affiliation'],
             'number_of_guests' => $validatedData['guest_count'],
             'check_in_time' => now(), 
         ]);
         
-        return redirect()->route('cari-tamu.index')->with('success', 'Tamu "' . $validatedData['name'] . '" berhasil check-in secara manual!');
+        return redirect()->route('kehadiran.index')->with('success', 'Tamu manual berhasil check-in!');
     }
 }
