@@ -4,69 +4,78 @@ namespace App\Policies;
 
 use App\Models\User;
 use App\Models\Event;
-use Illuminate\Auth\Access\Response;
+// Hapus atau jangan gunakan Illuminate\Auth\Access\Response jika Anda hanya mengembalikan bool
+// use Illuminate\Auth\Access\Response; 
 
 class EventPolicy
 {
     /**
-     * Metode ini akan dijalankan sebelum metode Policy lainnya.
-     * Berguna untuk admin atau superuser yang selalu diizinkan.
-     */
-    public function before(User $user, string $ability): bool|null
-    {
-        // Contoh: Jika user adalah admin, izinkan semua aksi.
-        // if ($user->isAdmin()) { // Asumsi ada method isAdmin() di model User Anda
-        //     return true;
-        // }
-        return null; // Lanjutkan ke metode Policy spesifik
-    }
-
-    /**
-     * Determine whether the user can view the model.
-     * Memeriksa apakah user dapat melihat (edit) event.
+     * Determine whether the user can view the event.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\Event  $event
+     * @return bool
      */
     public function view(User $user, Event $event): bool
     {
-        return $user->id === $event->user_id
-               ? Response::allow()
-               : Response::deny('Anda tidak memiliki izin untuk melihat event ini.');
+        // Cukup kembalikan true atau false berdasarkan logika otorisasi Anda.
+        // Di sini, kita memeriksa apakah user yang login adalah pemilik event.
+        return $user->id === $event->user_id;
     }
 
     /**
-     * Determine whether the user can update the model.
-     * Memeriksa apakah user dapat memperbarui event.
+     * Determine whether the user can update the event.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\Event  $event
+     * @return bool
      */
     public function update(User $user, Event $event): bool
     {
-        return $user->id === $event->user_id
-               ? Response::allow()
-               : Response::deny('Anda tidak memiliki izin untuk memperbarui event ini.');
+        return $user->id === $event->user_id;
     }
 
     /**
-     * Determine whether the user can manage the gallery for the event.
-     * Memeriksa apakah user dapat mengelola galeri foto event.
+     * Determine whether the user can manage the event gallery.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\Event  $event
+     * @return bool
      */
-     public function manageGallery(User $user, Event $event): bool
+    public function manageGallery(User $user, Event $event): bool
     {
-        return $user->id === $event->user_id; // Cukup kembalikan true atau false
+        return $user->id === $event->user_id;
     }
 
     /**
-     * Determine whether the user can upload photos to the event's gallery.
-     * Memeriksa apakah user dapat mengunggah foto ke galeri event.
+     * Determine whether the user can upload a photo to the event gallery.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\Event  $event
+     * @return bool
      */
-     public function uploadPhoto(User $user, Event $event): Response
+    public function uploadPhoto(User $user, Event $event): bool
     {
-        return $user->id === $event->user_id
-               ? Response::allow()
-               : Response::deny('Anda tidak memiliki izin untuk mengunggah foto ke event ini.');
+        return $user->id === $event->user_id;
     }
 
-    // Metode deletePhoto akan ditangani oleh EventPhotoPolicy
-    // Atau jika Anda ingin menanganinya di EventPolicy:
-    // public function deletePhoto(User $user, Event $event, EventPhoto $photo): bool
-    // {
-    //     return $user->id === $event->user_id && $event->id === $photo->event_id;
-    // }
+    // Pastikan Anda juga memiliki metode deletePhoto di EventPhotoPolicy,
+    // karena $photo adalah instance dari EventPhoto, bukan Event.
+    // Jika deletePhoto ada di EventPolicy dan menerima EventPhoto, type hint-nya harus sesuai.
+    // Jika EventPhotoPolicy adalah policy terpisah, maka logicnya ada di sana.
+    // Untuk contoh, saya asumsikan ini di EventPolicy dan menerima EventPhoto.
+    /**
+     * Determine whether the user can delete a photo from the event gallery.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\EventPhoto  $photo
+     * @return bool
+     */
+    public function deletePhoto(User $user, \App\Models\EventPhoto $photo): bool
+    {
+        // Logika untuk memastikan user yang login adalah pemilik event dari foto tersebut
+        return $user->id === optional($photo->event)->user_id;
+    }
+
+    // ... metode policy lainnya (create, delete, restore, forceDelete)
 }

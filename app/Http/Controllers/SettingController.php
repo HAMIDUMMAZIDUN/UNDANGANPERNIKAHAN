@@ -109,7 +109,7 @@ class SettingController extends Controller
         $this->authorize('uploadPhoto', $event);
 
         $request->validate([
-            'photo' => ['required', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048']
+            'photo' => ['required', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5000']
         ]);
 
         $path = $request->file('photo')->store('gallery_photos', 'public');
