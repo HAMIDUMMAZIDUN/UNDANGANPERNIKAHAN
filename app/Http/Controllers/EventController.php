@@ -37,6 +37,7 @@ class EventController extends Controller
 
         try {
             // 2. Tambahkan user_id dan uuid ke data yang akan disimpan
+            $validatedData['slug'] = Str::slug($validatedData['name'], '-');
             $validatedData['user_id'] = Auth::id();
             $validatedData['uuid'] = Str::uuid(); // Generate UUID unik untuk event
 
