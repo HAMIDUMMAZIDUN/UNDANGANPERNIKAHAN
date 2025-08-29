@@ -50,6 +50,7 @@ class SettingController extends Controller
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'phone_number' => ['nullable', 'string', 'max:20'], // ATURAN VALIDASI BARU
             'date' => ['required', 'date'],
             'photo_url' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5000'],
             'groom_name' => ['nullable', 'string', 'max:255'],

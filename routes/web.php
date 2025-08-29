@@ -56,6 +56,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboardadmin', [DashboardAdminController::class, 'index'])->name('dashboard.admin.index');
     Route::get('/request-client', [RequestClientController::class, 'index'])->name('request.client.index');
 
+    // --- MANAJEMEN KLIEN ---
+    Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/clients', [ClientController::class, 'index'])->name('client.index');
+    Route::get('/clients/create', [ClientController::class, 'create'])->name('client.create');
+    Route::post('/clients', [ClientController::class, 'store'])->name('client.store');
+    Route::delete('/clients/{client}', [ClientController::class, 'destroy'])->name('client.destroy');
+    });
     // --- MANAJEMEN KLIEN (ADMIN) ---
     Route::get('/clients', [ClientController::class, 'index'])->name('client.index');
     Route::delete('/clients/{client}', [ClientController::class, 'destroy'])->name('client.destroy');

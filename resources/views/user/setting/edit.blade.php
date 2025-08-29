@@ -34,6 +34,17 @@
                         @enderror
                     </div>
 
+                    {{-- KOLOM BARU: No Handphone --}}
+                    <div>
+                        <label for="phone_number" class="block text-sm font-medium text-slate-700">No Handphone (Opsional)</label>
+                        <div class="mt-1">
+                            <input type="tel" name="phone_number" id="phone_number" value="{{ old('phone_number', $event->phone_number) }}" placeholder="Contoh: 081234567890" class="shadow-sm focus:ring-amber-500 focus:border-amber-500 block w-full sm:text-sm border-slate-300 rounded-md @error('phone_number') border-red-500 @enderror">
+                        </div>
+                        @error('phone_number')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
                     {{-- Tanggal Event --}}
                     <div>
                         <label for="date" class="block text-sm font-medium text-slate-700">Tanggal Event</label>

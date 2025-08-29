@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsTo; // <-- Tambahkan ini
+use Illuminate\Database\Eloquent\Relations\BelongsTo; 
 use App\Models\Rsvp;
 
 class Event extends Model
@@ -17,7 +17,8 @@ class Event extends Model
         'user_id',
         'uuid',
         'name',
-        'slug', // Pastikan slug ada di fillable jika Anda mengisinya secara massal
+        'phone_number',
+        'slug', 
         'date',
         'photo_url',
         'groom_name',

@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage; // Import the Storage facade
 use App\Models\User;
 
 class ProfileController extends Controller
@@ -33,26 +33,22 @@ class ProfileController extends Controller
             $user->password = Hash::make($request->new_password);
         }
 
-        // Logika untuk update foto (hanya berjalan jika ada file baru)
+        // Logika untuk update foto menggunakan Storage facade
         if ($request->hasFile('photo')) {
-            $path = public_path('poto-profile');
+            // 1. Hapus foto lama jika ada
+            if ($user->photo) {
+                Storage::disk('public')->delete($user->photo);
+            }
+
+            // 2. Tentukan nama file baru berdasarkan ID user
             $filename = 'user-' . $user->id . '.' . $request->file('photo')->getClientOriginalExtension();
+            
+            // 3. Simpan file baru ke 'storage/app/public/profile-photos'
+            // dan simpan path-nya ke variabel $path
+            $path = $request->file('photo')->storeAs('profile-photos', $filename, 'public');
 
-            // Buat direktori jika belum ada
-            if (!File::exists($path)) {
-                File::makeDirectory($path, 0755, true);
-            }
-
-            // Hapus foto lama jika ada (pastikan path foto lama benar)
-            if ($user->photo && File::exists(public_path($user->photo))) {
-                File::delete(public_path($user->photo));
-            }
-
-            // Simpan foto baru
-            $request->file('photo')->move($path, $filename);
-
-            // Simpan path baru ke user
-            $user->photo = 'poto-profile/' . $filename;
+            // 4. Simpan path baru ke database
+            $user->photo = $path;
         }
 
         // Simpan semua perubahan (nama, email, password, foto)

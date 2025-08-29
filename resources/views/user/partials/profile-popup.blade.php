@@ -2,9 +2,8 @@
      class="fixed inset-0 bg-slate-900/70 flex items-center justify-center z-50"
      x-show="profilePopupOpen"
      x-cloak>
- 
+
     <div class="bg-slate-800 border border-slate-700 rounded-xl shadow-lg w-full max-w-md p-6 relative">
-        {{-- PERBAIKAN: Ubah onclick menjadi @click --}}
         <button @click="profilePopupOpen = false" class="absolute top-3 right-4 text-slate-400 hover:text-white text-2xl">×</button>
         
         <h2 class="text-xl font-bold text-amber-500 mb-6 text-center">Update User</h2>
@@ -21,9 +20,19 @@
 
         <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="space-y-4">
             @csrf
+            
+            {{-- BAGIAN FOTO PROFIL DIPERBARUI --}}
             <div>
                 <label class="block text-sm font-medium text-slate-300">Foto Profil</label>
-                <input type="file" name="photo" accept="image/*" class="mt-1 block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-slate-700 file:text-slate-200 hover:file:bg-slate-600">
+                <div class="mt-2 flex items-center gap-4">
+                    {{-- Menampilkan foto saat ini atau avatar default --}}
+                    <img src="{{ Auth::user()->photo ? asset('storage/' . Auth::user()->photo) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name) . '&background=d97706&color=fff' }}" 
+                         alt="Foto Profil" 
+                         class="h-16 w-16 rounded-full object-cover">
+                    
+                    {{-- Input untuk mengganti foto --}}
+                    <input type="file" name="photo" accept="image/*" class="block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-slate-700 file:text-slate-200 hover:file:bg-slate-600">
+                </div>
             </div>
 
             <div>

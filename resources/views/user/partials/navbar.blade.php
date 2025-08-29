@@ -2,7 +2,7 @@
     <div class="flex items-center justify-between h-full px-4">
         <!-- Tombol Hamburger (Hanya Mobile) -->
         <button 
-            class="text-slate-700 md-hidden" 
+            class="text-slate-700 md:hidden" 
             @click.stop="sidebarOpen = !sidebarOpen">
             <i class="fas fa-bars text-xl"></i>
         </button>
@@ -34,9 +34,9 @@
         </span>
 
         <!-- Foto Profil -->
-        {{-- PERBAIKAN: x-data dihapus dari sini --}}
         <div class="relative">
-            <img src="{{ file_exists(public_path('poto-profile/user-' . Auth::id() . '.jpg')) ? asset('poto-profile/user-' . Auth::id() . '.jpg') : asset('images/default-profile.png') }}" 
+            {{-- PERBAIKAN PADA TAG IMG DI BAWAH INI --}}
+            <img src="{{ Auth::user()->photo ? asset('storage/' . Auth::user()->photo) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name) . '&background=d97706&color=fff' }}" 
                  alt="Foto Profil" 
                  @click="profileMenuOpen = !profileMenuOpen" 
                  class="h-8 w-8 rounded-full cursor-pointer border-2 border-amber-500 object-cover">
