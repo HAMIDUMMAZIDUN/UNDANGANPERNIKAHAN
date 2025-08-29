@@ -12,7 +12,7 @@ class CheckInController extends Controller
     // Method index() tidak perlu diubah
     public function index()
     {
-        return view('check-in.index');
+        return view('user.check-in.index');
     }
 
     /**

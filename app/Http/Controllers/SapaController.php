@@ -21,7 +21,7 @@ class SapaController extends Controller
             $event = Event::latest('updated_at')->firstOrFail();
         }
 
-        return view('sapa.index', compact('event'));
+        return view('user.sapa.index', compact('event'));
     }
 
     /**

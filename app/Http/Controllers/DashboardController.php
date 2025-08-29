@@ -63,7 +63,7 @@ class DashboardController extends Controller
             $guests = $listQuery->paginate(10)->withQueryString();
 
             // Kirim semua data ke view
-            return view('dashboard.index', [
+            return view('user.dashboard.index', [
                 'event' => $event,
                 'guests' => $guests,
                 'totalUndangan' => $totalUndangan,

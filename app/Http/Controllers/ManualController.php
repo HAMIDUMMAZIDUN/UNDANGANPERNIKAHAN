@@ -16,7 +16,7 @@ class ManualController extends Controller
     public function index(Request $request): View
     {
         $guests = collect();
-        return view('manual.index', compact('guests'));
+        return view('user.manual.index', compact('guests'));
     }
 
     public function search(Request $request): View

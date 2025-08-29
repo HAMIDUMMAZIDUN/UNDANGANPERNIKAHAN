@@ -42,7 +42,7 @@ class GiftController extends Controller
             $gifts = $baseQuery->latest()->paginate(15)->withQueryString();
         }
 
-        return view('gift.index', compact('gifts', 'totalGifts', 'totalAmount'));
+        return view('user.gift.index', compact('gifts', 'totalGifts', 'totalAmount'));
     }
 
     /**

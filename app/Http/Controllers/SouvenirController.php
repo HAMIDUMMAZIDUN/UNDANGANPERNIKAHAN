@@ -36,7 +36,7 @@ class SouvenirController extends Controller
         $query = $this->getFilteredGuests($request);
         $totalSouvenirsTaken = (clone $query)->count();
         $guests = $query->latest('souvenir_taken_at')->paginate(15)->withQueryString();
-        return view('souvenir.index', compact('guests', 'totalSouvenirsTaken'));
+        return view('user.souvenir.index', compact('guests', 'totalSouvenirsTaken'));
     }
 
     public function exportExcel(Request $request)
@@ -47,7 +47,7 @@ class SouvenirController extends Controller
 
     public function scan(): View
     {
-        return view('souvenir.scan');
+        return view('user.souvenir.scan');
     }
 
     public function redeem(Request $request): JsonResponse

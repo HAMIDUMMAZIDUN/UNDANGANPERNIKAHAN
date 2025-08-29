@@ -37,7 +37,7 @@ class ReservasiController extends Controller
 
         $rsvps = $query->latest()->paginate(10);
 
-        return view('rsvp.index', compact('rsvps', 'stats'));
+        return view('user.rsvp.index', compact('rsvps', 'stats'));
     }
 
     /**

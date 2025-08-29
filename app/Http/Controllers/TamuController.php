@@ -17,24 +17,20 @@ use Illuminate\Support\Str;
 class TamuController extends Controller
 {
     use AuthorizesRequests;
-    // Menampilkan daftar tamu untuk event tertentu
     public function index(Event $event): View
     {
-        // Pastikan event ini milik user yang login
         $this->authorize('view', $event); 
 
         $guests = $event->guests()->latest()->paginate(10);
-        return view('tamu.index', compact('guests', 'event'));
+        return view('user.tamu.index', compact('guests', 'event'));
     }
 
-    // Menampilkan form tambah tamu untuk event tertentu
     public function create(Event $event): View
     {
         $this->authorize('update', $event);
-        return view('tamu.create', compact('event'));
+        return view('user.tamu.create', compact('event'));
     }
 
-    // Menyimpan tamu baru untuk event tertentu
     public function store(Request $request, Event $event): RedirectResponse
 {
     $this->authorize('update', $event);
@@ -59,7 +55,6 @@ class TamuController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            // UBAH BARIS INI
             'affiliation' => 'nullable|string|max:255', 
         ]);
 
@@ -71,7 +66,6 @@ class TamuController extends Controller
         return redirect()->route('events.tamu.index', $event)->with('success', 'Data tamu berhasil diperbarui.');
     }
 
-    // Menghapus tamu
     public function destroy(Event $event, Guest $guest): RedirectResponse
     {
         $this->authorize('update', $event);
@@ -79,7 +73,6 @@ class TamuController extends Controller
         return redirect()->route('events.tamu.index', $event)->with('success', 'Tamu berhasil dihapus.');
     }
 
-    // Mengimpor tamu dari file Excel/CSV
     public function import(Request $request, Event $event): RedirectResponse
     {
         $this->authorize('update', $event);
@@ -93,7 +86,6 @@ class TamuController extends Controller
         }
     }
 
-    // Download template import
     public function downloadTemplate()
     {
         $filePath = public_path('templates/template_import_tamu.xlsx');
@@ -103,7 +95,6 @@ class TamuController extends Controller
         return response()->download($filePath);
     }
     
-    // Menampilkan halaman untuk print QR code yang dipilih
     public function printMultipleQr(Request $request, Event $event)
     {
         $this->authorize('view', $event);
@@ -118,27 +109,20 @@ class TamuController extends Controller
             return $guest;
         });
         
-        return view('tamu.print_qr', compact('guests', 'event'));
+        return view('user.tamu.print_qr', compact('guests', 'event'));
     }   
-    // Download QR code untuk tamu tertentu
-   
+
 public function downloadQr(Event $event, Guest $guest)
 {
     $this->authorize('view', $event);
 
     $invitationUrl = route('undangan.show', ['event' => $event->uuid, 'guest' => $guest->uuid]);
-
-    // Hasilkan QR Code dalam format PNG menggunakan driver GD
     $qrCode = QrCode::format('png')
                     ->driver('gd')
                     ->size(300)
                     ->margin(2)
                     ->generate($invitationUrl);
-
-    // Siapkan nama file yang aman
     $fileName = 'qrcode-' . Str::slug($guest->name, '_') . '.png';
-
-    // Kembalikan response sebagai file download PNG
     return response($qrCode)
         ->header('Content-Type', 'image/png')
         ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');

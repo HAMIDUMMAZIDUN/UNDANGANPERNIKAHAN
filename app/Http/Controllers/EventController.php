@@ -20,7 +20,7 @@ class EventController extends Controller
     public function create(): View
     {
         // Mengembalikan view yang berisi form HTML
-        return view('events.create');
+        return view('user.events.create');
     }
 
     /**
@@ -67,7 +67,7 @@ class EventController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        return view('events.show', compact('event'));
+        return view('user.events.show', compact('event'));
     }
 
     /**
@@ -79,7 +79,7 @@ class EventController extends Controller
         if ($event->user_id !== Auth::id()) {
             abort(403, 'Unauthorized action.');
         }
-        return view('events.edit', compact('event'));
+        return view('user.events.edit', compact('event'));
     }
 
     /**

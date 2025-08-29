@@ -48,11 +48,11 @@ class KehadiranController extends Controller
         $query = $this->getFilteredGuests($request);
         $guests = $query->latest('check_in_time')->paginate(15);
 
-        return view('kehadiran.index', compact(
+        return view('user.kehadiran.index', compact(
             'totalUndangan',
             'totalHadir',
             'jumlahTamuHadir',
-            'totalTidakHadir', // Mengirim data baru ke view
+            'totalTidakHadir', 
             'guests'
         ));
     }
