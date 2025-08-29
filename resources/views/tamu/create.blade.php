@@ -33,9 +33,9 @@
                 <div>
                     <label for="affiliation" class="block text-sm font-medium text-slate-700">Kategori</label>
                     <div class="mt-1">
-                        <input type="text" name="affiliation" id="affiliation" value="{{ old('affiliation') }}" class="shadow-sm focus:ring-amber-500 focus:border-amber-500 block w-full sm:text-sm border-slate-300 rounded-md @error('affiliation') border-red-500 @enderror" placeholder="Contoh: Keluarga Mempelai Pria" required>
+                        <input type="text" name="affiliation" id="affiliation" value="{{ old('affiliation') }}" class="shadow-sm focus:ring-amber-500 focus:border-amber-500 block w-full sm:text-sm border-slate-300 rounded-md @error('affiliation') border-red-500 @enderror" placeholder="Contoh: Keluarga Mempelai Pria">
                     </div>
-                     @error('affiliation')
+                    @error('affiliation')
                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>

@@ -36,34 +36,37 @@ class TamuController extends Controller
 
     // Menyimpan tamu baru untuk event tertentu
     public function store(Request $request, Event $event): RedirectResponse
-    {
-        $this->authorize('update', $event);
+{
+    $this->authorize('update', $event);
 
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'affiliation' => 'required|string|max:255',
-        ]);
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'affiliation' => 'nullable|string|max:255',
+    ]);
 
-        $event->guests()->create([
-            'user_id' => Auth::id(),
-            'name' => $request->name,
-            'affiliation' => $request->affiliation,
-        ]);
+    $event->guests()->create([
+        'user_id' => Auth::id(),
+        'name' => $request->name,
+        'affiliation' => $request->affiliation ?? 'Teman',
+    ]);
 
-        return redirect()->route('events.tamu.index', $event)->with('success', 'Tamu baru berhasil ditambahkan!');
-    }
+    return redirect()->route('events.tamu.index', $event)->with('success', 'Tamu baru berhasil ditambahkan!');
+}
 
-    // Mengupdate data tamu
     public function update(Request $request, Event $event, Guest $guest): RedirectResponse
     {
         $this->authorize('update', $event);
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'affiliation' => 'required|string|max:255',
+            // UBAH BARIS INI
+            'affiliation' => 'nullable|string|max:255', 
         ]);
 
-        $guest->update($request->only(['name', 'affiliation']));
+        $guestData = $request->only(['name']);
+        $guestData['affiliation'] = $request->affiliation ?? 'Teman';
+        
+        $guest->update($guestData);
 
         return redirect()->route('events.tamu.index', $event)->with('success', 'Data tamu berhasil diperbarui.');
     }

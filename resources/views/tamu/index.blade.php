@@ -63,9 +63,6 @@
                                             <a href="{{ route('undangan.show', ['event' => $event, 'guest' => $guest]) }}" target="_blank" class="text-slate-700 block px-4 py-2 text-sm hover:bg-slate-100" role="menuitem">Undangan</a>
                                             <button type="button" class="w-full text-left text-slate-700 block px-4 py-2 text-sm hover:bg-slate-100 action-share" role="menuitem" data-url="{{ route('undangan.show', ['event' => $event, 'guest' => $guest]) }}" data-name="{{ $guest->name }}">Share Undangan</button>
                                             <button type="button" class="w-full text-left text-slate-700 block px-4 py-2 text-sm hover:bg-slate-100 action-copy" role="menuitem" data-url="{{ route('undangan.show', ['event' => $event, 'guest' => $guest]) }}" data-name="{{ $guest->name }}">Copy Message</button>
-                                            <a href="{{ route('events.tamu.download_qr', ['event' => $event, 'guest' => $guest]) }}" class="w-full text-left text-slate-700 block px-4 py-2 text-sm hover:bg-slate-100" role="menuitem">
-                                                Download QR Code
-                                            </a>
                                             <button type="button" class="w-full text-left text-slate-700 block px-4 py-2 text-sm hover:bg-slate-100 action-edit" role="menuitem" data-uuid="{{ $guest->uuid }}" data-name="{{ $guest->name }}" data-affiliation="{{ $guest->affiliation }}">Edit</button>
                                             <form action="{{ route('events.tamu.destroy', ['event' => $event, 'guest' => $guest]) }}" method="POST" class="delete-form">
                                                 @csrf

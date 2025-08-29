@@ -33,6 +33,19 @@ use App\Http\Controllers\RequestClientController;
 // =========================================================================
 // Rute Autentikasi & Halaman Awal (Publik)
 // =========================================================================
+
+
+// Route untuk user biasa
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth'])
+    ->name('dashboard.index');
+
+// Route untuk admin
+Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])
+        ->name('dashboardadmin.index');
+});
+
 Route::get('/', fn() => view('auth.login'))->name('home');
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);

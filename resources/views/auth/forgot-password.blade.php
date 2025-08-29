@@ -1,38 +1,54 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Lupa Password</title>
-  @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <meta charset="UTF-8">
+    <title>Lupa Password</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-green-50 min-h-screen flex items-center justify-center">
-  <div class="w-full max-w-md p-6 bg-white rounded-xl shadow-lg">
-    <h2 class="text-2xl font-bold text-center text-green-600 mb-6">Reset Password</h2>
+{{-- Menggunakan background yang sama dengan halaman login --}}
+<body class="min-h-screen flex items-center justify-center bg-cover bg-center" style="background-image: url('{{ asset('images/bg-pernikahan.png') }}');">
 
-    @if (session('status'))
-      <div class="bg-green-100 text-green-700 p-2 rounded mb-4">
-        {{ session('status') }}
-      </div>
-    @endif
+    <div class="w-full max-w-sm bg-white rounded-xl shadow-lg p-6">
+        <h2 class="text-xl font-semibold text-center text-gray-700 mb-2">Lupa Password Anda?</h2>
+        <p class="text-center text-sm text-gray-500 mb-6">
+            Tidak masalah. Cukup beritahu kami alamat email Anda dan kami akan mengirimkan link untuk mengatur ulang password Anda.
+        </p>
 
-    <form method="POST" action="{{ route('password.email') }}" class="space-y-4">
-      @csrf
+        {{-- Menampilkan pesan status jika email berhasil dikirim --}}
+        @if (session('status'))
+            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-3 rounded mb-4 text-sm" role="alert">
+                <p>{{ session('status') }}</p>
+            </div>
+        @endif
 
-      <div>
-        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-        <input type="email" name="email" id="email" required
-          class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
-      </div>
+        {{-- Menampilkan error validasi --}}
+        @error('email')
+            <div class="bg-red-100 text-red-700 p-2 rounded mb-4 text-sm">
+                {{ $message }}
+            </div>
+        @enderror
 
-      <button type="submit"
-        class="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition">
-        Kirim Link Reset
-      </button>
-    </form>
+        <form method="POST" action="{{ route('password.email') }}" class="space-y-4">
+            @csrf
 
-    <p class="mt-4 text-center text-sm text-gray-600">
-      <a href="{{ route('login') }}" class="text-green-500 hover:underline">Kembali ke Login</a>
-    </p>
-  </div>
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700">Alamat Email</label>
+                <input type="email" name="email" id="email" value="{{ old('email') }}" required autofocus
+                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+            </div>
+
+            <button type="submit"
+                class="w-full bg-black text-white py-2 px-4 rounded hover:bg-gray-800 transition">
+                Kirim Link Reset Password
+            </button>
+        </form>
+
+        <p class="mt-6 text-center text-sm text-gray-600">
+            <a href="{{ route('login') }}" class="text-green-500 hover:underline font-medium">
+                &larr; Kembali ke Login
+            </a>
+        </p>
+    </div>
 </body>
 </html>

@@ -17,25 +17,31 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
+        // 1. Validasi input dari form login
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
 
+        // 2. Coba untuk melakukan otentikasi (login) dengan data yang diberikan
         if (Auth::attempt($credentials)) {
-        $request->session()->regenerate();
+            // Jika berhasil, regenerate session untuk keamanan
+            $request->session()->regenerate();
 
-        $user = Auth::user();
+            // 3. Ambil data user yang sedang login
+            $user = Auth::user();
 
-        if ($user->role === 'admin') {
-            // Arahkan ke nama rute admin yang baru
-            return redirect()->route('dashboard.admin.index');
+            // 4. Cek kolom 'role' dari user tersebut
+            if ($user->role === 'admin') {
+                // Jika rolenya adalah 'admin', arahkan ke route dashboard admin
+                return redirect()->route('dashboard.admin.index');
+            }
+
+            // 5. Jika bukan admin, arahkan ke route dashboard user biasa
+            return redirect()->route('dashboard.index');
         }
 
-        // Arahkan ke nama rute user biasa
-        return redirect()->route('dashboard.index');
-    }
-
+        // 6. Jika otentikasi gagal, kembali ke halaman login dengan pesan error
         return back()->with('error', 'Email atau password salah.');
     }
 
@@ -44,7 +50,6 @@ class AuthController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-
         return redirect('/login');
     }
 
@@ -65,11 +70,11 @@ class AuthController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'role' => 'user' 
+            'role' => 'user' // Default role saat register
         ]);
 
         Auth::login($user);
-        return redirect('/dashboard.index');
+        return redirect()->route('dashboard.index'); // Langsung arahkan ke dashboard user setelah register
     }
 
     public function showForgotForm()
@@ -80,9 +85,7 @@ class AuthController extends Controller
     public function sendResetLink(Request $request)
     {
         $request->validate(['email' => 'required|email']);
-
         $status = Password::sendResetLink($request->only('email'));
-
         return $status === Password::RESET_LINK_SENT
             ? back()->with('status', __($status))
             : back()->withErrors(['email' => __($status)]);
