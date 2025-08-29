@@ -23,6 +23,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\OrderHistoryController; 
 use App\Http\Controllers\RequestClientController; 
 
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -32,7 +33,6 @@ use App\Http\Controllers\RequestClientController;
 // =========================================================================
 // Rute Autentikasi & Halaman Awal (Publik)
 // =========================================================================
-
 Route::get('/', fn() => view('auth.login'))->name('home');
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
@@ -49,18 +49,19 @@ Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name(
 // Rute yang Membutuhkan Login (Area Terproteksi)
 // =========================================================================
 Route::middleware('auth')->group(function () {
-    // --- DASBOR PENGGUNA BIASA (SUDAH DIRAPIKAN) ---
+    // --- DASBOR PENGGUNA BIASA ---
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
 
     // --- DASBOR ADMIN ---
-    Route::prefix('admin')->middleware('role:admin')->name('admin.')->group(function () {
-        Route::get('/dashboard', [DashboardAdminController::class, 'index'])->name('dashboard.index');
-        Route::get('/request-client', [RequestClientController::class, 'index'])->name('request.client.index');
-        Route::get('/clients', [ClientController::class, 'index'])->name('client.index');
-        Route::delete('/clients/{client}', [ClientController::class, 'destroy'])->name('client.destroy');
-        Route::get('/order-history', [OrderHistoryController::class, 'index'])->name('order.history.index');
-        Route::patch('/request-client/{clientRequest}', [RequestClientController::class, 'updateStatus'])->name('request.client.updateStatus');
-    });
+    Route::get('/dashboardadmin', [DashboardAdminController::class, 'index'])->name('dashboard.admin.index');
+    Route::get('/request-client', [RequestClientController::class, 'index'])->name('request.client.index');
+
+    // --- MANAJEMEN KLIEN (ADMIN) ---
+    Route::get('/clients', [ClientController::class, 'index'])->name('client.index');
+    Route::delete('/clients/{client}', [ClientController::class, 'destroy'])->name('client.destroy');
+    Route::get('/order-history', [OrderHistoryController::class, 'index'])->name('order.history.index');
+    Route::get('/request-client', [RequestClientController::class, 'index'])->name('request.client.index');
+    Route::patch('/request-client/{clientRequest}', [RequestClientController::class, 'updateStatus'])->name('request.client.updateStatus');
 
     // --- Rute Umum untuk User Terautentikasi ---
     Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');

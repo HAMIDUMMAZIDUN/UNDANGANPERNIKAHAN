@@ -52,6 +52,6 @@ class DashboardAdminController extends Controller
             ]
         ];
 
-        return view('dashboardadmin.index', $data);
+        return view('admin.dashboardadmin.index', $data);
     }
 }

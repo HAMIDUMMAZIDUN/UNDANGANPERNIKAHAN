@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('admin.layouts.app')
 
 @push('scripts')
 <script src="//unpkg.com/alpinejs" defer></script>
