@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use App\Models\User;
+use Illuminate\Support\Facades\Http;
 
 class AuthController extends Controller
 {
@@ -15,33 +16,46 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-    public function login(Request $request)
+     public function login(Request $request)
     {
-        // 1. Validasi input dari form login
-        $credentials = $request->validate([
+        // 2. Tambahkan 'g-recaptcha-response' ke validasi
+        $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
+            'g-recaptcha-response' => ['required', 'string'],
         ]);
 
-        // 2. Coba untuk melakukan otentikasi (login) dengan data yang diberikan
-        if (Auth::attempt($credentials)) {
-            // Jika berhasil, regenerate session untuk keamanan
-            $request->session()->regenerate();
+        // 3. Logika verifikasi reCAPTCHA
+        $secretKey = env('RECAPTCHA_SECRET_KEY');
+        $response = $request->input('g-recaptcha-response');
+        
+        $googleResponse = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+            'secret'   => $secretKey,
+            'response' => $response,
+            'remoteip' => $request->ip(),
+        ])->json();
 
-            // 3. Ambil data user yang sedang login
+        // Jika verifikasi gagal, kembalikan dengan error
+        if (!isset($googleResponse['success']) || !$googleResponse['success']) {
+            return back()->with('error', 'Validasi reCAPTCHA gagal. Silakan coba lagi.');
+        }
+
+        // --- Logika login Anda yang lama dimulai dari sini ---
+        
+        // Ambil credentials email dan password saja untuk login
+        $credentials = $request->only('email', 'password');
+
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
             $user = Auth::user();
 
-            // 4. Cek kolom 'role' dari user tersebut
             if ($user->role === 'admin') {
-                // Jika rolenya adalah 'admin', arahkan ke route dashboard admin
                 return redirect()->route('dashboard.admin.index');
             }
 
-            // 5. Jika bukan admin, arahkan ke route dashboard user biasa
             return redirect()->route('dashboard.index');
         }
 
-        // 6. Jika otentikasi gagal, kembali ke halaman login dengan pesan error
         return back()->with('error', 'Email atau password salah.');
     }
 
@@ -70,11 +84,11 @@ class AuthController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'role' => 'user' // Default role saat register
+            'role' => 'user' 
         ]);
 
         Auth::login($user);
-        return redirect()->route('dashboard.index'); // Langsung arahkan ke dashboard user setelah register
+        return redirect()->route('dashboard.index'); 
     }
 
     public function showForgotForm()
@@ -82,12 +96,30 @@ class AuthController extends Controller
         return view('auth.forgot-password');
     }
 
-    public function sendResetLink(Request $request)
+   public function sendResetLink(Request $request)
     {
+        // 1. Validasi bahwa input adalah email yang valid dan wajib diisi
         $request->validate(['email' => 'required|email']);
+
+        // 2. Cek apakah email yang dimasukkan ada di tabel 'users'
+        $userExists = User::where('email', $request->email)->exists();
+
+        // 3. Jika email TIDAK ADA di database
+        if (!$userExists) {
+            // Kembalikan ke halaman sebelumnya dengan pesan error khusus
+            return back()->with('error', 'Email tidak tertaut dengan aplikasi ini.');
+        }
+
+        // 4. Jika email ADA, lanjutkan proses pengiriman link reset password bawaan Laravel
         $status = Password::sendResetLink($request->only('email'));
-        return $status === Password::RESET_LINK_SENT
-            ? back()->with('status', __($status))
-            : back()->withErrors(['email' => __($status)]);
+
+        // 5. Berikan response berdasarkan hasil dari proses pengiriman link
+        if ($status === Password::RESET_LINK_SENT) {
+            // Jika berhasil, kirim pesan sukses
+            return back()->with('status', 'Kami telah mengirimkan link reset password ke email Anda!');
+        } else {
+            // Jika gagal karena alasan lain (misal: throttling), kirim pesan error bawaan
+            return back()->with('error', __($status));
+        }
     }
 }

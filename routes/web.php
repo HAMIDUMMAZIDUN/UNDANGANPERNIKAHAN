@@ -20,9 +20,9 @@ use App\Http\Controllers\TamuController;
 use App\Http\Controllers\UndanganController;
 use App\Http\Controllers\DashboardAdminController;
 use App\Http\Controllers\ClientController;
-use App\Http\Controllers\OrderHistoryController; 
-use App\Http\Controllers\RequestClientController; 
-
+use App\Http\Controllers\OrderHistoryController;
+use App\Http\Controllers\RequestClientController;
+use App\Http\Controllers\KatalogController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,15 +30,18 @@ use App\Http\Controllers\RequestClientController;
 |--------------------------------------------------------------------------
 */
 
-// =========================================================================
-// Rute Autentikasi & Halaman Awal (Publik)
-// =========================================================================
-Route::get('/', fn() => view('auth.login'))->name('home');
+// HALAMAN UTAMA (WELCOME PAGE)
+// Diubah agar menampilkan view 'welcome' yang baru
+Route::get('/', fn() => view('welcome'))->name('home');
+
+// AUTENTIKASI (Routes Anda yang lain tidak perlu diubah)
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
 Route::post('/register', [AuthController::class, 'register']);
+
+// RESET PASSWORD
 Route::get('/forgot-password', [AuthController::class, 'showForgotForm'])->name('password.request');
 Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('password.email');
 Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
@@ -84,6 +87,10 @@ Route::middleware('auth')->group(function () {
 
     // Grup Rute untuk Event Spesifik
     Route::prefix('events/{event:uuid}')->name('events.')->group(function () {
+        // --- RUTE BARU UNTUK PAGE BUILDER ---
+        Route::get('/design', [EventController::class, 'design'])->name('design');
+        Route::post('/save-design', [EventController::class, 'saveDesign'])->name('saveDesign');
+        
         // Manajemen Tamu
         Route::get('/tamu', [TamuController::class, 'index'])->name('tamu.index');
         Route::get('/tamu/create', [TamuController::class, 'create'])->name('tamu.create');
@@ -164,3 +171,7 @@ Route::prefix('undangan/{event:uuid}')->name('undangan.')->group(function() {
 
 // Rute untuk proses RSVP
 Route::post('/rsvp/{event:uuid}', [ReservasiController::class, 'store'])->name('rsvp.store');
+
+// --- RUTE BARU UNTUK TAMPILAN PUBLIK EVENT (PAGE BUILDER) ---
+// Rute ini menangani tampilan utama undangan berdasarkan slug.
+Route::get('/{event:slug}', [EventController::class, 'publicShow'])->name('events.public.show');

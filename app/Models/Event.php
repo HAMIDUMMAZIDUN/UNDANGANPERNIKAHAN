@@ -17,6 +17,7 @@ class Event extends Model
         'user_id',
         'uuid',
         'name',
+        'content',
         'phone_number',
         'slug', 
         'date',
@@ -43,7 +44,10 @@ class Event extends Model
         'resepsi_time',
         'resepsi_maps_url',
     ];
-
+    protected $casts = [
+            'content' => 'array',
+        ];
+    
     protected static function boot()
     {
         parent::boot();
