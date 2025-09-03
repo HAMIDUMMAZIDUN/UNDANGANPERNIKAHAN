@@ -3,36 +3,69 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\View\View;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class KatalogController extends Controller
 {
-    /**
-     * Menampilkan halaman katalog undangan.
-     *
-     * @return \Illuminate\View\View
-     */
-    public function index()
+private function getKatalogData(): array
     {
-        // Data ini nantinya bisa diambil dari database.
-        // Untuk contoh, kita gunakan array statis.
-        $katalog = [
-            'motion_art' => [
-                ['id' => 1, 'nama' => 'Motion Art Midnight 1', 'gambar' => 'https://via.placeholder.com/300x400.png/000000/FFFFFF?text=Midnight+1'],
-                ['id' => 2, 'nama' => 'Motion Art Midnight 2', 'gambar' => 'https://via.placeholder.com/300x400.png/000000/FFFFFF?text=Midnight+2'],
-                ['id' => 3, 'nama' => 'Motion Art Midnight 3', 'gambar' => 'https://via.placeholder.com/300x400.png/000000/FFFFFF?text=Midnight+3'],
-                ['id' => 4, 'nama' => 'Motion Art Midnight 4', 'gambar' => 'https://via.placeholder.com/300x400.png/000000/FFFFFF?text=Midnight+4'],
-                ['id' => 5, 'nama' => 'Motion Art Midnight 5', 'gambar' => 'https://via.placeholder.com/300x400.png/000000/FFFFFF?text=Midnight+5'],
+        return [
+            'classic_gold' => [
+                ['id' => 1, 'nama' => 'Classic Gold 1', 'gambar' => asset('images/previews/classic-gold-1.png'), 'preview_img' => asset('images/previews/classic-gold-1.png'), 'musik' => 'music/musik1.mp3', 'template' => 'katalog.themes.classic-gold'],
+                ['id' => 2, 'nama' => 'Classic Gold 2', 'gambar' => asset('images/previews/classic-gold-1.png'), 'preview_img' => asset('images/previews/classic-gold-1.png'), 'musik' => 'music/musik1.mp3', 'template' => 'katalog.themes.classic-gold'],
             ],
-            'garden' => [
-                ['id' => 6, 'nama' => 'Garden 01', 'gambar' => 'https://via.placeholder.com/300x400.png/f2e8e3/5c4b3f?text=Garden+01'],
-                ['id' => 7, 'nama' => 'Garden 02', 'gambar' => 'https://via.placeholder.com/300x400.png/f2e8e3/5c4b3f?text=Garden+02'],
-                ['id' => 8, 'nama' => 'Garden 03', 'gambar' => 'https://via.placeholder.com/300x400.png/f2e8e3/5c4b3f?text=Garden+03'],
-                ['id' => 9, 'nama' => 'Garden 04', 'gambar' => 'https://via.placeholder.com/300x400.png/f2e8e3/5c4b3f?text=Garden+04'],
-                ['id' => 10, 'nama' => 'Garden 05', 'gambar' => 'https://via.placeholder.com/300x400.png/f2e8e3/5c4b3f?text=Garden+05'],
+            'rustic_elegance' => [
+                ['id' => 6, 'nama' => 'Rustic Bohemian', 'gambar' => asset('images/previews/rustic-bohemian.png'), 'preview_img' => asset('images/previews/rustic-bohemian.png'), 'musik' => 'music/musik2.mp3', 'template' => 'katalog.themes.rustic-bohemian'],
+                ['id' => 7, 'nama' => 'Greenery Charm', 'gambar' => asset('images/previews/greenery-charm.png'), 'preview_img' => asset('images/previews/greenery-charm.png'), 'musik' => 'music/musik2.mp3', 'template' => 'katalog.themes.greenery-charm'],
+            ],
+            'modern_minimalist' => [
+                ['id' => 11, 'nama' => 'Modern Monochrome', 'gambar' => asset('images/previews/modern-monochrome.png'), 'preview_img' => asset('images/previews/modern-monochrome.png'), 'musik' => 'music/musik3.mp3', 'template' => 'katalog.themes.modern-monochrome'],
+                ['id' => 12, 'nama' => 'Simple & Clean', 'gambar' => asset('images/previews/simple-clean.png'), 'preview_img' => asset('images/previews/simple-clean.png'), 'musik' => 'music/musik3.mp3', 'template' => 'katalog.themes.simple-clean'],
             ]
         ];
+    }
 
-        // Kirim data katalog ke view 'katalog'
+    public function index(): View
+    {
+        $katalog = $this->getKatalogData();
         return view('katalog.index', ['katalog' => $katalog]);
+    }
+
+    public function showDemo(int $id): View
+    {
+        $katalog = $this->getKatalogData();
+        $theme = collect($katalog)->flatten(1)->firstWhere('id', $id);
+
+        if (!$theme) {
+            abort(404);
+        }
+
+        $event = (object) [
+            'groom_name' => 'Aditya', 'bride_name' => 'Lestari',
+            'date' => now()->addDays(45)->toDateString(),
+            'photo_url' => $theme['gambar'],
+            'music_url' => asset($theme['musik'] ?? 'music/musik1.mp3'),
+            'groom_photo' => 'https://source.unsplash.com/random/400x400/?man,portrait',
+            'bride_photo' => 'https://source.unsplash.com/random/400x401/?woman,portrait',
+            'groom_parents' => 'Bpk. Soleh & Ibu. Aminah', 'bride_parents' => 'Bpk. Budi & Ibu. Wati',
+            'groom_instagram' => 'aditya.insta', 'bride_instagram' => 'lestari.insta',
+            'akad_time' => '09:00', 'resepsi_time' => '11:00 - 14:00',
+            'akad_location' => 'Masjid Istiqlal, Jakarta', 'resepsi_location' => 'Balai Kartini, Jakarta',
+            'akad_maps_url' => '#', 'resepsi_maps_url' => '#',
+        ];
+
+        $guest = (object) ['uuid' => 'demo-guest-uuid', 'name' => 'Bpk/Ibu Tamu Undangan'];
+        
+        $photos = collect([
+            (object)['path' => 'https://source.unsplash.com/random/800x800/?wedding,couple'],
+            (object)['path' => 'https://source.unsplash.com/random/800x801/?wedding,couple'],
+            (object)['path' => 'https://source.unsplash.com/random/800x802/?wedding,decoration'],
+            (object)['path' => 'https://source.unsplash.com/random/800x803/?wedding,ring'],
+        ]);
+
+        $rsvps = new LengthAwarePaginator([], 0, 5);
+
+        return view($theme['template'], compact('event', 'guest', 'photos', 'rsvps', 'theme'));
     }
 }

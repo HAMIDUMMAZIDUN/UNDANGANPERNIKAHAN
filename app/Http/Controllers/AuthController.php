@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use App\Models\User;
+use App\Models\Activity;
 use Illuminate\Support\Facades\Http;
 
 class AuthController extends Controller
@@ -48,6 +49,11 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
             $user = Auth::user();
+
+            Activity::create([
+                'user_id'     => $user->id,
+                'description' => 'telah login ke sistem.'
+            ]);
 
             if ($user->role === 'admin') {
                 return redirect()->route('dashboard.admin.index');

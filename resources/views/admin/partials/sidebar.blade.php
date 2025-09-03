@@ -20,7 +20,7 @@
                 </li>
                 <li class="mb-4">
                     <a href="{{ route('admin.client.index') }}" 
-                       class="flex items-center gap-3 text-sm p-3 rounded-lg transition-colors {{ request()->routeIs('client.index') ? 'font-semibold text-gray-700 bg-orange-100' : 'font-medium text-gray-500 hover:bg-gray-100' }}"
+                       class="flex items-center gap-3 text-sm p-3 rounded-lg transition-colors {{ request()->routeIs('admin.client.index') ? 'font-semibold text-gray-700 bg-orange-100' : 'font-medium text-gray-500 hover:bg-gray-100' }}"
                        :class="isSidebarOpen ? '' : 'lg:justify-center'">
                        <i class="fas fa-user-friends w-5 text-center text-lg"></i>
                         <span class="transition-opacity duration-200" :class="isSidebarOpen ? 'opacity-100' : 'lg:opacity-0 lg:hidden'">Client</span>

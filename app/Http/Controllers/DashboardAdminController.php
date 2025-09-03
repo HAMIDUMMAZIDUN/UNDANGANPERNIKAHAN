@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Illuminate\Support\Facades\Auth; // Anda mungkin tidak butuh ini untuk admin
+use Illuminate\Support\Facades\Auth; 
 use Illuminate\Support\Facades\Log;
 use App\Models\User;
+use App\Models\Activity;
 use App\Models\Booking; 
 use App\Models\Request as UserRequest; 
 use Illuminate\Support\Facades\Cache;
@@ -39,12 +40,19 @@ class DashboardAdminController extends Controller
             $activitiesUsers = User::where('updated_at', '>', now()->subDay())->count();
             $activitiesPercentage = ($totalUsers > 0) ? round(($activitiesUsers / $totalUsers) * 100) : 0;
 
-            // 3. Ambil data aktivitas (contoh data dummy)
-            $activities = [
-                ['user' => 'John Doe', 'action' => 'updated his profile.', 'time' => '5 minutes ago'],
-                ['user' => 'Jane Smith', 'action' => 'created a new event.', 'time' => '1 hour ago'],
-                ['user' => 'Admin', 'action' => 'changed server status to Online.', 'time' => '3 hours ago'],
-            ];
+              $latestActivities = Activity::with('user') 
+                                      ->latest()     
+                                      ->take(15)      
+                                      ->get();
+
+            $activities = $latestActivities->map(function ($activity) {
+                return [
+                    'user'   => $activity->user->name ?? 'Pengguna Dihapus', 
+                    'action' => $activity->description,
+                    'time'   => $activity->created_at->diffForHumans(), 
+                    'details' => null 
+                ];
+            });
 
             // 4. Kirim semua data yang dibutuhkan ke view
             return view('admin.dashboardadmin.index', [
@@ -61,8 +69,6 @@ class DashboardAdminController extends Controller
 
         } catch (\Exception $e) {
     Log::error('Admin Dashboard error: ' . $e->getMessage());
-    
-    // Gunakan helper abort() untuk menampilkan halaman error default Laravel
     abort(500, 'Terjadi kesalahan pada sistem dashboard.');
 }
     }

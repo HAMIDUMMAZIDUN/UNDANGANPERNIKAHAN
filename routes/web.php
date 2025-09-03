@@ -175,3 +175,4 @@ Route::get('/katalog', [KatalogController::class, 'index'])->name('katalog.index
 
 // RUTE TAMPILAN PUBLIK EVENT (PAGE BUILDER)
 Route::get('/{event:slug}', [EventController::class, 'publicShow'])->name('events.public.show');
+Route::get('/katalog/demo/{id}', [KatalogController::class, 'showDemo'])->name('katalog.show');
