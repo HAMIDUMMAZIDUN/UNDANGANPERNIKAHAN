@@ -13,16 +13,38 @@
     <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
         <!-- Tabs Filter -->
         <div class="flex border-b border-gray-200">
-            <a href="{{ route('order.history.index') }}" class="px-4 py-2 text-sm font-semibold {{ !request('status') ? 'text-teal-600 border-b-2 border-teal-600' : 'text-gray-500' }}">All</a>
+            <a href="{{ route('order.history.index') }}" class="px-4 py-2 text-sm font-semibold {{ !request('status') && !request('packet') ? 'text-teal-600 border-b-2 border-teal-600' : 'text-gray-500' }}">All</a>
             <a href="{{ route('order.history.index', ['status' => 'complete']) }}" class="px-4 py-2 text-sm font-semibold {{ request('status') == 'complete' ? 'text-teal-600 border-b-2 border-teal-600' : 'text-gray-500' }}">Complete</a>
-            <a href="#" class="px-4 py-2 text-sm font-semibold text-gray-500">Packet</a>
+            
+            {{-- Tab Paket Dinamis --}}
+            @foreach($packets as $packet)
+                <a href="{{ route('order.history.index', ['packet' => $packet]) }}" class="px-4 py-2 text-sm font-semibold capitalize {{ request('packet') == $packet ? 'text-teal-600 border-b-2 border-teal-600' : 'text-gray-500' }}">{{ $packet }}</a>
+            @endforeach
         </div>
         <!-- Filter Tanggal -->
-        <div class="flex items-center gap-2">
-            <input type="date" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+        <form id="dateFilterForm" action="{{ route('order.history.index') }}" method="GET" class="flex items-center gap-2">
+            {{-- Simpan parameter filter lain saat filter tanggal digunakan --}}
+            @if(request('status'))
+                <input type="hidden" name="status" value="{{ request('status') }}">
+            @endif
+            @if(request('packet'))
+                <input type="hidden" name="packet" value="{{ request('packet') }}">
+            @endif
+            
+            <input 
+                type="date" 
+                name="start_date"
+                value="{{ request('start_date') }}"
+                onchange="this.form.submit()"
+                class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
             <span class="text-gray-500">To</span>
-            <input type="date" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
-        </div>
+            <input 
+                type="date"
+                name="end_date"
+                value="{{ request('end_date') }}"
+                onchange="this.form.submit()"
+                class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+        </form>
     </div>
 
     <!-- Tabel Order History -->
@@ -50,8 +72,8 @@
                             {{ $order->user->name }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $order->user->email }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $order->user->phone_number ?? '-' }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Reguler</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $order->phone_number ?? '-' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 capitalize">{{ $order->packet ?? 'N/A' }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm">
                             @if($order->date < now())
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">Complete</span>
@@ -85,6 +107,7 @@
     </div>
     
     <div class="mt-6">
-        {{ $orders->links() }}
+        {{ $orders->withQueryString()->links() }}
     </div>
 @endsection
+

@@ -23,6 +23,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\OrderHistoryController;
 use App\Http\Controllers\RequestClientController;
 use App\Http\Controllers\KatalogController;
+use App\Http\Controllers\Admin\AdminSettingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,10 +32,9 @@ use App\Http\Controllers\KatalogController;
 */
 
 // HALAMAN UTAMA (WELCOME PAGE)
-// Diubah agar menampilkan view 'welcome' yang baru
 Route::get('/', fn() => view('welcome'))->name('home');
 
-// AUTENTIKASI (Routes Anda yang lain tidak perlu diubah)
+// AUTENTIKASI
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -57,18 +57,20 @@ Route::middleware('auth')->group(function () {
 
     // --- DASBOR ADMIN ---
     Route::get('/dashboardadmin', [DashboardAdminController::class, 'index'])->name('dashboard.admin.index');
-    Route::get('/request-client', [RequestClientController::class, 'index'])->name('request.client.index');
 
-    // --- MANAJEMEN KLIEN ---
-    Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('/clients', [ClientController::class, 'index'])->name('client.index');
-    Route::get('/clients/create', [ClientController::class, 'create'])->name('client.create');
-    Route::post('/clients', [ClientController::class, 'store'])->name('client.store');
-    Route::delete('/clients/{client}', [ClientController::class, 'destroy'])->name('client.destroy');
+    // --- PENGATURAN ADMIN ---
+    Route::prefix('admin/settings')->name('admin.settings.')->group(function () {
+        Route::post('/toggle-order-status', [AdminSettingController::class, 'toggleOrderStatus'])->name('toggleOrderStatus');
     });
-    // --- MANAJEMEN KLIEN (ADMIN) ---
-    Route::get('/clients', [ClientController::class, 'index'])->name('client.index');
-    Route::delete('/clients/{client}', [ClientController::class, 'destroy'])->name('client.destroy');
+
+    // --- MANAJEMEN KLIEN (ADMIN)---
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::get('/clients', [ClientController::class, 'index'])->name('client.index');
+        Route::get('/clients/create', [ClientController::class, 'create'])->name('client.create');
+        Route::post('/clients', [ClientController::class, 'store'])->name('client.store');
+        Route::delete('/clients/{client}', [ClientController::class, 'destroy'])->name('client.destroy');
+    });
+
     Route::get('/order-history', [OrderHistoryController::class, 'index'])->name('order.history.index');
     Route::get('/request-client', [RequestClientController::class, 'index'])->name('request.client.index');
     Route::patch('/request-client/{clientRequest}', [RequestClientController::class, 'updateStatus'])->name('request.client.updateStatus');
@@ -87,19 +89,14 @@ Route::middleware('auth')->group(function () {
 
     // Grup Rute untuk Event Spesifik
     Route::prefix('events/{event:uuid}')->name('events.')->group(function () {
-        // --- RUTE BARU UNTUK PAGE BUILDER ---
         Route::get('/design', [EventController::class, 'design'])->name('design');
         Route::post('/save-design', [EventController::class, 'saveDesign'])->name('saveDesign');
-        
-        // Manajemen Tamu
         Route::get('/tamu', [TamuController::class, 'index'])->name('tamu.index');
         Route::get('/tamu/create', [TamuController::class, 'create'])->name('tamu.create');
         Route::post('/tamu', [TamuController::class, 'store'])->name('tamu.store');
         Route::get('/tamu/{guest:uuid}/edit', [TamuController::class, 'edit'])->name('tamu.edit');
         Route::put('/tamu/{guest:uuid}', [TamuController::class, 'update'])->name('tamu.update');
         Route::delete('/tamu/{guest:uuid}', [TamuController::class, 'destroy'])->name('tamu.destroy');
-
-        // Fitur Tambahan Tamu
         Route::post('/tamu/import', [TamuController::class, 'import'])->name('tamu.import');
         Route::get('/tamu/import/template', [TamuController::class, 'downloadTemplate'])->name('tamu.import.template');
         Route::get('/tamu/print-qr', [TamuController::class, 'printMultipleQr'])->name('tamu.print_multiple_qr');
@@ -136,14 +133,15 @@ Route::middleware('auth')->group(function () {
         Route::get('/export', 'exportExcel')->name('export');
     });
 
-    // Pengaturan
-    Route::prefix('setting')->name('setting.')->group(function () {
+    // PENGATURAN (USER)
+    Route::prefix('user/setting')->name('user.setting.')->group(function () {
         Route::get('/', [SettingController::class, 'index'])->name('index');
-        Route::prefix('events')->name('events.')->group(function () {
-            Route::get('/{event}/edit', [SettingController::class, 'edit'])->name('edit');
-            Route::put('/{event}', [SettingController::class, 'update'])->name('update');
-            Route::get('/{event}/gallery', [SettingController::class, 'gallery'])->name('gallery');
-            Route::post('/{event}/gallery', [SettingController::class, 'uploadPhoto'])->name('gallery.upload');
+        // Group for editing a specific event's settings
+        Route::prefix('events')->group(function () {
+            Route::get('/{event}/edit', [SettingController::class, 'edit'])->name('events.edit');
+            Route::put('/{event}', [SettingController::class, 'update'])->name('events.update');
+            Route::get('/{event}/gallery', [SettingController::class, 'gallery'])->name('events.gallery');
+            Route::post('/{event}/gallery', [SettingController::class, 'uploadPhoto'])->name('events.gallery.upload');
         });
         Route::delete('/gallery/{photo}', [SettingController::class, 'deletePhoto'])->name('gallery.delete');
     });
@@ -172,6 +170,8 @@ Route::prefix('undangan/{event:uuid}')->name('undangan.')->group(function() {
 // Rute untuk proses RSVP
 Route::post('/rsvp/{event:uuid}', [ReservasiController::class, 'store'])->name('rsvp.store');
 
-// --- RUTE BARU UNTUK TAMPILAN PUBLIK EVENT (PAGE BUILDER) ---
-// Rute ini menangani tampilan utama undangan berdasarkan slug.
+// Rute untuk Katalog
+Route::get('/katalog', [KatalogController::class, 'index'])->name('katalog.index');
+
+// RUTE TAMPILAN PUBLIK EVENT (PAGE BUILDER)
 Route::get('/{event:slug}', [EventController::class, 'publicShow'])->name('events.public.show');

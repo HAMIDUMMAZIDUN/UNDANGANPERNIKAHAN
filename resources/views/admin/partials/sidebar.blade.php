@@ -19,7 +19,7 @@
                     </a>
                 </li>
                 <li class="mb-4">
-                    <a href="{{ route('client.index') }}" 
+                    <a href="{{ route('admin.client.index') }}" 
                        class="flex items-center gap-3 text-sm p-3 rounded-lg transition-colors {{ request()->routeIs('client.index') ? 'font-semibold text-gray-700 bg-orange-100' : 'font-medium text-gray-500 hover:bg-gray-100' }}"
                        :class="isSidebarOpen ? '' : 'lg:justify-center'">
                        <i class="fas fa-user-friends w-5 text-center text-lg"></i>

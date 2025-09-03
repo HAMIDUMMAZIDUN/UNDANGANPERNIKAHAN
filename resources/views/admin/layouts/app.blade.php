@@ -19,21 +19,21 @@
     </style>
 </head>
 
-<body class="min-h-screen" x-data="{ isSidebarOpen: true }">
+<body x-data="{ isSidebarOpen: true }" class="flex min-h-screen">
 
     @include('admin.partials.sidebar')
 
+    <!-- Overlay for mobile -->
     <div x-show="isSidebarOpen" @click="isSidebarOpen = false" class="fixed inset-0 bg-black opacity-50 z-20 lg:hidden"></div>
-
-    <div class="flex flex-col flex-1 transition-all duration-300 ease-in-out" 
-         :class="isSidebarOpen ? 'lg:ml-64' : 'lg:ml-20'">
+    
+    <div class="flex flex-col flex-1 w-full">
         
         <div class="px-8 pt-8">
             @include('admin.partials.navbar')
         </div>
 
-        <main class="flex-1 px-8 pb-8">
-            <div class="bg-white p-8 rounded-2xl shadow-sm w-full h-full">
+        <main class="flex-1 px-8 py-8">
+            <div class="bg-white p-8 rounded-2xl shadow-sm w-full">
                 @yield('content')
             </div>
         </main>
@@ -42,3 +42,4 @@
     @stack('scripts')
 </body>
 </html>
+

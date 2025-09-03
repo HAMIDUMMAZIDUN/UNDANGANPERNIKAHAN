@@ -26,9 +26,7 @@ class ClientController extends Controller
             }
         }
 
-        // ======================================================
-        // TAMBAHKAN KODE INI UNTUK FILTER TANGGAL
-        // ======================================================
+        // Filter Tanggal
         if ($request->filled('start_date')) {
             $query->whereDate('created_at', '>=', $request->start_date);
         }
@@ -36,18 +34,22 @@ class ClientController extends Controller
         if ($request->filled('end_date')) {
             $query->whereDate('created_at', '<=', $request->end_date);
         }
-        // ======================================================
-        // AKHIR DARI KODE TAMBAHAN
-        // ======================================================
-
+        
+        // --- UPDATED SEARCH LOGIC ---
+        // Pencarian berdasarkan nama klien, email, atau nama pengantin di event.
         if ($request->filled('search')) {
-            $query->where(function($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%')
-                  ->orWhere('email', 'like', '%' . $request->search . '%');
+            $searchTerm = '%' . $request->search . '%';
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('name', 'like', $searchTerm)
+                  ->orWhere('email', 'like', $searchTerm)
+                  ->orWhereHas('events', function($eventQuery) use ($searchTerm) {
+                      $eventQuery->where('groom_name', 'like', $searchTerm)
+                                 ->orWhere('bride_name', 'like', $searchTerm);
+                  });
             });
         }
 
-        $clients = $query->latest()->paginate(10);
+        $clients = $query->latest()->paginate(10)->withQueryString();
 
         return view('admin.client.index', compact('clients'));
     }
@@ -90,8 +92,61 @@ class ClientController extends Controller
             return back()->with('error', 'Aksi tidak diizinkan.');
         }
 
+        // Hapus juga event terkait jika ada
+        $client->events()->delete();
         $client->delete();
 
         return back()->with('success', 'Klien berhasil dihapus.');
+    }
+    
+    /**
+     * Menampilkan detail spesifik dari seorang klien.
+     */
+    public function show(User $client): View
+    {
+        if ($client->role !== 'user') {
+            abort(404);
+        }
+        return view('admin.client.show', compact('client'));
+    }
+
+    /**
+     * Menampilkan form untuk mengedit data klien.
+     */
+    public function edit(User $client): View
+    {
+        if ($client->role !== 'user') {
+            abort(404);
+        }
+        return view('admin.client.edit', compact('client'));
+    }
+
+    /**
+     * Memperbarui data klien di database.
+     */
+    public function update(Request $request, User $client): RedirectResponse
+    {
+        if ($client->role !== 'user') {
+            return back()->with('error', 'Aksi tidak diizinkan.');
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $client->id,
+            'password' => 'nullable|string|min:8',
+        ]);
+
+        $dataToUpdate = [
+            'name' => $request->name,
+            'email' => $request->email,
+        ];
+
+        if ($request->filled('password')) {
+            $dataToUpdate['password'] = Hash::make($request->password);
+        }
+
+        $client->update($dataToUpdate);
+
+        return redirect()->route('admin.client.index')->with('success', 'Data klien berhasil diperbarui.');
     }
 }

@@ -4,54 +4,66 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use App\Models\User; 
+use Illuminate\Support\Facades\Auth; // Anda mungkin tidak butuh ini untuk admin
+use Illuminate\Support\Facades\Log;
+use App\Models\User;
+use App\Models\Booking; 
+use App\Models\Request as UserRequest; 
+use Illuminate\Support\Facades\Cache;
 
 class DashboardAdminController extends Controller
 {
     /**
-     * Menampilkan halaman dashboard admin.
+     * Menampilkan halaman dashboard utama untuk Admin.
      *
+     * @param Request $request
      * @return View
      */
-    public function index(): View
+    public function index(Request $request): View
     {
+        try {
+        
+            $isOpenForOrder = Cache::get('open_for_order', true);
 
-        $data = [
-            'serverUptime' => '35,3%',
-            'totalUsers' => User::where('role', 'user')->count(),
-            'booking' => '+1,234',
-            'totalRequest' => '1,234',
-            'requestFromUsers' => '123',
-            'activitiesUsers' => '342',
-            'activitiesPercentage' => 65,
-            'activities' => [
-                [
-                    'user' => 'Silvia agustin',
-                    'action' => 'Login App',
-                    'time' => '0 12:00 AM',
-                    'details' => null,
-                ],
-                [
-                    'user' => 'Silvia agustin',
-                    'action' => 'Add Picture in gal..',
-                    'time' => '0 12:05 AM',
-                    'details' => [
-                        'text' => 'Detail:',
-                        'images' => [
-                            'https://placehold.co/100x100/d1d5db/374151?text=Img1',
-                            'https://placehold.co/100x100/d1d5db/374151?text=Img2',
-                        ]
-                    ],
-                ],
-                 [
-                    'user' => 'Silvia agustin',
-                    'action' => 'Login App',
-                    'time' => '0 12:07 AM',
-                    'details' => null,
-                ],
-            ]
-        ];
+            if ($isOpenForOrder) {
+                $serverStatus = 'Online';
+                $serverStatusColor = 'teal'; 
+            } else {
+                $serverStatus = 'Maintenance';
+                $serverStatusColor = 'red';
+            }
+            $totalUsers = User::count();
+            $booking = 0;
+            $totalRequest = 0; 
+            $requestFromUsers = 0;   
+            $activitiesUsers = User::where('updated_at', '>', now()->subDay())->count();
+            $activitiesPercentage = ($totalUsers > 0) ? round(($activitiesUsers / $totalUsers) * 100) : 0;
 
-        return view('admin.dashboardadmin.index', $data);
+            // 3. Ambil data aktivitas (contoh data dummy)
+            $activities = [
+                ['user' => 'John Doe', 'action' => 'updated his profile.', 'time' => '5 minutes ago'],
+                ['user' => 'Jane Smith', 'action' => 'created a new event.', 'time' => '1 hour ago'],
+                ['user' => 'Admin', 'action' => 'changed server status to Online.', 'time' => '3 hours ago'],
+            ];
+
+            // 4. Kirim semua data yang dibutuhkan ke view
+            return view('admin.dashboardadmin.index', [
+                'serverStatus' => $serverStatus,
+                'serverStatusColor' => $serverStatusColor,
+                'totalUsers' => $totalUsers,
+                'booking' => $booking,
+                'totalRequest' => $totalRequest,
+                'requestFromUsers' => $requestFromUsers,
+                'activitiesUsers' => $activitiesUsers,
+                'activitiesPercentage' => $activitiesPercentage,
+                'activities' => $activities,
+            ]);
+
+        } catch (\Exception $e) {
+    Log::error('Admin Dashboard error: ' . $e->getMessage());
+    
+    // Gunakan helper abort() untuk menampilkan halaman error default Laravel
+    abort(500, 'Terjadi kesalahan pada sistem dashboard.');
+}
     }
 }
