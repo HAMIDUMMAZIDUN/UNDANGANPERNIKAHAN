@@ -24,45 +24,36 @@ class DashboardController extends Controller
         try {
             $user = Auth::user();
             if (!$user) {
-                // Jika tidak ada user yang login, arahkan ke halaman login
                 return redirect()->route('login');
             }
 
-            // Ambil event pertama milik user
             $event = Event::where('user_id', $user->id)->first();
             if (!$event) {
-                // Jika user belum punya event, arahkan untuk membuat event baru
                 return redirect()->route('events.create')
                     ->with('info', 'Selamat datang! Silakan buat event pertama Anda untuk memulai.');
             }
 
-            // --- Menghitung Statistik ---
             $baseGuestsQuery = Guest::where('event_id', $event->id);
             
             $totalUndangan = (clone $baseGuestsQuery)->count();
             $hadirQuery = (clone $baseGuestsQuery)->whereNotNull('check_in_time');
-            $jumlahHadir = (clone $hadirQuery)->count(); // Jumlah undangan yang hadir
-            $totalOrangHadir = (clone $hadirQuery)->sum('number_of_guests'); // Jumlah orang (termasuk rombongan)
+            $jumlahHadir = (clone $hadirQuery)->count();
+            $totalOrangHadir = (clone $hadirQuery)->sum('number_of_guests'); 
             $totalPotensiOrang = (clone $baseGuestsQuery)->sum('number_of_guests');
-
-            // --- Logika untuk Menampilkan Daftar Tamu ---
             $listQuery = Guest::where('event_id', $event->id);
             
             if ($request->filled('search')) {
-                // JIKA MENCARI: Cari dari SEMUA tamu berdasarkan nama
+                
                 $searchQuery = $request->input('search');
                 $listQuery->where('name', 'like', "%{$searchQuery}%")
-                          ->orderBy('name', 'asc'); // Urutkan berdasarkan nama agar mudah dicari
+                        ->orderBy('name', 'asc');
             } else {
-                // JIKA TIDAK MENCARI: Hanya tampilkan tamu yang SUDAH HADIR
                 $listQuery->whereNotNull('check_in_time')
-                          ->orderBy('check_in_time', 'desc'); // Urutkan berdasarkan yang paling baru hadir
-            }
+                        ->orderBy('check_in_time', 'desc'); 
+                        }
 
-            // Lakukan paginasi pada query yang sudah disiapkan
             $guests = $listQuery->paginate(10)->withQueryString();
 
-            // Kirim semua data ke view
             return view('user.dashboard.index', [
                 'event' => $event,
                 'guests' => $guests,
@@ -73,7 +64,6 @@ class DashboardController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            // Tangani jika ada error tak terduga
             Log::error('Dashboard error: ' . $e->getMessage());
             return redirect('/')->with('error', 'Terjadi kesalahan pada sistem dashboard.');
         }

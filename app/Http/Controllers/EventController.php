@@ -8,16 +8,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\JsonResponse; // <-- TAMBAHKAN INI
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class EventController extends Controller
 {
-    // =================================================================
-    // METHOD UNTUK MANAJEMEN DATA EVENT (SUDAH ADA SEBELUMNYA)
-    // =================================================================
-
     public function create(): View
     {
         return view('user.events.create');
@@ -28,6 +24,7 @@ class EventController extends Controller
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'date' => 'required|date',
+            'location' => 'nullable|string|max:255', 
         ]);
 
         try {
@@ -35,6 +32,7 @@ class EventController extends Controller
             $validatedData['user_id'] = Auth::id();
             $validatedData['uuid'] = Str::uuid();
             $event = Event::create($validatedData);
+            
             return redirect()->route('dashboard.index')->with('success', 'Event baru berhasil dibuat!');
         } catch (\Exception $e) {
             Log::error('Gagal menyimpan event: ' . $e->getMessage());
@@ -87,21 +85,14 @@ class EventController extends Controller
         return redirect()->route('setting.index')->with('success', 'Event berhasil diperbarui!');
     }
 
-
-    // =================================================================
-    // METHOD BARU UNTUK PAGE BUILDER DRAG & DROP
-    // =================================================================
-
     /**
      * Menampilkan halaman editor drag-and-drop untuk mendesain tampilan event.
      */
     public function design(Event $event): View
     {
-        // Otorisasi: Pastikan event ini milik user yang sedang login
         if ($event->user_id !== Auth::id()) {
             abort(403, 'Unauthorized action.');
         }
-        // Mengembalikan view khusus untuk editor. Ganti nama jika perlu.
         return view('user.events.design', compact('event'));
     }
 
@@ -111,21 +102,14 @@ class EventController extends Controller
      */
     public function saveDesign(Request $request, Event $event): JsonResponse
     {
-        // Otorisasi
         if ($event->user_id !== Auth::id()) {
             abort(403, 'Unauthorized action.');
         }
-
-        // Validasi bahwa 'content' ada dan merupakan sebuah array
         $validated = $request->validate([
             'content' => 'required|array'
         ]);
-
-        // Simpan data JSON ke kolom 'content'
         $event->content = $validated['content'];
         $event->save();
-
-        // Kembalikan response JSON sebagai konfirmasi
         return response()->json(['message' => 'Desain berhasil disimpan.']);
     }
     
@@ -134,10 +118,9 @@ class EventController extends Controller
      */
     public function publicShow(string $slug): View
     {
-        // Cari event berdasarkan slug, jika tidak ada akan menampilkan error 404
         $event = Event::where('slug', $slug)->firstOrFail();
 
-        // Mengembalikan view publik
         return view('public.event-show', compact('event'));
     }
+    
 }

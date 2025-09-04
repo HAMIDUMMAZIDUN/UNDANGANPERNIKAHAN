@@ -12,8 +12,7 @@ private function getKatalogData(): array
     {
         return [
             'classic_gold' => [
-                ['id' => 1, 'nama' => 'Classic Gold 1', 'gambar' => asset('images/previews/classic-gold-1.png'), 'preview_img' => asset('images/previews/classic-gold-1.png'), 'musik' => 'music/musik1.mp3', 'template' => 'katalog.themes.classic-gold'],
-                ['id' => 2, 'nama' => 'Classic Gold 2', 'gambar' => asset('images/previews/classic-gold-1.png'), 'preview_img' => asset('images/previews/classic-gold-1.png'), 'musik' => 'music/musik1.mp3', 'template' => 'katalog.themes.classic-gold'],
+                ['id' => 1, 'nama' => 'Classic Gold', 'gambar' => asset('images/previews/classic-gold-1.png'), 'preview_img' => asset('images/previews/classic-gold-1.png'), 'musik' => 'music/musik1.mp3', 'template' => 'katalog.themes.classic-gold'],
             ],
             'rustic_elegance' => [
                 ['id' => 6, 'nama' => 'Rustic Bohemian', 'gambar' => asset('images/previews/rustic-bohemian.png'), 'preview_img' => asset('images/previews/rustic-bohemian.png'), 'musik' => 'music/musik2.mp3', 'template' => 'katalog.themes.rustic-bohemian'],

@@ -6,13 +6,12 @@
     
     <div class="px-4 pt-8 pb-4">
         <a href="{{ route('dashboard.index') }}" class="text-2xl font-bold text-white tracking-wider">
-           Menu
+        Menu
         </a>
     </div>
 
     <nav class="flex-grow px-2 space-y-1 overflow-y-auto">
         @php
-            // Mengambil event pertama milik user untuk digunakan di link 'Tamu'
             $firstEvent = Auth::user()->events()->first();
             
             $menuItems = [
@@ -34,8 +33,6 @@
             @php
                 $isActive = false;
                 $url = '#';
-
-                // Logika khusus untuk link 'Tamu'
                 if ($route === 'tamu') {
                     if ($firstEvent) {
                         $url = route('events.tamu.index', ['event' => $firstEvent->uuid]);
@@ -44,7 +41,6 @@
                         continue; // Lewati item 'Tamu' jika user belum punya event
                     }
                 } else {
-                    // Untuk semua link lainnya
                     $url = url($route);
                     $isActive = request()->is($route.'*');
                 }
