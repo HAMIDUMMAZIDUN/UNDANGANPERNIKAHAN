@@ -13,10 +13,24 @@
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body class="min-h-screen flex items-center justify-center bg-cover bg-center" style="background-image: url('{{ asset('images/bg-pernikahan.png') }}');">
+    
     <div class="w-full max-w-sm bg-white rounded-xl shadow-lg p-6">
         <h2 class="text-xl font-semibold text-center text-gray-700 mb-6">Login Aplikasi</h2>
         
-        {{-- Form dengan ID baru --}}
+        {{-- Notifikasi Sukses atau Error --}}
+        @if(session('success'))
+            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded-md" role="alert">
+                <p>{{ session('success') }}</p>
+            </div>
+        @endif
+        
+        @if(session('error') && !session('success')) {{-- Hanya tampilkan jika tidak ada notif sukses --}}
+            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded-md" role="alert">
+                <p>{{ session('error') }}</p>
+            </div>
+        @endif
+
+        {{-- Formulir Login --}}
         <form id="loginForm" method="POST" action="{{ route('login') }}" class="space-y-4">
             @csrf
 
@@ -42,7 +56,7 @@
                     <input type="checkbox" name="remember" class="h-4 w-4 text-green-600 border-gray-300 rounded">
                     <span class="ml-2">Remember me</span>
                 </label>
-                <a href="{{ route('password.request') }}" class="text-green-500 hover:underline">Forgot Password?</a>
+                <a href="{{ route('password.request') }}" class="text-green-500 hover:underline">Lupa Password?</a>
             </div>
 
             <div class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"></div>
@@ -52,11 +66,15 @@
                 LOGIN
             </button>
         </form>
+        
+        <p class="text-center text-sm text-gray-500 mt-6">
+            Belum punya akun? <a href="{{ route('katalog.index') }}" class="font-semibold text-green-600 hover:underline">Daftar di sini</a>
+        </p>
     </div>
 
     <script>
-        // Script untuk SweetAlert error dari backend
-        @if(session('error'))
+        // Script untuk SweetAlert error dari backend (untuk error login)
+        @if(session('error') && request()->isMethod('post'))
             Swal.fire({
                 icon: 'error',
                 title: 'Oops...',
@@ -75,18 +93,13 @@
             icon.classList.toggle('fa-eye-slash');
         });
 
-        // ===============================================================
-        // == SCRIPT BARU UNTUK VALIDASI RECAPTCHA SEBELUM SUBMIT ==
-        // ===============================================================
+        // Script untuk validasi reCAPTCHA sebelum submit
         document.getElementById('loginForm').addEventListener('submit', function (event) {
             const recaptchaResponse = grecaptcha.getResponse();
             
-            // Cek jika reCAPTCHA kosong (belum dicentang)
             if (recaptchaResponse.length === 0) {
-                // Hentikan pengiriman form
                 event.preventDefault(); 
                 
-                // Tampilkan SweetAlert peringatan
                 Swal.fire({
                     icon: 'warning',
                     title: 'Verifikasi Diperlukan',

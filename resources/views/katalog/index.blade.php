@@ -96,9 +96,15 @@
                                 </div>
                             </div>
                             <h3 class="font-semibold text-gray-800 mt-4 text-sm">{{ $item['nama'] }}</h3>
-                            <div class="flex flex-col sm:flex-row gap-2 justify-center mt-2">
-                                <a href="{{ route('katalog.show', ['id' => $item['id']]) }}" target="_blank" class="text-xs px-4 py-1.5 border border-brand-brown-dark text-brand-text rounded-full hover:bg-brand-brown transition">Lihat Demo</a>
-                                <a href="#" class="text-xs px-4 py-1.5 bg-brand-text text-white rounded-full hover:opacity-80 transition">Pesan</a>
+                            <div class="flex flex-col items-center gap-2 mt-2">
+                                {{-- Tombol Lihat Demo --}}
+                                <a href="{{ route('katalog.show', ['id' => $item['id']]) }}" target="_blank" class="w-full sm:w-auto text-xs px-4 py-1.5 border border-brand-brown-dark text-brand-text rounded-full hover:bg-brand-brown transition">
+                                    Lihat Demo
+                                </a>
+                                {{-- Tombol Order Baru --}}
+                                <a href="{{ route('order.start', ['template_id' => $item['id']]) }}" class="w-full sm:w-auto text-xs px-4 py-1.5 bg-green-600 text-white font-semibold rounded-full hover:bg-green-700 transition shadow">
+                                    Order Sekarang
+                                </a>
                             </div>
                         </div>
                     @endforeach

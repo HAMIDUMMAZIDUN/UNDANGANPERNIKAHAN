@@ -6,23 +6,22 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('client_requests', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('title');
-            $table->string('status')->default('pending'); // pending, in_progress, complete, approve
+            $table->string('title'); // e.g., "Undangan Classic Gold"
+            $table->integer('template_id');
+            $table->string('status')->default('pending'); // pending, waiting_for_payment, waiting_for_approval, approve, etc.
+            $table->decimal('price', 15, 2)->nullable();
+            $table->string('payment_status')->default('unpaid'); // unpaid, paid
+            $table->string('order_id')->nullable()->unique();
+            $table->text('qris_url')->nullable();
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('client_requests');
