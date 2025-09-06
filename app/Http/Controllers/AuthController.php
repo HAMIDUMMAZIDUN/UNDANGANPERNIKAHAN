@@ -17,7 +17,7 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-     public function login(Request $request)
+    public function login(Request $request)
     {
         // 2. Tambahkan 'g-recaptcha-response' ke validasi
         $request->validate([
@@ -129,3 +129,4 @@ class AuthController extends Controller
         }
     }
 }
+

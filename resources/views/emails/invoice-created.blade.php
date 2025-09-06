@@ -27,7 +27,8 @@
         <p>Silakan selesaikan pembayaran Anda dengan mengunjungi dasbor akun Anda melalui tombol di bawah ini.</p>
         
         <p style="text-align: center;">
-            <a href="{{ route('payment.show', $clientRequest->id) }}" class="button">Buka Halaman Pembayaran</a>
+            {{-- Pastikan href merujuk ke variabel $paymentUrl --}}
+            <a href="{{ $paymentUrl }}" class="button">Buka Halaman Pembayaran</a>
         </p>
 
         <p>Terima kasih!</p>

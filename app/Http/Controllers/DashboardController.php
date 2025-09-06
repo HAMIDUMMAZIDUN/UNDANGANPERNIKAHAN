@@ -14,10 +14,6 @@ class DashboardController extends Controller
 {
     /**
      * Menampilkan halaman dashboard utama.
-     * Mengambil data event, statistik, dan daftar tamu.
-     *
-     * @param Request $request
-     * @return View|RedirectResponse
      */
     public function index(Request $request): View|RedirectResponse
     {
@@ -25,6 +21,16 @@ class DashboardController extends Controller
             $user = Auth::user();
             if (!$user) {
                 return redirect()->route('login');
+            }
+            
+            // LOGIKA PENGECEKAN STATUS PENGGUNA
+            // Jika status user BUKAN 'approve', paksa logout dan kembalikan ke halaman login
+            if ($user->status !== 'approve') {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return redirect()->route('login')->with('error', 'Akun Anda belum aktif. Harap hubungi admin untuk persetujuan.');
             }
 
             $event = Event::where('user_id', $user->id)->first();
@@ -43,14 +49,13 @@ class DashboardController extends Controller
             $listQuery = Guest::where('event_id', $event->id);
             
             if ($request->filled('search')) {
-                
                 $searchQuery = $request->input('search');
                 $listQuery->where('name', 'like', "%{$searchQuery}%")
-                        ->orderBy('name', 'asc');
+                          ->orderBy('name', 'asc');
             } else {
                 $listQuery->whereNotNull('check_in_time')
-                        ->orderBy('check_in_time', 'desc'); 
-                        }
+                          ->orderBy('check_in_time', 'desc'); 
+            }
 
             $guests = $listQuery->paginate(10)->withQueryString();
 
@@ -69,3 +74,4 @@ class DashboardController extends Controller
         }
     }
 }
+

@@ -60,9 +60,10 @@ class Kernel extends HttpKernel
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-
-        // Middleware kustom Anda didaftarkan di sini
         'is_approved' => \App\Http\Middleware\IsApproved::class,
     ];
+    protected $middlewareAliases = [
+    'is_approved' => \App\Http\Middleware\IsApproved::class, 
+];
 }
 

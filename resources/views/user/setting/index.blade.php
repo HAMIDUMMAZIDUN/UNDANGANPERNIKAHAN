@@ -41,13 +41,13 @@
                                         </button>
                                         <div id="dropdown-event-{{ $event->id }}" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-slate-100 z-50 hidden origin-top-right">
                                             <div class="py-1">
-                                                {{-- Link untuk Edit Event --}}
-                                                <a href="{{ route('setting.events.edit', $event) }}" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">
+                                                {{-- Link untuk Edit Event (DIPERBAIKI) --}}
+                                                <a href="{{ route('user.setting.events.edit', $event) }}" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">
                                                     Edit Event
                                                 </a>
 
-                                                {{-- Link untuk Galeri --}}
-                                                <a href="{{ route('setting.events.gallery', $event) }}" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">
+                                                {{-- Link untuk Galeri (DIPERBAIKI) --}}
+                                                <a href="{{ route('user.setting.events.gallery', $event) }}" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">
                                                     Galeri Foto
                                                 </a>
 
@@ -71,9 +71,9 @@
                                     </div>
                                 </div>
                                 <div class="mt-4">
-                                     <a href="{{ route('undangan.public', ['event' => $event]) }}" target="_blank" class="text-slate-700 block px-4 py-2 text-sm hover:bg-slate-100" role="menuitem">
-                                        Undangan Umum (Buat ke Group Whatsapp)
-                                    </a>
+                                        <a href="{{ route('undangan.public', ['event' => $event]) }}" target="_blank" class="text-slate-700 block px-4 py-2 text-sm hover:bg-slate-100" role="menuitem">
+                                            Undangan Umum (Buat ke Group Whatsapp)
+                                        </a>
                                 </div>
                             </div>
                         </div>

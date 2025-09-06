@@ -17,18 +17,17 @@
 
     {{-- Baris Filter --}}
     <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-        {{-- Filter Status --}}
+        {{-- Filter Status BARU --}}
         <div class="flex border-b border-gray-200">
-            <a href="{{ route('admin.client.index') }}" class="px-4 py-2 text-sm font-semibold {{ !request('status') && !request('search') ? 'text-teal-600 border-b-2 border-teal-600' : 'text-gray-500' }}">All Client</a>
-            <a href="{{ route('admin.client.index', ['status' => 'active']) }}" class="px-4 py-2 text-sm font-semibold {{ request('status') == 'active' ? 'text-teal-600 border-b-2 border-teal-600' : 'text-gray-500' }}">Active</a>
-            <a href="{{ route('admin.client.index', ['status' => 'off']) }}" class="px-4 py-2 text-sm font-semibold {{ request('status') == 'off' ? 'text-teal-600 border-b-2 border-teal-600' : 'text-gray-500' }}">Off</a>
+            <a href="{{ route('admin.client.index') }}" class="px-4 py-2 text-sm font-semibold {{ !request('status') ? 'text-teal-600 border-b-2 border-teal-600' : 'text-gray-500' }}">All Client</a>
+            <a href="{{ route('admin.client.index', ['status' => 'approve']) }}" class="px-4 py-2 text-sm font-semibold {{ request('status') == 'approve' ? 'text-teal-600 border-b-2 border-teal-600' : 'text-gray-500' }}">Approved</a>
+            <a href="{{ route('admin.client.index', ['status' => 'pending']) }}" class="px-4 py-2 text-sm font-semibold {{ request('status') == 'pending' ? 'text-teal-600 border-b-2 border-teal-600' : 'text-gray-500' }}">Pending</a>
         </div>
         
         {{-- Form Pencarian dan Filter Tanggal --}}
         <div class="flex flex-col md:flex-row items-center gap-4">
-            <!-- Search Bar -->
-            <form id="searchForm" action="{{ route('admin.client.index') }}" method="GET" class="relative">
-                 {{-- Simpan parameter lain saat mencari --}}
+             <!-- Search Bar -->
+             <form id="searchForm" action="{{ route('admin.client.index') }}" method="GET" class="relative">
                 @if(request('status'))
                     <input type="hidden" name="status" value="{{ request('status') }}">
                 @endif
@@ -42,7 +41,7 @@
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3">
                     <i class="fas fa-search text-gray-400"></i>
                 </span>
-                <input id="searchInput" type="text" name="search" class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full md:w-64 text-sm" placeholder="Cari nama pengantin..." value="{{ request('search') }}">
+                <input id="searchInput" type="text" name="search" class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full md:w-64 text-sm" placeholder="Cari nama klien..." value="{{ request('search') }}">
             </form>
 
             <!-- Filter Tanggal -->
@@ -54,21 +53,9 @@
                     <input type="hidden" name="search" value="{{ request('search') }}">
                 @endif
 
-                <input 
-                    type="date" 
-                    name="start_date"
-                    value="{{ request('start_date') }}" 
-                    onchange="document.getElementById('dateFilterForm').submit();"
-                    class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
-                
+                <input type="date" name="start_date" value="{{ request('start_date') }}" onchange="document.getElementById('dateFilterForm').submit();" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
                 <span class="text-gray-500">To</span>
-
-                <input 
-                    type="date" 
-                    name="end_date"
-                    value="{{ request('end_date') }}"
-                    onchange="document.getElementById('dateFilterForm').submit();"
-                    class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                <input type="date" name="end_date" value="{{ request('end_date') }}" onchange="document.getElementById('dateFilterForm').submit();" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
             </form>
         </div>
     </div>
@@ -78,11 +65,10 @@
             <thead class="bg-gray-50 border-b border-gray-200">
                 <tr>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama kedua Pengantin</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Klien</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No Handphone</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Packet</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status Akun</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Bergabung</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                 </tr>
@@ -91,27 +77,15 @@
                 @forelse ($clients as $client)
                     <tr class="hover:bg-gray-50">
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $clients->firstItem() + $loop->index }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            @if($client->events->isNotEmpty())
-                                {{ $client->events->first()->groom_name ?? 'N/A' }} & {{ $client->events->first()->bride_name ?? 'N/A' }}
-                            @else
-                                {{ $client->name }}
-                            @endif
-                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $client->name }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $client->email }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            @if($client->events->isNotEmpty())
-                                {{ $client->events->first()->phone_number ?? '-' }}
-                            @else
-                                -
-                            @endif
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Reguler</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $client->phone ?? '-' }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm">
-                            @if($client->events->isNotEmpty())
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+                            {{-- Tampilan Status BARU --}}
+                            @if($client->status == 'approve')
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Approved</span>
                             @else
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Off</span>
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>
                             @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $client->created_at->format('d-m-Y') }}</td>
@@ -123,8 +97,24 @@
                                 <div x-show="open" @click.away="open = false" 
                                      class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10"
                                      x-transition>
-                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Lihat Undangan</a>
-                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Lihat History</a>
+                                    
+                                    {{-- Tombol Aksi Status BARU --}}
+                                    @if ($client->status == 'pending')
+                                    <form action="{{ route('admin.client.updateStatus', $client->id) }}" method="POST">
+                                        @csrf
+                                        @method('PATCH')
+                                        <input type="hidden" name="status" value="approve">
+                                        <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Approve</button>
+                                    </form>
+                                    @else
+                                    <form action="{{ route('admin.client.updateStatus', $client->id) }}" method="POST">
+                                        @csrf
+                                        @method('PATCH')
+                                        <input type="hidden" name="status" value="pending">
+                                        <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Batalkan Approval</button>
+                                    </form>
+                                    @endif
+
                                     <form action="{{ route('admin.client.destroy', $client->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus klien ini?');">
                                         @csrf
                                         @method('DELETE')
@@ -136,7 +126,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500">
+                        <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">
                             Tidak ada data klien ditemukan.
                         </td>
                     </tr>
