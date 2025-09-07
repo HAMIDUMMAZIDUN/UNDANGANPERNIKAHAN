@@ -43,11 +43,6 @@
                     </a>
                 </li>
                 <li class="mb-4">
-                    <a href="#" class="flex items-center gap-3 text-sm font-medium text-gray-500 hover:bg-gray-100 p-3 rounded-lg transition-colors"
-                       :class="isSidebarOpen ? '' : 'lg:justify-center'">
-                       <i class="fas fa-cog w-5 text-center text-lg"></i>
-                        <span class="transition-opacity duration-200" :class="isSidebarOpen ? 'opacity-100' : 'lg:opacity-0 lg:hidden'">Setting</span>
-                    </a>
                 </li>
             </ul>
         </nav>

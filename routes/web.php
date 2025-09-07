@@ -116,16 +116,16 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::prefix('user/setting')->name('user.setting.')->group(function () {
-        Route::get('/', [SettingController::class, 'index'])->name('index');
-        Route::prefix('events')->name('events.')->group(function () {
-            Route::get('/{event}/edit', [SettingController::class, 'edit'])->name('edit');
-            // PERBAIKAN: Mengganti Route::post menjadi Route::put
-            Route::put('/{event}', [SettingController::class, 'update'])->name('update');
-            Route::get('/{event}/gallery', [SettingController::class, 'gallery'])->name('gallery');
-            Route::post('/{event}/gallery', [SettingController::class, 'uploadPhoto'])->name('gallery.upload');
+            Route::get('/', [SettingController::class, 'index'])->name('index');
+            Route::prefix('events')->name('events.')->group(function () {
+                // DIUBAH: Menggunakan {event:uuid} untuk pencarian berdasarkan UUID
+                Route::get('/{event:uuid}/edit', [SettingController::class, 'edit'])->name('edit');
+                Route::put('/{event:uuid}', [SettingController::class, 'update'])->name('update');
+                Route::get('/{event:uuid}/gallery', [SettingController::class, 'gallery'])->name('gallery');
+                Route::post('/{event:uuid}/gallery', [SettingController::class, 'uploadPhoto'])->name('gallery.upload');
+            });
+            Route::delete('/gallery/{photo}', [SettingController::class, 'deletePhoto'])->name('gallery.delete');
         });
-        Route::delete('/gallery/{photo}', [SettingController::class, 'deletePhoto'])->name('gallery.delete');
-    });
 
     Route::get('/dashboardadmin', [DashboardAdminController::class, 'index'])->name('dashboard.admin.index');
     Route::prefix('admin')->name('admin.')->group(function () {

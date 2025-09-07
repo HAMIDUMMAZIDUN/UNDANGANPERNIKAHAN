@@ -16,21 +16,20 @@ class OrderHistoryController extends Controller
      */
     public function index(Request $request): View
     {
-        // Ambil semua jenis paket unik dari database untuk ditampilkan sebagai tab filter
-        $packets = Event::query()->whereNotNull('packet')->distinct()->pluck('packet');
+        // DIUBAH: Mengambil jenis template unik, bukan 'packet'
+        $templates = Event::query()->whereNotNull('template_name')->distinct()->pluck('template_name');
 
         // Mengambil data event beserta relasi user-nya
-        $query = Event::with('user');
+        $query = Event::with('user')->latest();
 
         // Filter berdasarkan status 'complete'
         if ($request->filled('status') && $request->status == 'complete') {
-            // Asumsikan 'complete' berarti tanggal event sudah lewat
             $query->where('date', '<', now());
         }
 
-        // Filter berdasarkan jenis paket
-        if ($request->filled('packet')) {
-            $query->where('packet', $request->packet);
+        // DIUBAH: Filter berdasarkan template_name, bukan 'packet'
+        if ($request->filled('template')) {
+            $query->where('template_name', $request->template);
         }
 
         // Filter berdasarkan tanggal
@@ -48,11 +47,9 @@ class OrderHistoryController extends Controller
                 $userQuery->where('name', 'like', '%' . $searchTerm . '%');
             });
         }
+        
+        $orders = $query->paginate(10)->withQueryString();
 
-        // Lakukan paginasi dan pastikan semua filter tetap ada saat berpindah halaman
-        $orders = $query->latest()->paginate(10)->withQueryString();
-
-        return view('admin.orderhistory.index', compact('orders', 'packets'));
+        return view('admin.orderhistory.index', compact('orders', 'templates'));
     }
 }
-

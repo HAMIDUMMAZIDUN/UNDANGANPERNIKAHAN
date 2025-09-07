@@ -8,43 +8,108 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class KatalogController extends Controller
 {
-private function getKatalogData(): array
+    private function getKatalogData(): array
     {
+        // Path gambar sekarang disesuaikan dengan direktori public Anda
         return [
-            'classic_gold' => [
-                ['id' => 1, 'nama' => 'Classic Gold', 'gambar' => asset('images/previews/classic-gold-1.png'), 'preview_img' => asset('images/previews/classic-gold-1.png'), 'musik' => 'music/musik1.mp3', 'template' => 'katalog.themes.classic-gold'],
+            'special' => [
+                'name' => 'Special',
+                'slug' => 'special',
+                'features' => [
+                    'Masa aktif 10 bulan',
+                    'Galeri maksimal 10 foto',
+                    'Sebar undangan tanpa batas',
+                    'Sudah termasuk seluruh fitur lengkap'
+                ],
+                'items' => [
+                    // PERHATIKAN: 'preview_img' sekarang menggunakan asset() dengan path gambar yang benar
+                    [
+                        'id' => 1, 'nama' => 'Special 01', 'tag' => 'Tema General', 'harga_asli' => 200000, 'harga_diskon' => 99000, 'bisa_ganti_font' => true,
+                        'preview_img' => asset('images/previews/classic-gold-1.png'),
+                        'template' => 'katalog.themes.classic-gold'
+                    ],
+                    [
+                        'id' => 2, 'nama' => 'Special 02', 'tag' => 'Adat Jawa', 'harga_asli' => 200000, 'harga_diskon' => 99000, 'bisa_ganti_font' => true,
+                        'preview_img' => asset('images/previews/rustic-bohemian.png'),
+                        'template' => 'katalog.themes.rustic-bohemian'
+                    ],
+                    [
+                        'id' => 3, 'nama' => 'Special 03', 'tag' => 'Tema General', 'harga_asli' => 200000, 'harga_diskon' => 99000, 'bisa_ganti_font' => false,
+                        'preview_img' => asset('images/previews/greenery-charm.png'),
+                        'template' => 'katalog.themes.greenery-charm'
+                    ],
+                    [
+                        'id' => 4, 'nama' => 'Special 04', 'tag' => 'Tema General', 'harga_asli' => 200000, 'harga_diskon' => 99000, 'bisa_ganti_font' => false,
+                        'preview_img' => asset('images/previews/modern-monochrome.png'),
+                        'template' => 'katalog.themes.modern-monochrome'
+                    ],
+                    [
+                        'id' => 5, 'nama' => 'Special 05', 'tag' => 'Tema General', 'harga_asli' => 200000, 'harga_diskon' => 99000, 'bisa_ganti_font' => true,
+                        'preview_img' => asset('images/previews/simple-clean.png'),
+                        'template' => 'katalog.themes.simple-clean'
+                    ],
+                    [
+                        'id' => 6, 'nama' => 'Special 06', 'tag' => 'Tema General', 'harga_asli' => 200000, 'harga_diskon' => 99000, 'bisa_ganti_font' => true,
+                        'preview_img' => asset('images/previews/classic-gold-1.png'), // Menggunakan gambar yang ada, silakan sesuaikan
+                        'template' => 'katalog.themes.classic-gold'
+                    ],
+                ]
             ],
-            'rustic_elegance' => [
-                ['id' => 6, 'nama' => 'Rustic Bohemian', 'gambar' => asset('images/previews/rustic-bohemian.png'), 'preview_img' => asset('images/previews/rustic-bohemian.png'), 'musik' => 'music/musik2.mp3', 'template' => 'katalog.themes.rustic-bohemian'],
-                ['id' => 7, 'nama' => 'Greenery Charm', 'gambar' => asset('images/previews/greenery-charm.png'), 'preview_img' => asset('images/previews/greenery-charm.png'), 'musik' => 'music/musik2.mp3', 'template' => 'katalog.themes.greenery-charm'],
+            'luxury' => [
+                'name' => 'Luxury',
+                'slug' => 'luxury',
+                'features' => ['Masa aktif 12 bulan', 'Galeri maksimal 20 foto', 'Fitur premium terbuka', 'Dukungan prioritas'],
+                'items' => []
             ],
-            'modern_minimalist' => [
-                ['id' => 11, 'nama' => 'Modern Monochrome', 'gambar' => asset('images/previews/modern-monochrome.png'), 'preview_img' => asset('images/previews/modern-monochrome.png'), 'musik' => 'music/musik3.mp3', 'template' => 'katalog.themes.modern-monochrome'],
-                ['id' => 12, 'nama' => 'Simple & Clean', 'gambar' => asset('images/previews/simple-clean.png'), 'preview_img' => asset('images/previews/simple-clean.png'), 'musik' => 'music/musik3.mp3', 'template' => 'katalog.themes.simple-clean'],
-            ]
+            '3d_motion' => [
+                'name' => '3D Motion',
+                'slug' => '3d_motion',
+                'features' => ['Animasi 3D interaktif', 'Masa aktif selamanya', 'Semua fitur premium', 'Desain eksklusif'],
+                'items' => []
+            ],
+            'art' => [
+                'name' => 'Art',
+                'slug' => 'art',
+                'features' => ['Desain artistik & unik', 'Masa aktif 12 bulan', 'Palet warna custom', 'Termasuk fitur lengkap'],
+                'items' => []
+            ],
+            'tema_adat' => [
+                'name' => 'Tema Adat',
+                'slug' => 'tema_adat',
+                'features' => ['Ornamen khas adat nusantara', 'Masa aktif 10 bulan', 'Backsound musik daerah', 'Termasuk fitur lengkap'],
+                'items' => []
+            ],
+            'tanpa_foto' => [
+                'name' => 'Tanpa Foto',
+                'slug' => 'tanpa_foto',
+                'features' => ['Fokus pada ilustrasi & tipografi', 'Proses pembuatan lebih cepat', 'Masa aktif 10 bulan', 'Termasuk fitur lengkap'],
+                'items' => []
+            ],
         ];
     }
 
     public function index(): View
     {
-        $katalog = $this->getKatalogData();
-        return view('katalog.index', ['katalog' => $katalog]);
+        $katalogData = $this->getKatalogData();
+        return view('katalog.index', ['katalogData' => $katalogData]);
     }
 
     public function showDemo(int $id): View
     {
         $katalog = $this->getKatalogData();
-        $theme = collect($katalog)->flatten(1)->firstWhere('id', $id);
+        
+        $allItems = collect($katalog)->pluck('items')->flatten(1);
+        $theme = $allItems->firstWhere('id', $id);
 
-        if (!$theme) {
-            abort(404);
+        if (!$theme || !isset($theme['template'])) {
+            abort(404, 'Tema atau template untuk demo tidak ditemukan.');
         }
 
         $event = (object) [
             'groom_name' => 'Aditya', 'bride_name' => 'Lestari',
             'date' => now()->addDays(45)->toDateString(),
-            'photo_url' => $theme['gambar'],
-            'music_url' => asset($theme['musik'] ?? 'music/musik1.mp3'),
+            'photo_url' => $theme['preview_img'],
+            'music_url' => asset('music/musik1.mp3'),
             'groom_photo' => 'https://source.unsplash.com/random/400x400/?man,portrait',
             'bride_photo' => 'https://source.unsplash.com/random/400x401/?woman,portrait',
             'groom_parents' => 'Bpk. Soleh & Ibu. Aminah', 'bride_parents' => 'Bpk. Budi & Ibu. Wati',
@@ -59,12 +124,10 @@ private function getKatalogData(): array
         $photos = collect([
             (object)['path' => 'https://source.unsplash.com/random/800x800/?wedding,couple'],
             (object)['path' => 'https://source.unsplash.com/random/800x801/?wedding,couple'],
-            (object)['path' => 'https://source.unsplash.com/random/800x802/?wedding,decoration'],
-            (object)['path' => 'https://source.unsplash.com/random/800x803/?wedding,ring'],
         ]);
 
         $rsvps = new LengthAwarePaginator([], 0, 5);
-
+        
         return view($theme['template'], compact('event', 'guest', 'photos', 'rsvps', 'theme'));
     }
 }
