@@ -23,7 +23,7 @@
             font-family: 'Montserrat', sans-serif;
         }
         .filter-btn.active {
-            background-color: #f59e0b; /* amber-500 */
+            background-color: #f59e0b; 
             color: white;
             border-color: #f59e0b;
         }
@@ -73,9 +73,6 @@
                 @endforeach
             </div>
         </div>
-        
-        <div class="absolute inset-0 bg-black/50 z-0"></div>
-
         <div class="relative h-full flex items-center justify-center text-center text-white px-4 sm:px-6 lg:px-8">
             <div class="z-10">
                 <h1 class="text-3xl md:text-5xl font-bold font-header">Undangan Digital Express #1</h1>

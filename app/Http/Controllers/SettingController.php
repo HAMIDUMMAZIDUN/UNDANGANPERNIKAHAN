@@ -43,15 +43,15 @@ class SettingController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'date' => ['required', 'date'],
-            'photo_url' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5000'],
+            'photo_url' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:10000'],
             'groom_name' => ['nullable', 'string', 'max:255'],
             'groom_parents' => ['nullable', 'string', 'max:255'],
             'groom_instagram' => ['nullable', 'string', 'max:255'],
-            'groom_photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
+            'groom_photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:10000'],
             'bride_name' => ['nullable', 'string', 'max:255'],
             'bride_parents' => ['nullable', 'string', 'max:255'],
             'bride_instagram' => ['nullable', 'string', 'max:255'],
-            'bride_photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5000'],
+            'bride_photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:10000'],
             'akad_location' => ['nullable', 'string', 'max:255'],
             'akad_time' => ['nullable', 'string', 'max:255'],
             'akad_maps_url' => ['nullable', 'url', 'max:255'],
@@ -81,7 +81,7 @@ class SettingController extends Controller
     public function uploadPhoto(Request $request, Event $event): RedirectResponse
     {
         $this->authorize('uploadPhoto', $event);
-        $request->validate(['photo' => ['required', 'image', 'mimes:jpeg,png,jpg,webp', 'max:5000']]);
+        $request->validate(['photo' => ['required', 'image', 'mimes:jpeg,png,jpg,webp', 'max:10000']]);
         $path = $request->file('photo')->store('gallery_photos', 'public');
         $event->photos()->create(['path' => $path, 'user_id' => $event->user_id]);
         return back()->with('success', 'Foto berhasil diunggah!');
