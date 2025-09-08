@@ -52,6 +52,11 @@
             color: #8D7B68; /* brand-brown */
             transform: scale(1.1);
         }
+        /* Style untuk RSVP button yang aktif */
+        .rsvp-btn.active {
+            background-color: #8D7B68;
+            color: white;
+        }
     </style>
 </head>
 <body class="antialiased overflow-x-hidden">
@@ -62,27 +67,27 @@
     </div>
 
     <div id="cover" class="h-screen w-full flex flex-col justify-center items-center text-center p-4 bg-watercolor relative overflow-hidden">
-        <div class="relative z-20" data-aos="zoom-in">
-            <p class="text-sm tracking-widest uppercase">The Wedding Of</p>
-            <div class="my-6 relative w-48 h-48 mx-auto p-2 bg-white/50 shadow-lg rounded-full">
+        <div class="relative z-20">
+            <p class="text-sm tracking-widest uppercase" data-aos="fade-down" data-aos-delay="200">The Wedding Of</p>
+            <div class="my-6 relative w-48 h-48 mx-auto p-2 bg-white/50 shadow-lg rounded-full" data-aos="zoom-in" data-aos-delay="400">
                  <img src="{{ $event->photo_url ? (Str::startsWith($event->photo_url, 'http') ? $event->photo_url : asset('storage/' . $event->photo_url)) : 'https://i.ibb.co/VMyB8fN/story-1-AA86-E7-C3.jpg' }}" class="w-full h-full object-cover rounded-full">
             </div>
-            <h1 class="font-script text-6xl text-brand-dark">{{ $event->bride_name ?? 'Putri' }} & {{ $event->groom_name ?? 'Putra' }}</h1>
-            <p class="mt-4 font-serif font-semibold text-lg">{{ \Carbon\Carbon::parse($event->date ?? now())->isoFormat('dddd, D MMMM YYYY') }}</p>
+            <h1 class="font-script text-6xl text-brand-dark" data-aos="fade-up" data-aos-delay="600">{{ $event->bride_name ?? 'Putri' }} & {{ $event->groom_name ?? 'Putra' }}</h1>
+            <p class="mt-4 font-serif font-semibold text-lg" data-aos="fade-up" data-aos-delay="700">{{ \Carbon\Carbon::parse($event->date ?? now())->isoFormat('dddd, D MMMM YYYY') }}</p>
 
-            <div id="countdown" class="grid grid-cols-4 gap-2 mt-8 text-center max-w-xs mx-auto">
+            <div id="countdown" class="grid grid-cols-4 gap-2 mt-8 text-center max-w-xs mx-auto" data-aos="fade-up" data-aos-delay="800">
                 <div class="p-2 bg-brand-brown text-white rounded-lg"><p id="days" class="text-2xl font-bold">00</p><p class="text-xs">Hari</p></div>
                 <div class="p-2 bg-brand-brown text-white rounded-lg"><p id="hours" class="text-2xl font-bold">00</p><p class="text-xs">Jam</p></div>
                 <div class="p-2 bg-brand-brown text-white rounded-lg"><p id="minutes" class="text-2xl font-bold">00</p><p class="text-xs">Menit</p></div>
                 <div class="p-2 bg-brand-brown text-white rounded-lg"><p id="seconds" class="text-2xl font-bold">00</p><p class="text-xs">Detik</p></div>
             </div>
 
-            <div class="mt-8">
+            <div class="mt-8" data-aos="fade-up" data-aos-delay="900">
                 <p class="text-sm">Kepada Yth.</p>
                 <p class="font-serif text-2xl mt-1">{{ $guest->name ?? 'Tamu Undangan' }}</p>
             </div>
             
-            <button id="open-invitation" class="mt-8 bg-brand-dark text-white font-bold py-3 px-8 rounded-full shadow-lg hover:bg-opacity-80 transition-all duration-300 hover:scale-105 flex items-center gap-2 mx-auto">
+            <button id="open-invitation" class="mt-8 bg-brand-dark text-white font-bold py-3 px-8 rounded-full shadow-lg hover:bg-opacity-80 transition-all duration-300 hover:scale-105 flex items-center gap-2 mx-auto" data-aos="fade-up" data-aos-delay="1000">
                 <i class="fa-regular fa-envelope-open"></i>
                 <span>Buka Undangan</span>
             </button>
@@ -93,65 +98,65 @@
         <div class="max-w-3xl mx-auto bg-brand-bg shadow-2xl relative">
             <div class="absolute inset-0 bg-watercolor opacity-50 z-0"></div>
             <div class="relative z-10">
-                <section id="mempelai" class="py-20 px-6 text-center" data-aos="fade-up">
-                    <p>Assalamu’alaikum Warahmatullahi Wabarakatuh</p>
-                    <p class="mt-4 max-w-lg mx-auto font-serif">Maha Suci Allah yang telah menciptakan makhluk-Nya berpasang-pasangan. Ya Allah semoga ridho-Mu tercurah mengiringi pernikahan kami.</p>
+                <section id="mempelai" class="py-20 px-6 text-center">
+                    <p data-aos="fade-up">Assalamu’alaikum Warahmatullahi Wabarakatuh</p>
+                    <p class="mt-4 max-w-lg mx-auto font-serif" data-aos="fade-up" data-aos-delay="100">Maha Suci Allah yang telah menciptakan makhluk-Nya berpasang-pasangan. Ya Allah semoga ridho-Mu tercurah mengiringi pernikahan kami.</p>
                     
                     <div class="mt-12 flex flex-col md:flex-row items-center justify-center gap-8">
-                        <div class="text-center">
-                            <img src="{{ $event->bride_photo ? (Str::startsWith($event->bride_photo, 'http') ? $event->bride_photo : asset('storage/' . $event->bride_photo)) : 'https://i.ibb.co/Jqj3Gfg/bride-61-F436-B5.jpg' }}" class="w-48 h-48 object-cover rounded-full mx-auto shadow-lg">
-                            <h3 class="font-script text-5xl mt-4 text-brand-dark">{{ $event->bride_name }}</h3>
-                            <p class="mt-2 font-serif font-semibold">Putri dari</p>
-                            <p class="text-sm">{{ $event->bride_parents }}</p>
+                        <div class="text-center" data-aos="fade-right" data-aos-delay="200">
+                            <img src="{{ $event->bride_photo ? (Str::startsWith($event->bride_photo, 'http') ? $event->bride_photo : asset('storage/' . $event->bride_photo)) : 'https://i.ibb.co/Jqj3Gfg/bride-61-F436-B5.jpg' }}" class="w-48 h-48 object-cover rounded-full mx-auto shadow-lg" data-aos="zoom-in" data-aos-delay="300">
+                            <h3 class="font-script text-5xl mt-4 text-brand-dark" data-aos="fade-right" data-aos-delay="400">{{ $event->bride_name }}</h3>
+                            <p class="mt-2 font-serif font-semibold" data-aos="fade-right" data-aos-delay="500">Putri dari</p>
+                            <p class="text-sm" data-aos="fade-right" data-aos-delay="600">{{ $event->bride_parents }}</p>
                             @if(!empty($event->bride_instagram))
-                                <a href="https://instagram.com/{{ $event->bride_instagram }}" target="_blank" class="inline-block mt-2 text-sm bg-brand-brown text-white px-3 py-1 rounded-full"><i class="fa-brands fa-instagram"></i> {{ $event->bride_instagram }}</a>
+                                <a href="https://instagram.com/{{ $event->bride_instagram }}" target="_blank" class="inline-block mt-2 text-sm bg-brand-brown text-white px-3 py-1 rounded-full" data-aos="fade-right" data-aos-delay="700"><i class="fa-brands fa-instagram"></i> {{ $event->bride_instagram }}</a>
                             @endif
                         </div>
                         
-                        <p class="font-script text-5xl my-4 md:my-0">&</p>
+                        <p class="font-script text-5xl my-4 md:my-0" data-aos="zoom-in" data-aos-delay="300">&</p>
                         
-                        <div class="text-center">
-                            <img src="{{ $event->groom_photo ? (Str::startsWith($event->groom_photo, 'http') ? $event->groom_photo : asset('storage/' . $event->groom_photo)) : 'https://i.ibb.co/zZfT4b2/groom-61-F436-B5.jpg' }}" class="w-48 h-48 object-cover rounded-full mx-auto shadow-lg">
-                            <h3 class="font-script text-5xl mt-4 text-brand-dark">{{ $event->groom_name }}</h3>
-                            <p class="mt-2 font-serif font-semibold">Putra dari</p>
-                            <p class="text-sm">{{ $event->groom_parents }}</p>
+                        <div class="text-center" data-aos="fade-left" data-aos-delay="200">
+                            <img src="{{ $event->groom_photo ? (Str::startsWith($event->groom_photo, 'http') ? $event->groom_photo : asset('storage/' . $event->groom_photo)) : 'https://i.ibb.co/zZfT4b2/groom-61-F436-B5.jpg' }}" class="w-48 h-48 object-cover rounded-full mx-auto shadow-lg" data-aos="zoom-in" data-aos-delay="300">
+                            <h3 class="font-script text-5xl mt-4 text-brand-dark" data-aos="fade-left" data-aos-delay="400">{{ $event->groom_name }}</h3>
+                            <p class="mt-2 font-serif font-semibold" data-aos="fade-left" data-aos-delay="500">Putra dari</p>
+                            <p class="text-sm" data-aos="fade-left" data-aos-delay="600">{{ $event->groom_parents }}</p>
                             @if(!empty($event->groom_instagram))
-                                <a href="https://instagram.com/{{ $event->groom_instagram }}" target="_blank" class="inline-block mt-2 text-sm bg-brand-brown text-white px-3 py-1 rounded-full"><i class="fa-brands fa-instagram"></i> {{ $event->groom_instagram }}</a>
+                                <a href="https://instagram.com/{{ $event->groom_instagram }}" target="_blank" class="inline-block mt-2 text-sm bg-brand-brown text-white px-3 py-1 rounded-full" data-aos="fade-left" data-aos-delay="700"><i class="fa-brands fa-instagram"></i> {{ $event->groom_instagram }}</a>
                             @endif
                         </div>
                     </div>
                 </section>
 
-                <section class="py-20 px-6 text-center bg-brand-brown text-white" data-aos="fade-up">
-                    <p class="italic leading-relaxed max-w-xl mx-auto font-serif text-lg">"Dan di antara tanda-tanda (kebesaran)-Nya ialah Dia menciptakan pasangan-pasangan untukmu dari jenismu sendiri, agar kamu cenderung dan merasa tenteram kepadanya, dan Dia menjadikan di antaramu rasa kasih dan sayang."</p>
-                    <p class="font-semibold mt-4">(Q.S Ar-Rum : 21)</p>
+                <section class="py-20 px-6 text-center bg-brand-brown text-white">
+                    <p class="italic leading-relaxed max-w-xl mx-auto font-serif text-lg" data-aos="fade-up">"Dan di antara tanda-tanda (kebesaran)-Nya ialah Dia menciptakan pasangan-pasangan untukmu dari jenismu sendiri, agar kamu cenderung dan merasa tenteram kepadanya, dan Dia menjadikan di antaramu rasa kasih dan sayang."</p>
+                    <p class="font-semibold mt-4" data-aos="fade-up" data-aos-delay="100">(Q.S Ar-Rum : 21)</p>
                 </section>
                 
                 <section id="acara" class="py-20 px-6 text-center">
                     <div class="flex flex-col gap-8 max-w-md mx-auto">
-                        <div class="bg-white p-6 rounded-2xl shadow-lg relative" data-aos="fade-up">
-                            <h2 class="font-script text-5xl">Akad Nikah</h2>
-                            <p class="mt-4 font-semibold text-xl font-serif">{{ \Carbon\Carbon::parse($event->date)->isoFormat('dddd, D MMMM YYYY') }}</p>
-                            <p class="mt-4"><i class="fa-regular fa-clock"></i> {{ $event->akad_time }}</p>
+                        <div class="bg-white p-6 rounded-2xl shadow-lg relative" data-aos="fade-right">
+                            <h2 class="font-script text-5xl" data-aos="fade-up" data-aos-delay="100">Akad Nikah</h2>
+                            <p class="mt-4 font-semibold text-xl font-serif" data-aos="fade-up" data-aos-delay="200">{{ \Carbon\Carbon::parse($event->date)->isoFormat('dddd, D MMMM YYYY') }}</p>
+                            <p class="mt-4" data-aos="fade-up" data-aos-delay="300"><i class="fa-regular fa-clock"></i> {{ $event->akad_time }}</p>
                             <div class="mt-4">
-                                <p class="font-semibold">Lokasi Acara</p>
-                                <p>{{ $event->akad_location }}</p>
+                                <p class="font-semibold" data-aos="fade-up" data-aos-delay="400">Lokasi Acara</p>
+                                <p data-aos="fade-up" data-aos-delay="500">{{ $event->akad_location }}</p>
                             </div>
                             @if(!empty($event->akad_maps_url))
-                                <a href="{{ $event->akad_maps_url }}" target="_blank" class="mt-6 inline-block bg-brand-brown text-white font-semibold py-2 px-6 rounded-full shadow-lg hover:bg-opacity-80 transition-transform hover:scale-105"><i class="fa-solid fa-map-location-dot"></i> Google Maps</a>
+                                <a href="{{ $event->akad_maps_url }}" target="_blank" class="mt-6 inline-block bg-brand-brown text-white font-semibold py-2 px-6 rounded-full shadow-lg hover:bg-opacity-80 transition-transform hover:scale-105" data-aos="zoom-in" data-aos-delay="600"><i class="fa-solid fa-map-location-dot"></i> Google Maps</a>
                             @endif
                         </div>
                         
-                        <div class="bg-white p-6 rounded-2xl shadow-lg relative" data-aos="fade-up">
-                            <h2 class="font-script text-5xl">Resepsi</h2>
-                            <p class="mt-4 font-semibold text-xl font-serif">{{ \Carbon\Carbon::parse($event->date)->isoFormat('dddd, D MMMM YYYY') }}</p>
-                            <p class="mt-4"><i class="fa-regular fa-clock"></i> {{ $event->resepsi_time }}</p>
+                        <div class="bg-white p-6 rounded-2xl shadow-lg relative" data-aos="fade-left">
+                            <h2 class="font-script text-5xl" data-aos="fade-up" data-aos-delay="100">Resepsi</h2>
+                            <p class="mt-4 font-semibold text-xl font-serif" data-aos="fade-up" data-aos-delay="200">{{ \Carbon\Carbon::parse($event->date)->isoFormat('dddd, D MMMM YYYY') }}</p>
+                            <p class="mt-4" data-aos="fade-up" data-aos-delay="300"><i class="fa-regular fa-clock"></i> {{ $event->resepsi_time }}</p>
                             <div class="mt-4">
-                                <p class="font-semibold">Lokasi Acara</p>
-                                <p>{{ $event->resepsi_location }}</p>
+                                <p class="font-semibold" data-aos="fade-up" data-aos-delay="400">Lokasi Acara</p>
+                                <p data-aos="fade-up" data-aos-delay="500">{{ $event->resepsi_location }}</p>
                             </div>
                              @if(!empty($event->resepsi_maps_url))
-                                <a href="{{ $event->resepsi_maps_url }}" target="_blank" class="mt-6 inline-block bg-brand-brown text-white font-semibold py-2 px-6 rounded-full shadow-lg hover:bg-opacity-80 transition-transform hover:scale-105"><i class="fa-solid fa-map-location-dot"></i> Google Maps</a>
+                                <a href="{{ $event->resepsi_maps_url }}" target="_blank" class="mt-6 inline-block bg-brand-brown text-white font-semibold py-2 px-6 rounded-full shadow-lg hover:bg-opacity-80 transition-transform hover:scale-105" data-aos="zoom-in" data-aos-delay="600"><i class="fa-solid fa-map-location-dot"></i> Google Maps</a>
                             @endif
                         </div>
                     </div>
@@ -161,9 +166,9 @@
                 <section id="galeri" class="py-20 px-6 text-center">
                     <h2 class="font-script text-5xl" data-aos="fade-up">Our Moments</h2>
                     <div class="mt-12 max-w-xl mx-auto">
-                        <div class="grid grid-cols-2 md:grid-cols-3 gap-2" data-aos="fade-up" data-aos-delay="200">
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
                             @foreach($photos as $photo)
-                            <a href="{{ asset('storage/' . $photo->path) }}" data-fslightbox="gallery" class="overflow-hidden rounded-lg shadow-lg block">
+                            <a href="{{ asset('storage/' . $photo->path) }}" data-fslightbox="gallery" class="overflow-hidden rounded-lg shadow-lg block" data-aos="zoom-in" data-aos-delay="{{ $loop->iteration * 100 }}">
                                 <img src="{{ asset('storage/' . $photo->path) }}" class="w-full h-full object-cover aspect-square hover:scale-110 transition-transform duration-500">
                             </a>
                             @endforeach
@@ -175,33 +180,33 @@
                 @if(isset($guest->uuid) && $guest->uuid !== 'umum')
                 <section id="qr-code" class="py-20 px-6 text-center">
                     <div class="max-w-md mx-auto" data-aos="fade-up">
-                        <h2 class="font-script text-5xl">QR Code Kehadiran</h2>
-                        <p class="mt-4">Silakan tunjukkan QR Code ini kepada penerima tamu untuk konfirmasi kehadiran.</p>
-                        <div class="mt-6 bg-white p-4 inline-block rounded-lg shadow-lg">
+                        <h2 class="font-script text-5xl" data-aos="fade-up">QR Code Kehadiran</h2>
+                        <p class="mt-4" data-aos="fade-up" data-aos-delay="100">Silakan tunjukkan QR Code ini kepada penerima tamu untuk konfirmasi kehadiran.</p>
+                        <div class="mt-6 bg-white p-4 inline-block rounded-lg shadow-lg" data-aos="zoom-in" data-aos-delay="200">
                             {!! QrCode::size(200)->generate(route('undangan.show', ['event' => $event->uuid, 'guest' => $guest->uuid])) !!}
                         </div>
-                        <p class="mt-2 font-bold text-lg">{{ $guest->name }}</p>
+                        <p class="mt-2 font-bold text-lg" data-aos="fade-up" data-aos-delay="300">{{ $guest->name }}</p>
                     </div>
                 </section>
                 @endif
                 
                 @if(!empty($event->gifts) && $event->gifts->isNotEmpty())
-                <section class="py-20 px-6 text-center bg-brand-brown text-white" data-aos="fade-up">
-                    <h2 class="font-script text-5xl">Wedding Gift</h2>
-                    <p class="mt-4 max-w-md mx-auto font-serif">Doa Restu Anda merupakan karunia yang sangat berarti bagi kami. Dan jika memberi adalah ungkapan tanda kasih, Anda dapat memberi melalui tautan di bawah ini.</p>
-                    <button id="gift-button" class="mt-6 inline-flex items-center gap-2 bg-white text-brand-dark font-semibold py-3 px-8 rounded-full shadow-lg hover:scale-105 transition-transform">
+                <section class="py-20 px-6 text-center bg-brand-brown text-white">
+                    <h2 class="font-script text-5xl" data-aos="fade-up">Wedding Gift</h2>
+                    <p class="mt-4 max-w-md mx-auto font-serif" data-aos="fade-up" data-aos-delay="100">Doa Restu Anda merupakan karunia yang sangat berarti bagi kami. Dan jika memberi adalah ungkapan tanda kasih, Anda dapat memberi melalui tautan di bawah ini.</p>
+                    <button id="gift-button" class="mt-6 inline-flex items-center gap-2 bg-white text-brand-dark font-semibold py-3 px-8 rounded-full shadow-lg hover:scale-105 transition-transform" data-aos="zoom-in" data-aos-delay="200">
                         <i class="fa-solid fa-gift"></i> Kirim Hadiah
                     </button>
                 </section>
                 @endif
 
                 <section id="ucapan" class="py-20 px-6">
-                    <div class="max-w-md mx-auto p-6 bg-white rounded-2xl shadow-lg">
-                        <div class="text-center" data-aos="fade-up">
-                            <h2 class="font-script text-5xl">Ucapan & RSVP</h2>
-                            <p class="mt-2 font-serif">Berikan doa dan ucapan terbaik untuk kami.</p>
+                    <div class="max-w-md mx-auto p-6 bg-white rounded-2xl shadow-lg" data-aos="fade-up">
+                        <div class="text-center">
+                            <h2 class="font-script text-5xl" data-aos="fade-up">Ucapan & RSVP</h2>
+                            <p class="mt-2 font-serif" data-aos="fade-up" data-aos-delay="100">Berikan doa dan ucapan terbaik untuk kami.</p>
                         </div>
-                        <div class="mt-8" data-aos="fade-up" data-aos-delay="200">
+                        <div class="mt-8">
                             @if(session('success'))
                                 <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
                                     <strong class="font-bold">Terima kasih!</strong>
@@ -211,15 +216,15 @@
 
                             <form action="{{ route('rsvp.store', $event->uuid) }}" method="POST">
                                 @csrf
-                                <div class="mb-4">
+                                <div class="mb-4" data-aos="fade-up" data-aos-delay="200">
                                     <input type="text" id="name" name="name" class="block w-full border-brand-brown/50 rounded-md shadow-sm bg-brand-bg p-3 @if(isset($guest->uuid) && $guest->uuid !== 'umum') bg-gray-100 text-gray-500 @endif" value="{{ $guest->name ?? old('name') }}" required @if(isset($guest->uuid) && $guest->uuid !== 'umum') readonly @endif placeholder="Nama Anda">
                                     @error('name') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                                 </div>
-                                <div class="mb-4">
+                                <div class="mb-4" data-aos="fade-up" data-aos-delay="300">
                                     <textarea id="message" name="message" rows="4" class="block w-full border-brand-brown/50 rounded-md shadow-sm bg-brand-bg p-3 focus:ring-brand-dark focus:border-brand-dark" placeholder="Tulis ucapan..." required>{{ old('message') }}</textarea>
                                     @error('message') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                                 </div>
-                                <div class="mb-4">
+                                <div class="mb-4" data-aos="fade-up" data-aos-delay="400">
                                     <label class="block text-sm font-medium mb-2">Konfirmasi Kehadiran</label>
                                     <div class="flex gap-4">
                                        <button type="button" class="rsvp-btn flex-1 p-2 border border-brand-brown/50 rounded-md hover:bg-brand-brown/10 transition-colors" data-value="Hadir"><i class="fa-solid fa-check"></i> Hadir</button>
@@ -228,7 +233,7 @@
                                     <input type="hidden" name="status" id="status-input" value="{{ old('status') }}" required>
                                     @error('status') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                                 </div>
-                                <div class="text-center mt-6">
+                                <div class="text-center mt-6" data-aos="fade-up" data-aos-delay="500">
                                     <button type="submit" class="bg-brand-brown text-white font-semibold py-3 px-10 rounded-full shadow-lg hover:bg-opacity-80 transition-transform hover:scale-105">Kirim</button>
                                 </div>
                             </form>
@@ -238,7 +243,7 @@
                     <div class="mt-12 space-y-4 max-w-md mx-auto">
                         @if(!empty($rsvps))
                             @forelse($rsvps as $rsvp)
-                                <div class="bg-white p-4 rounded-lg shadow-sm" data-aos="fade-up">
+                                <div class="bg-white p-4 rounded-lg shadow-sm" data-aos="{{ $loop->iteration % 2 == 0 ? 'fade-left' : 'fade-right' }}">
                                     <div class="flex justify-between items-center">
                                        <p class="font-semibold font-serif text-lg">{{ $rsvp->name }}</p>
                                         @if($rsvp->status == 'Hadir')
@@ -249,28 +254,28 @@
                                     <p class="text-xs text-gray-400 mt-2">{{ $rsvp->created_at->diffForHumans() }}</p>
                                 </div>
                             @empty
-                                <p class="text-center text-gray-500">Jadilah yang pertama mengirim ucapan.</p>
+                                <p class="text-center text-gray-500" data-aos="fade-up">Jadilah yang pertama mengirim ucapan.</p>
                             @endforelse
                             <div class="pt-4">
                                 {{ $rsvps->links() }}
                             </div>
                         @else
-                             <p class="text-center text-gray-500">Jadilah yang pertama mengirim ucapan.</p>
+                             <p class="text-center text-gray-500" data-aos="fade-up">Jadilah yang pertama mengirim ucapan.</p>
                         @endif
                     </div>
                 </section>
                 
                 <footer class="py-20 px-6 text-center">
-                    <img src="https://i.ibb.co/6y1v61p/tassel-border.png" alt="ornamen" class="w-full opacity-80">
-                    <div data-aos="fade-up" class="mt-4">
-                        <img src="{{ $event->photo_url ? (Str::startsWith($event->photo_url, 'http') ? $event->photo_url : asset('storage/' . $event->photo_url)) : 'https://i.ibb.co/VMyB8fN/story-1-AA86-E7-C3.jpg' }}" class="w-40 h-40 rounded-full object-cover mx-auto shadow-lg mb-6">
-                        <h2 class="font-script text-5xl">Terima Kasih</h2>
-                        <p class="mt-4 max-w-md mx-auto font-serif">Merupakan suatu kebahagiaan dan kehormatan bagi kami, apabila Bapak/Ibu/Saudara/i, berkenan hadir dan memberikan do'a restu kepada kami.</p>
-                        <p class="mt-6">Wassalamu’alaikum warahmatullahi wabarakatuh</p>
-                        <p class="mt-8">Kami Yang Berbahagia</p>
-                        <p class="font-script text-4xl mt-2">{{ $event->bride_name ?? 'Putri' }} & {{ $event->groom_name ?? 'Putra' }}</p>
+                    <img src="https://i.ibb.co/6y1v61p/tassel-border.png" alt="ornamen" class="w-full opacity-80" data-aos="fade-up">
+                    <div class="mt-4" data-aos="fade-up" data-aos-delay="100">
+                        <img src="{{ $event->photo_url ? (Str::startsWith($event->photo_url, 'http') ? $event->photo_url : asset('storage/' . $event->photo_url)) : 'https://i.ibb.co/VMyB8fN/story-1-AA86-E7-C3.jpg' }}" class="w-40 h-40 rounded-full object-cover mx-auto shadow-lg mb-6" data-aos="zoom-in" data-aos-delay="200">
+                        <h2 class="font-script text-5xl" data-aos="fade-up" data-aos-delay="300">Terima Kasih</h2>
+                        <p class="mt-4 max-w-md mx-auto font-serif" data-aos="fade-up" data-aos-delay="400">Merupakan suatu kebahagiaan dan kehormatan bagi kami, apabila Bapak/Ibu/Saudara/i, berkenan hadir dan memberikan do'a restu kepada kami.</p>
+                        <p class="mt-6" data-aos="fade-up" data-aos-delay="500">Wassalamu’alaikum warahmatullahi wabarakatuh</p>
+                        <p class="mt-8" data-aos="fade-up" data-aos-delay="600">Kami Yang Berbahagia</p>
+                        <p class="font-script text-4xl mt-2" data-aos="fade-up" data-aos-delay="700">{{ $event->bride_name ?? 'Putri' }} & {{ $event->groom_name ?? 'Putra' }}</p>
                     </div>
-                     <img src="https://i.ibb.co/6y1v61p/tassel-border.png" alt="ornamen" class="w-full opacity-80 rotate-180 mt-4">
+                     <img src="https://i.ibb.co/6y1v61p/tassel-border.png" alt="ornamen" class="w-full opacity-80 rotate-180 mt-4" data-aos="fade-up" data-aos-delay="800">
                 </footer>
             </div>
         </div>
@@ -324,7 +329,7 @@
     
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        AOS.init({ duration: 800, once: true, offset: 50 });
+        AOS.init({ duration: 1000, once: true, offset: 50 }); // Durasi diperpanjang agar lebih smooth
 
         const cover = document.getElementById('cover');
         const mainContent = document.getElementById('main-content');
@@ -385,13 +390,13 @@
         const rsvpButtons = document.querySelectorAll('.rsvp-btn');
         const statusInput = document.getElementById('status-input');
         if (statusInput && statusInput.value) {
-            document.querySelector(`.rsvp-btn[data-value="${statusInput.value}"]`)?.classList.add('bg-brand-brown', 'text-white');
+            document.querySelector(`.rsvp-btn[data-value="${statusInput.value}"]`)?.classList.add('active');
         }
         rsvpButtons.forEach(button => {
             button.addEventListener('click', () => {
                 statusInput.value = button.dataset.value;
-                rsvpButtons.forEach(btn => btn.classList.remove('bg-brand-brown', 'text-white'));
-                button.classList.add('bg-brand-brown', 'text-white');
+                rsvpButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
             });
         });
 
