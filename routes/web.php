@@ -24,6 +24,7 @@ use App\Http\Controllers\TamuController;
 use App\Http\Controllers\OrderHistoryController;
 
 use App\Http\Controllers\Admin\AdminSettingController;
+use App\Http\Controllers\Admin\DesignController; 
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DashboardAdminController;
 use App\Http\Controllers\PaymentController;
@@ -67,11 +68,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/status-akun', [OrderController::class, 'status'])->name('user.status');
     Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
     Route::get('/order-history', [OrderHistoryController::class, 'index'])->name('order.history.index');
-
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
     Route::resource('events', EventController::class)->only(['create', 'store']);
     Route::prefix('events/{event:uuid}')->name('events.')->group(function () {
         Route::get('/design', [EventController::class, 'design'])->name('design');
+        // Rute untuk saved designs sudah dipindahkan ke grup admin
         Route::post('/save-design', [EventController::class, 'saveDesign'])->name('saveDesign');
         Route::controller(TamuController::class)->prefix('tamu')->name('tamu.')->group(function () {
             Route::get('/', 'index')->name('index');
@@ -116,16 +117,15 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::prefix('user/setting')->name('user.setting.')->group(function () {
-            Route::get('/', [SettingController::class, 'index'])->name('index');
-            Route::prefix('events')->name('events.')->group(function () {
-                // DIUBAH: Menggunakan {event:uuid} untuk pencarian berdasarkan UUID
-                Route::get('/{event:uuid}/edit', [SettingController::class, 'edit'])->name('edit');
-                Route::put('/{event:uuid}', [SettingController::class, 'update'])->name('update');
-                Route::get('/{event:uuid}/gallery', [SettingController::class, 'gallery'])->name('gallery');
-                Route::post('/{event:uuid}/gallery', [SettingController::class, 'uploadPhoto'])->name('gallery.upload');
-            });
-            Route::delete('/gallery/{photo}', [SettingController::class, 'deletePhoto'])->name('gallery.delete');
+        Route::get('/', [SettingController::class, 'index'])->name('index');
+        Route::prefix('events')->name('events.')->group(function () {
+            Route::get('/{event:uuid}/edit', [SettingController::class, 'edit'])->name('edit');
+            Route::put('/{event:uuid}', [SettingController::class, 'update'])->name('update');
+            Route::get('/{event:uuid}/gallery', [SettingController::class, 'gallery'])->name('gallery');
+            Route::post('/{event:uuid}/gallery', [SettingController::class, 'uploadPhoto'])->name('gallery.upload');
         });
+        Route::delete('/gallery/{photo}', [SettingController::class, 'deletePhoto'])->name('gallery.delete');
+    });
 
     Route::get('/dashboardadmin', [DashboardAdminController::class, 'index'])->name('dashboard.admin.index');
     Route::prefix('admin')->name('admin.')->group(function () {
@@ -134,6 +134,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/clients', [ClientController::class, 'store'])->name('client.store');
         Route::delete('/clients/{client}', [ClientController::class, 'destroy'])->name('client.destroy');
         Route::patch('/clients/{client}/update-status', [ClientController::class, 'updateStatus'])->name('client.updateStatus');
+        Route::get('/design', [DesignController::class, 'index'])->name('design.index');
+        Route::post('/design/save', [DesignController::class, 'save'])->name('design.save');
+        Route::get('/design/saved', [DesignController::class, 'showSavedDesigns'])->name('design.saved_designs');
     });
     Route::get('/request-client', [RequestClientController::class, 'index'])->name('request.client.index');
     Route::post('/admin/request-client/{clientRequest}/generate-payment', [RequestClientController::class, 'generatePayment'])->name('admin.request.generatePayment');
@@ -144,4 +147,3 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/{event:slug}', [EventController::class, 'publicShow'])->name('events.public.show');
-
