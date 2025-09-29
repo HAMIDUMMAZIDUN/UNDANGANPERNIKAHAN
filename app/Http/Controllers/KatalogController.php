@@ -8,6 +8,10 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class KatalogController extends Controller
 {
+    /**
+     * Mengambil data katalog statis.
+     * @return array
+     */
     private function getKatalogData(): array
     {
         // Path gambar sekarang disesuaikan dengan direktori public Anda
@@ -88,12 +92,47 @@ class KatalogController extends Controller
         ];
     }
 
+    /**
+     * Menampilkan halaman utama katalog dengan semua kategori dan item.
+     * @return \Illuminate\View\View
+     */
     public function index(): View
     {
         $katalogData = $this->getKatalogData();
         return view('katalog.index', ['katalogData' => $katalogData]);
     }
 
+    /**
+     * !! METHOD BARU DITAMBAHKAN DI SINI !!
+     * Menampilkan detail satu item katalog.
+     * @param int $id
+     * @return \Illuminate\View\View
+     */
+    public function show(int $id): View
+    {
+        $katalogData = $this->getKatalogData();
+        
+        // Menggabungkan semua item dari semua kategori menjadi satu collection
+        $allItems = collect($katalogData)->pluck('items')->flatten(1);
+        
+        // Mencari item yang cocok berdasarkan ID
+        $item = $allItems->firstWhere('id', $id);
+
+        // Jika item tidak ditemukan, tampilkan halaman 404
+        if (!$item) {
+            abort(404, 'Item katalog tidak ditemukan.');
+        }
+
+        // Mengirim data item yang ditemukan ke view 'katalog.show'
+        return view('katalog.show', ['item' => $item]);
+    }
+
+
+    /**
+     * Menampilkan halaman demo untuk tema tertentu.
+     * @param int $id
+     * @return \Illuminate\View\View
+     */
     public function showDemo(int $id): View
     {
         $katalog = $this->getKatalogData();

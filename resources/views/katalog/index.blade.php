@@ -147,16 +147,24 @@
                                         </div>
                                     </div>
                                 </div>
+                                
+                                {{-- ================== PERBAIKAN DI SINI ================== --}}
                                 <div class="mt-5 grid grid-cols-2 gap-3">
-                                    <a href="{{ route('katalog.show', ['id' => $item['id']]) }}" target="_blank" class="w-full text-center text-sm px-4 py-2.5 border border-slate-300 text-slate-700 font-semibold rounded-lg hover:bg-slate-100 hover:border-slate-400 transition flex items-center justify-center gap-2">
+                                    {{-- Tombol 'Lihat Demo' SEKARANG mengarah ke route 'katalog.demo' yang benar --}}
+                                    <a href="{{ route('katalog.demo', $item['id']) }}" target="_blank" class="w-full text-center text-sm px-4 py-2.5 border border-slate-300 text-slate-700 font-semibold rounded-lg hover:bg-slate-100 hover:border-slate-400 transition flex items-center justify-center gap-2">
                                         <i class="ph ph-eye"></i>
                                         Lihat Demo
                                     </a>
-                                    <a href="{{ route('order.start', ['template_id' => $item['id']]) }}" class="w-full text-center text-sm px-4 py-2.5 bg-amber-500 text-white font-bold rounded-lg hover:bg-amber-600 transition shadow-sm hover:shadow-lg hover:-translate-y-0.5 transform flex items-center justify-center gap-2">
+                                    
+                                    {{-- Tombol 'Pesan' SEKARANG mengarah ke route 'katalog.show' (halaman detail) --}}
+                                    {{-- Ini memperbaiki error 'Missing required parameter' --}}
+                                    <a href="{{ route('katalog.show', $item['id']) }}" class="w-full text-center text-sm px-4 py-2.5 bg-amber-500 text-white font-bold rounded-lg hover:bg-amber-600 transition shadow-sm hover:shadow-lg hover:-translate-y-0.5 transform flex items-center justify-center gap-2">
                                         <i class="ph ph-shopping-cart-simple"></i>
-                                        Pesan
+                                        Detail & Pesan
                                     </a>
                                 </div>
+                                {{-- ======================================================== --}}
+
                             </div>
                         </div>
                     </div>
@@ -198,6 +206,7 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', function () {
+        // ... (JavaScript Anda tidak diubah dan tetap sama) ...
         const filterButtons = document.querySelectorAll('#filter-buttons .filter-btn');
         const catalogItems = document.querySelectorAll('#catalog-grid .catalog-item');
         const temaTitle = document.getElementById('tema-title');

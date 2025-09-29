@@ -18,41 +18,45 @@
             </div>
         @endif
 
+        {{-- PERBAIKAN: Menggunakan rute dan metode yang benar --}}
         <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="space-y-4">
             @csrf
+            @method('PATCH') {{-- <-- Menggunakan metode PATCH untuk update --}}
             
-            {{-- BAGIAN FOTO PROFIL DIPERBARUI --}}
             <div>
                 <label class="block text-sm font-medium text-slate-300">Foto Profil</label>
                 <div class="mt-2 flex items-center gap-4">
-                    {{-- Menampilkan foto saat ini atau avatar default --}}
                     <img src="{{ Auth::user()->photo ? asset('storage/' . Auth::user()->photo) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name) . '&background=d97706&color=fff' }}" 
                          alt="Foto Profil" 
                          class="h-16 w-16 rounded-full object-cover">
                     
-                    {{-- Input untuk mengganti foto --}}
                     <input type="file" name="photo" accept="image/*" class="block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-slate-700 file:text-slate-200 hover:file:bg-slate-600">
                 </div>
             </div>
 
             <div>
                 <label class="block text-sm font-medium text-slate-300">Nama</label>
-                <input type="text" name="name" value="{{ Auth::user()->name }}" class="mt-1 block w-full bg-slate-700 border border-slate-600 rounded-md py-2 px-3 text-slate-200 focus:border-amber-500 focus:ring-amber-500">
+                <input type="text" name="name" value="{{ old('name', Auth::user()->name) }}" class="mt-1 block w-full bg-slate-700 border border-slate-600 rounded-md py-2 px-3 text-slate-200 focus:border-amber-500 focus:ring-amber-500">
             </div>
 
             <div>
                 <label class="block text-sm font-medium text-slate-300">Email</label>
-                <input type="email" name="email" value="{{ Auth::user()->email }}" class="mt-1 block w-full bg-slate-700 border border-slate-600 rounded-md py-2 px-3 text-slate-200 focus:border-amber-500 focus:ring-amber-500">
+                <input type="email" name="email" value="{{ old('email', Auth::user()->email) }}" class="mt-1 block w-full bg-slate-700 border border-slate-600 rounded-md py-2 px-3 text-slate-200 focus:border-amber-500 focus:ring-amber-500">
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-slate-300">Password Lama</label>
+                <label class="block text-sm font-medium text-slate-300">Password Lama (jika ingin ganti)</label>
                 <input type="password" name="current_password" class="mt-1 block w-full bg-slate-700 border border-slate-600 rounded-md py-2 px-3 text-slate-200 focus:border-amber-500 focus:ring-amber-500">
             </div>
 
             <div>
                 <label class="block text-sm font-medium text-slate-300">Password Baru</label>
-                <input type="password" name="new_password" placeholder="Kosongkan jika tidak ubah password" class="mt-1 block w-full bg-slate-700 border border-slate-600 rounded-md py-2 px-3 text-slate-200 focus:border-amber-500 focus:ring-amber-500">
+                <input type="password" name="new_password" placeholder="Kosongkan jika tidak ubah" class="mt-1 block w-full bg-slate-700 border border-slate-600 rounded-md py-2 px-3 text-slate-200 focus:border-amber-500 focus:ring-amber-500">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-300">Konfirmasi Password Baru</label>
+                <input type="password" name="new_password_confirmation" placeholder="Kosongkan jika tidak ubah" class="mt-1 block w-full bg-slate-700 border border-slate-600 rounded-md py-2 px-3 text-slate-200 focus:border-amber-500 focus:ring-amber-500">
             </div>
 
             <button type="submit" class="w-full bg-amber-500 text-slate-900 font-semibold py-2 rounded-md hover:bg-amber-600 transition duration-200">Update</button>

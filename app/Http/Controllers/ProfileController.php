@@ -3,57 +3,90 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage; // Import the Storage facade
-use App\Models\User;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 
 class ProfileController extends Controller
 {
-    public function update(Request $request)
+    /**
+     * Menampilkan form profil pengguna.
+     */
+    public function edit(Request $request): View
     {
-        $user = Auth::user();
+        return view('profile.edit', [
+            'user' => $request->user(),
+        ]);
+    }
 
-        $request->validate([
+    /**
+     * Memperbarui informasi profil, foto, dan sandi pengguna.
+     */
+    public function update(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+
+        // 1. Validasi semua input dari form
+        $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
-            'current_password' => ['nullable', 'string'],
-            'new_password' => ['nullable', 'string', 'min:8'],
-            'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:1024'],
+            'current_password' => ['nullable', 'required_with:new_password', 'current_password'],
+            'new_password' => ['nullable', 'confirmed', Password::defaults()],
         ]);
 
-        $user->name = $request->name;
-        $user->email = $request->email;
+        // 2. Update nama dan email
+        $user->fill($request->only('name', 'email'));
 
-        // Logika untuk update password
-        if ($request->filled('current_password') && $request->filled('new_password')) {
-            if (!Hash::check($request->current_password, $user->password)) {
-                return back()->withErrors(['current_password' => 'Password lama tidak cocok.']);
-            }
-            $user->password = Hash::make($request->new_password);
+        // Jika email diubah, reset status verifikasi
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
         }
 
-        // Logika untuk update foto menggunakan Storage facade
+        // 3. Handle upload foto profil jika ada
         if ($request->hasFile('photo')) {
-            // 1. Hapus foto lama jika ada
+            // Hapus foto lama jika ada
             if ($user->photo) {
                 Storage::disk('public')->delete($user->photo);
             }
-
-            // 2. Tentukan nama file baru berdasarkan ID user
-            $filename = 'user-' . $user->id . '.' . $request->file('photo')->getClientOriginalExtension();
-            
-            // 3. Simpan file baru ke 'storage/app/public/profile-photos'
-            // dan simpan path-nya ke variabel $path
-            $path = $request->file('photo')->storeAs('profile-photos', $filename, 'public');
-
-            // 4. Simpan path baru ke database
-            $user->photo = $path;
+            // Simpan foto baru dan update path di database
+            $user->photo = $request->file('photo')->store('profile-photos', 'public');
         }
 
-        // Simpan semua perubahan (nama, email, password, foto)
+        // 4. Update sandi jika sandi baru diisi
+        if ($request->filled('new_password')) {
+            $user->password = Hash::make($request->input('new_password'));
+        }
+
+        // 5. Simpan semua perubahan
         $user->save();
 
-        return redirect()->back()->with('status', 'Profil berhasil diperbarui');
+        return Redirect::back()->with('status', 'profile-updated');
+    }
+
+    /**
+     * Menghapus akun pengguna.
+     */
+    public function destroy(Request $request): RedirectResponse
+    {
+        $request->validateWithBag('userDeletion', [
+            'password' => ['required', 'current_password'],
+        ]);
+
+        $user = $request->user();
+
+        Auth::logout();
+
+        $user->delete();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return Redirect::to('/');
     }
 }

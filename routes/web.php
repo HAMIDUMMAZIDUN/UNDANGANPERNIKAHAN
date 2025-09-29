@@ -2,36 +2,58 @@
 
 use Illuminate\Support\Facades\Route;
 
+// --- Controller Utama & Publik ---
+use App\Http\Controllers\KatalogController;
+use App\Http\Controllers\UndanganController;
+use App\Http\Controllers\SapaController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ReservasiController;
+
+// --- Controller Otentikasi Kustom & Profil ---
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ResetPasswordController;
+use App\Http\Controllers\ForgotPasswordController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PasswordController;
+use App\Http\Controllers\Auth\EmailVerificationNotificationController;
+use App\Http\Controllers\Auth\EmailVerificationPromptController;
+use App\Http\Controllers\Auth\VerifyEmailController;
+
+// --- Controller Dasbor Pengguna ---
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EventController;
-use App\Http\Controllers\KatalogController;
-use App\Http\Controllers\OrderController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ResetPasswordController;
-use App\Http\Controllers\SapaController;
-use App\Http\Controllers\UndanganController;
-
-use App\Http\Controllers\CariTamuController;
-use App\Http\Controllers\CheckInController;
-use App\Http\Controllers\GiftController;
-use App\Http\Controllers\KehadiranController;
-use App\Http\Controllers\ManualController;
-use App\Http\Controllers\ReservasiController;
-use App\Http\Controllers\SettingController;
-use App\Http\Controllers\SouvenirController;
-use App\Http\Controllers\TamuController;
 use App\Http\Controllers\OrderHistoryController;
+use App\Http\Controllers\TamuController;
+use App\Http\Controllers\CheckInController;
+use App\Http\Controllers\CariTamuController;
+use App\Http\Controllers\ManualController;
+use App\Http\Controllers\KehadiranController;
+use App\Http\Controllers\SouvenirController;
+use App\Http\Controllers\GiftController;
+use App\Http\Controllers\SettingController;
 
-use App\Http\Controllers\Admin\AdminSettingController;
-use App\Http\Controllers\Admin\DesignController; 
-use App\Http\Controllers\ClientController;
+// --- Controller Dasbor Admin ---
 use App\Http\Controllers\DashboardAdminController;
-use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\RequestClientController;
+use App\Http\Controllers\Admin\DesignController;
+use App\Http\Controllers\Admin\AdminSettingController;
+
+
+/*
+|--------------------------------------------------------------------------
+| Rute Web Aplikasi
+|--------------------------------------------------------------------------
+*/
+
+// ===================================================================
+// RUTE PUBLIK (DAPAT DIAKSES TANPA LOGIN)
+// ===================================================================
 
 Route::get('/', fn() => view('welcome'))->name('home');
 
+// --- Rute Otentikasi & Reset Sandi ---
 Route::controller(AuthController::class)->group(function () {
     Route::get('/login', 'showLoginForm')->name('login');
     Route::post('/login', 'login');
@@ -39,24 +61,33 @@ Route::controller(AuthController::class)->group(function () {
     Route::get('/register', 'showRegisterForm')->name('register');
     Route::post('/register', 'register');
 });
-Route::controller(ResetPasswordController::class)->group(function () {
+
+Route::controller(ForgotPasswordController::class)->group(function () {
     Route::get('/forgot-password', 'showForgotForm')->name('password.request');
     Route::post('/forgot-password', 'sendResetLink')->name('password.email');
+});
+
+Route::controller(ResetPasswordController::class)->group(function () {
     Route::get('/reset-password/{token}', 'showResetForm')->name('password.reset');
-    Route::post('/reset-password', 'reset')->name('password.update');
+    Route::post('/reset-password', 'reset')->name('password.update.new');
 });
 
 
+// --- Rute Katalog & Undangan Publik ---
 Route::get('/katalog', [KatalogController::class, 'index'])->name('katalog.index');
-Route::get('/katalog/demo/{id}', [KatalogController::class, 'showDemo'])->name('katalog.show');
+Route::get('/katalog/demo/{id}', [KatalogController::class, 'showDemo'])->name('katalog.demo');
+
 Route::post('/rsvp/{event:uuid}', [ReservasiController::class, 'store'])->name('rsvp.store');
+
 Route::prefix('undangan/{event:uuid}')->name('undangan.')->group(function() {
     Route::get('/', [UndanganController::class, 'showPublic'])->name('public');
     Route::get('/{guest:uuid}', [UndanganController::class, 'show'])->name('show');
 });
+
 Route::get('/sapa/{event:uuid?}', [SapaController::class, 'index'])->name('sapa.index');
 Route::get('/sapa/{event:uuid}/data', [SapaController::class, 'getData'])->name('sapa.data');
 
+// --- Rute Order & Pembayaran ---
 Route::get('/payment/{clientRequest}', [PaymentController::class, 'show'])->name('payment.show')->middleware('signed');
 Route::post('/payment/{clientRequest}/confirm', [PaymentController::class, 'confirm'])->name('payment.confirm');
 
@@ -64,15 +95,34 @@ Route::get('/order/start/{template_id}', [OrderController::class, 'startOrder'])
 Route::post('/order/process', [OrderController::class, 'processOrder'])->name('order.process');
 
 
+// ===================================================================
+// RUTE YANG MEMERLUKAN LOGIN (AUTH)
+// ===================================================================
+
 Route::middleware('auth')->group(function () {
-    Route::get('/status-akun', [OrderController::class, 'status'])->name('user.status');
-    Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
-    Route::get('/order-history', [OrderHistoryController::class, 'index'])->name('order.history.index');
+
+    // --- Rute Verifikasi Email ---
+    Route::get('/verify-email', [EmailVerificationPromptController::class, '__invoke'])->name('verification.notice');
+    Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])->middleware('throttle:6,1')->name('verification.send');
+    Route::get('/verify-email/{id}/{hash}', [VerifyEmailController::class, '__invoke'])->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
+
+    // --- Rute Utama Pengguna ---
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
+    Route::get('/status-akun', [OrderController::class, 'status'])->name('user.status');
+    Route::get('/order-history', [OrderHistoryController::class, 'index'])->name('order.history.index');
+
+    // --- Rute Profil Lengkap ---
+    Route::prefix('user')->group(function() {
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+        Route::put('/password', [PasswordController::class, 'update'])->name('password.update');
+    });
+
+    // --- Manajemen Event & Tamu ---
     Route::resource('events', EventController::class)->only(['create', 'store']);
     Route::prefix('events/{event:uuid}')->name('events.')->group(function () {
         Route::get('/design', [EventController::class, 'design'])->name('design');
-        // Rute untuk saved designs sudah dipindahkan ke grup admin
         Route::post('/save-design', [EventController::class, 'saveDesign'])->name('saveDesign');
         Route::controller(TamuController::class)->prefix('tamu')->name('tamu.')->group(function () {
             Route::get('/', 'index')->name('index');
@@ -88,7 +138,8 @@ Route::middleware('auth')->group(function () {
         });
     });
 
-    Route::get('/check-in', [CheckinController::class, 'index'])->name('check-in.index');
+    // --- Fitur-fitur Event ---
+    Route::get('/check-in', [CheckInController::class, 'index'])->name('check-in.index');
     Route::post('/check-in/qr-process', [CheckinController::class, 'processQrCheckIn'])->name('check-in.process');
     Route::get('/cari-tamu', [CariTamuController::class, 'index'])->name('cari-tamu.index');
     Route::get('/tamu/search', [CariTamuController::class, 'search'])->name('api.tamu.search');
@@ -96,7 +147,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/cari-tamu/store', [CariTamuController::class, 'store'])->name('cari-tamu.store');
     Route::get('/manual', [ManualController::class, 'index'])->name('manual.index');
     Route::post('/manual', [ManualController::class, 'store'])->name('manual.store');
-
     Route::get('/kehadiran', [KehadiranController::class, 'index'])->name('kehadiran.index');
     Route::get('/kehadiran/export/pdf', [KehadiranController::class, 'exportPdf'])->name('kehadiran.export.pdf');
     Route::get('/kehadiran/export/excel', [KehadiranController::class, 'exportExcel'])->name('kehadiran.export.excel');
@@ -116,6 +166,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/export', 'exportExcel')->name('export');
     });
 
+    // --- Pengaturan User & Event ---
     Route::prefix('user/setting')->name('user.setting.')->group(function () {
         Route::get('/', [SettingController::class, 'index'])->name('index');
         Route::prefix('events')->name('events.')->group(function () {
@@ -127,7 +178,17 @@ Route::middleware('auth')->group(function () {
         Route::delete('/gallery/{photo}', [SettingController::class, 'deletePhoto'])->name('gallery.delete');
     });
 
-    Route::get('/dashboardadmin', [DashboardAdminController::class, 'index'])->name('dashboard.admin.index');
+    // ===================================================================
+    // RUTE ADMIN (HANYA MEMERLUKAN LOGIN)
+    // ===================================================================
+
+    Route::get('/admin/dashboard', [DashboardAdminController::class, 'index'])->name('dashboard.admin.index');
+
+    // PERBAIKAN: Rute Request Client dipindahkan ke sini agar namanya benar
+    Route::get('/admin/request-client', [RequestClientController::class, 'index'])->name('request.client.index');
+    Route::post('/admin/request-client/{clientRequest}/generate-payment', [RequestClientController::class, 'generatePayment'])->name('request.generatePayment');
+    Route::post('/admin/request-client/{clientRequest}/approve', [RequestClientController::class, 'approveRequest'])->name('request.approve');
+
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/clients', [ClientController::class, 'index'])->name('client.index');
         Route::get('/clients/create', [ClientController::class, 'create'])->name('client.create');
@@ -137,13 +198,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/design', [DesignController::class, 'index'])->name('design.index');
         Route::post('/design/save', [DesignController::class, 'save'])->name('design.save');
         Route::get('/design/saved', [DesignController::class, 'showSavedDesigns'])->name('design.saved_designs');
-    });
-    Route::get('/request-client', [RequestClientController::class, 'index'])->name('request.client.index');
-    Route::post('/admin/request-client/{clientRequest}/generate-payment', [RequestClientController::class, 'generatePayment'])->name('admin.request.generatePayment');
-    Route::post('/admin/request-client/{clientRequest}/approve', [RequestClientController::class, 'approveRequest'])->name('admin.request.approve');
-    Route::prefix('admin/settings')->name('admin.settings.')->group(function () {
-        Route::post('/toggle-order-status', [AdminSettingController::class, 'toggleOrderStatus'])->name('toggleOrderStatus');
+        // Rute request-client sudah dipindahkan keluar dari grup ini
+        Route::prefix('settings')->name('settings.')->group(function () {
+            Route::post('/toggle-order-status', [AdminSettingController::class, 'toggleOrderStatus'])->name('toggleOrderStatus');
+        });
     });
 });
 
+// Rute 'catch-all' untuk slug event, harus diletakkan di paling akhir
 Route::get('/{event:slug}', [EventController::class, 'publicShow'])->name('events.public.show');
+

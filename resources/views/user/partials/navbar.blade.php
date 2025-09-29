@@ -37,12 +37,12 @@
         <div class="relative">
             {{-- PERBAIKAN PADA TAG IMG DI BAWAH INI --}}
             <img src="{{ Auth::user()->photo ? asset('storage/' . Auth::user()->photo) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name) . '&background=d97706&color=fff' }}" 
-                 alt="Foto Profil" 
-                 @click="profileMenuOpen = !profileMenuOpen" 
-                 class="h-8 w-8 rounded-full cursor-pointer border-2 border-amber-500 object-cover">
+                alt="Foto Profil" 
+                @click="profileMenuOpen = !profileMenuOpen" 
+                class="h-8 w-8 rounded-full cursor-pointer border-2 border-amber-500 object-cover">
             
             <div x-show="profileMenuOpen" @click.outside="profileMenuOpen = false" x-cloak
-                 class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
                 
                 <button @click="profilePopupOpen = true; profileMenuOpen = false" class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                     Profil Saya
