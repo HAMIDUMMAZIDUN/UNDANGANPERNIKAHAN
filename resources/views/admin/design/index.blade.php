@@ -1,52 +1,20 @@
 @extends('admin.layouts.app')
-@section('title', 'Editor Desain Undangan Visual')
+@section('title', isset($design) ? 'Edit Desain' : 'Buat Desain Baru')
 
 @push('styles')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <style>
-    #invitation-canvas .canvas-item.is-selected {
-        outline: 3px solid #f97316;
-        outline-offset: 2px;
-        position: relative;
-    }
-    #invitation-canvas .sortable-ghost {
-        background-color: #fde8d9;
-        border: 2px dashed #f97316;
-        opacity: 0.7;
-    }
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;500;600&display=swap');
+    .font-serif { font-family: 'Playfair Display', serif; }
+    .font-sans { font-family: 'Poppins', sans-serif; }
+    #invitation-canvas .canvas-item.is-selected { outline: 3px solid #f97316; outline-offset: 3px; position: relative; }
+    #invitation-canvas .sortable-ghost { background-color: #fde8d9; border: 2px dashed #f97316; opacity: 0.7; }
     .canvas-item { cursor: grab; }
     .canvas-item:grabbing { cursor: grabbing; }
-    .editor-panel-enter, .editor-panel-leave-to {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    .editor-panel-enter-active, .editor-panel-leave-active {
-        transition: all 300ms ease-in-out;
-    }
-
-    .delete-btn {
-        position: absolute;
-        top: -15px;
-        right: -15px;
-        background-color: #ef4444; 
-        color: white;
-        width: 30px;
-        height: 30px;
-        border-radius: 9999px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 2px solid white;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        cursor: pointer;
-        z-index: 10;
-        opacity: 0;
-        transform: scale(0.8);
-        transition: all 0.2s ease-in-out;
-    }
-    .is-selected .delete-btn {
-        opacity: 1;
-        transform: scale(1);
-    }
+    .editor-panel-enter, .editor-panel-leave-to { transform: translateX(100%); opacity: 0; }
+    .editor-panel-enter-active, .editor-panel-leave-active { transition: all 300ms ease-in-out; }
+    .delete-btn { position: absolute; top: -15px; right: -15px; background-color: #ef4444; color: white; width: 30px; height: 30px; border-radius: 9999px; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); cursor: pointer; z-index: 10; opacity: 0; transform: scale(0.8); transition: all 0.2s ease-in-out; }
+    .is-selected .delete-btn { opacity: 1; transform: scale(1); }
 </style>
 @endpush
 
@@ -54,254 +22,243 @@
 @php
     $formattedDate = now()->isoFormat('dddd, D MMMM YYYY');
     $dummyEvent = (object) [
-        'groom_name' => 'Putra',
-        'bride_name' => 'Putri',
-        'date_formatted' => $formattedDate,
-        'photo_url' => 'https://i.ibb.co/VMyB8fN/story-1-AA86-E7-C3.jpg',
-        'video_placeholder_url' => 'https://i.ibb.co/zZfT4b2/groom-61-F436-B5.jpg',
-        'akad_time' => '08:00 - 10:00 WIB',
-        'resepsi_time' => '11:00 - 14:00 WIB',
-        'akad_location' => 'Masjid Istiqlal, Jakarta',
-        'resepsi_location' => 'Gedung Balai Kartini, Jakarta',
+        'groom_name' => 'Putra', 'groom_parents' => 'Bapak Budi & Ibu Wati', 'bride_name' => 'Putri', 'bride_parents' => 'Bapak Santoso & Ibu Lestari', 'date_formatted' => $formattedDate,
+        'cover_photo_url' => 'https://images.unsplash.com/photo-1597861405922-26b21c43c4f9?q=85&fm=jpg&w=1200', 'couple_photo_url' => 'https://images.unsplash.com/photo-1529602264082-036993544063?q=85&fm=jpg&w=1200',
+        'video_placeholder_url' => 'https://images.unsplash.com/photo-1515934323957-66a7a092a452?q=85&fm=jpg&w=1200', 'akad_time' => '08:00 - 10:00 WIB', 'resepsi_time' => '11:00 - 14:00 WIB',
+        'akad_location' => 'Masjid Istiqlal, Jakarta', 'resepsi_location' => 'Gedung Balai Kartini, Jakarta',
+        'gallery_photos' => [['url' => 'https://images.unsplash.com/photo-1523438943922-386d36e439fe?q=85&fm=jpg&w=800'], ['url' => 'https://images.unsplash.com/photo-1606992257321-2527ac312a02?q=85&fm=jpg&w=800'], ['url' => 'https://images.unsplash.com/photo-1532712938310-34cb39825785?q=85&fm=jpg&w=800'], ['url' => 'https://images.unsplash.com/photo-1546193435-99805a99859f?q=85&fm=jpg&w=800'],]
     ];
+    $existingDesign = isset($design) ? $design : null;
 @endphp
 
-<div x-data="invitationEditor()" x-init="init($el)" data-event='@json($dummyEvent)' class="flex h-[calc(100vh-4rem)] bg-gray-100 font-sans text-gray-800">
+<div x-data="invitationEditor()" 
+     x-init="init($el, @json($existingDesign))" 
+     data-event='@json($dummyEvent)' 
+     class="flex h-[calc(100vh-4rem)] bg-gray-100 font-sans text-gray-800">
 
-    <aside class="w-72 bg-white p-6 shadow-lg flex-shrink-0 overflow-y-auto">
-    <h2 class="text-xl font-bold mb-6">Komponen</h2>
-    <div class="space-y-3">
-        <template x-for="component in availableComponents" :key="component.type">
-            <button
-                @click="addComponent(component.type)"
-                :disabled="isComponentAdded(component.type)"
-                class="w-full flex items-start gap-4 p-3 rounded-lg transition-all text-left"
-                :class="{
-                    'bg-gray-100 hover:bg-orange-100 hover:shadow-sm': !isComponentAdded(component.type),
-                    'bg-gray-200 text-gray-400 cursor-not-allowed': isComponentAdded(component.type)
-                }"
-            >
-                <i :class="component.icon" class="text-orange-500 w-6 text-center mt-1 text-lg" :class="{'text-gray-400': isComponentAdded(component.type)}"></i>
+    <aside class="w-80 bg-white p-6 shadow-lg flex-shrink-0 overflow-y-auto">
+        <h2 class="text-xl font-bold mb-2">Widget Undangan</h2>
+        <p class="text-xs text-gray-500 mb-6">Klik untuk menambahkan komponen.</p>
+        <div class="space-y-6">
+            <template x-for="category in componentCategories" :key="category.name">
                 <div>
-                    <h3 class="font-semibold" x-text="component.name"></h3>
-                    <p class="text-xs text-gray-500" x-text="component.description"></p>
+                    <h3 class="font-semibold text-sm text-gray-500 uppercase tracking-wider mb-3" x-text="category.name"></h3>
+                    <div class="space-y-2">
+                        <template x-for="component in category.components" :key="component.type">
+                            <button @click="addComponent(component.type)" :disabled="isComponentAdded(component.type)" class="w-full flex items-start gap-4 p-3 rounded-lg transition-all text-left" :class="{'bg-gray-200 text-gray-400 cursor-not-allowed': isComponentAdded(component.type), 'bg-gray-50 hover:bg-orange-100 hover:shadow-sm': !isComponentAdded(component.type)}">
+                                <i :class="[component.icon, isComponentAdded(component.type) ? 'text-gray-400' : 'text-orange-500']" class="w-6 text-center mt-1 text-lg"></i>
+                                <div>
+                                    <h3 class="font-semibold" x-text="component.name"></h3>
+                                    <p class="text-xs text-gray-500" x-text="component.description" :class="{'text-gray-400': isComponentAdded(component.type)}"></p>
+                                </div>
+                            </button>
+                        </template>
+                    </div>
                 </div>
-            </button>
-        </template>
-    </div>
-</aside>
+            </template>
+        </div>
+    </aside>
 
     <main class="flex-1 flex flex-col p-6 overflow-hidden">
         <header class="flex justify-between items-center mb-6 pb-4 border-b flex-shrink-0">
-            <div>
-                <h1 class="text-2xl font-bold">Editor Undangan</h1>
-                <p class="text-sm text-gray-500">Klik komponen di kiri untuk menambah, klik di area kerja untuk mengedit.</p>
+             <div>
+                <h1 class="text-2xl font-bold" x-text="`Editor Desain: ${designName || 'Tanpa Judul'}`"></h1>
+                <a href="{{ route('admin.design.saved_designs') }}" class="text-sm text-orange-500 hover:underline">Kembali ke Daftar Desain</a>
             </div>
             <div class="flex items-center gap-4">
                 <button @click="showPreview = true" class="bg-white border border-gray-300 font-bold py-2 px-6 rounded-lg shadow-sm hover:bg-gray-100 transition-colors flex items-center gap-2">
-                    <i class="fas fa-mobile-alt"></i>
-                    <span>Preview</span>
+                    <i class="fas fa-mobile-alt"></i><span>Preview</span>
                 </button>
-                <button @click="saveDesign" class="bg-orange-500 text-white font-bold py-2 px-6 rounded-lg shadow-md hover:bg-orange-600 transition-colors flex items-center gap-2">
-                    <i class="fas fa-save"></i>
-                    <span>Simpan</span>
+                <button @click="showSaveModal = true" class="bg-orange-500 text-white font-bold py-2 px-6 rounded-lg shadow-md hover:bg-orange-600 transition-colors flex items-center gap-2">
+                    <i class="fas fa-save"></i><span>Simpan Desain</span>
                 </button>
             </div>
         </header>
         
-        <div class="flex-1 bg-gray-200 rounded-lg overflow-y-auto p-4">
-            <div id="invitation-canvas" class="max-w-3xl mx-auto bg-white shadow-lg rounded-md min-h-full">
+        <div class="flex-1 bg-gray-200 rounded-lg overflow-y-auto p-4 flex justify-center">
+            <div id="invitation-canvas" class="w-full max-w-3xl bg-white shadow-lg rounded-md min-h-full">
                 <template x-if="canvasComponents.length === 0">
-                    <div class="p-16 text-center text-gray-400 italic">
-                        <i class="fas fa-palette text-4xl mb-4"></i>
-                        <p>Area Kerja Anda Masih Kosong</p>
-                        <p class="text-sm">Mulailah dengan mengklik komponen di panel kiri</p>
+                    <div class="p-16 text-center text-gray-400 italic flex flex-col items-center justify-center h-full">
+                        <i class="fas fa-palette text-5xl mb-4"></i>
+                        <p class="text-lg">Area Kerja Anda Masih Kosong</p>
+                        <p class="text-sm">Mulailah dengan memilih widget di panel kiri</p>
                     </div>
                 </template>
                 <template x-for="(item, index) in canvasComponents" :key="item.id">
-                    <div @click="selectComponent(item.id)" 
-                            :class="{ 'is-selected': selectedComponentId === item.id }"
-                            :data-id="item.id"
-                            class="canvas-item relative group">
-                        
-                        <button @click.stop="deleteComponent(item.id)" class="delete-btn" title="Hapus Komponen">
-                            <i class="fas fa-times text-sm"></i>
-                        </button>
-
+                    <div @click="selectComponent(item.id)" :class="{ 'is-selected': selectedComponentId === item.id }" :data-id="item.id" class="canvas-item relative group">
+                        <button @click.stop="deleteComponent(item.id)" class="delete-btn" title="Hapus Komponen"><i class="fas fa-times text-sm"></i></button>
                         <div :style="getComponentStyles(item)">
-                            <template x-if="item.type === 'cover'">
-                                <div class="text-center bg-cover bg-center">
-                                    <p class="text-sm tracking-widest">THE WEDDING OF</p>
-                                    <img :src="dummyData.photo_url" class="w-32 h-32 object-cover rounded-full mx-auto my-4 border-4 border-white/50">
-                                    <h2 class="text-4xl font-serif mt-2" x-text="`${dummyData.bride_name} & ${dummyData.groom_name}`"></h2>
-                                    <p class="mt-2 font-semibold" x-text="dummyData.date_formatted"></p>
-                                </div>
-                            </template>
-                            <template x-if="item.type === 'mempelai'">
-                                <div class="text-center">
-                                    <h3 class="font-serif text-4xl">The Beloved Couple</h3>
-                                    <p class="mt-4 text-sm">Dengan memohon rahmat dan ridho Allah SWT, kami bermaksud menyelenggarakan pernikahan putra-putri kami:</p>
-                                </div>
-                            </template>
-                            <template x-if="item.type === 'video'">
-                                <div class="relative h-48 flex items-center justify-center bg-cover bg-center" :style="`background-image: url('${item.styles.videoUrl || dummyData.video_placeholder_url}');`">
-                                    <div class="absolute inset-0 bg-black/50"></div>
-                                    <i class="fas fa-play-circle text-6xl text-white/70 z-10"></i>
-                                </div>
-                            </template>
-                            <template x-if="item.type === 'acara'">
-                                <div class="text-center">
-                                    <h3 class="font-serif text-4xl">Save The Date</h3>
-                                </div>
-                            </template>
-                            <template x-if="item.type === 'galeri'">
-                                <div class="text-center">
-                                    <h3 class="font-serif text-4xl">Our Moments</h3>
-                                </div>
-                            </template>
-                            <template x-if="item.type === 'ucapan'">
-                                <div class="text-center">
-                                    <h3 class="font-serif text-4xl">Ucapan & RSVP</h3>
-                                </div>
-                            </template>
-                            <template x-if="item.type === 'hadiah'">
-                                <div class="text-center">
-                                    <h3 class="font-serif text-4xl">Wedding Gift</h3>
-                                </div>
-                            </template>
+                            <div x-html="renderComponent(item)"></div>
                         </div>
-                    </template>
-                </div>
+                    </div>
+                </template>
             </div>
         </div>
     </main>
 
     <aside x-show="selectedComponent" x-transition:enter="editor-panel-enter-active" x-transition:enter-start="editor-panel-enter" x-transition:leave="editor-panel-leave-active" x-transition:leave-end="editor-panel-leave-to" class="w-96 bg-white p-6 shadow-lg flex-shrink-0 overflow-y-auto">
-    <template x-if="selectedComponent">
-        <div>
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold" x-text="selectedComponent.name"></h2>
-                <button @click="deselectComponent()" class="text-gray-400 hover:text-gray-700 text-2xl">&times;</button>
-            </div>
-            
-            <div class="space-y-4 border-t pt-4">
-                <h3 class="font-semibold">Pengaturan Latar</h3>
-                <div>
-                    <label class="block text-sm font-medium mb-1">Warna Latar</label>
-                    <input type="color" x-model="selectedComponent.styles.backgroundColor" class="w-full h-10 p-1 border-gray-300 rounded-md">
+        <template x-if="selectedComponent">
+            <div>
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold" x-text="selectedComponent.name"></h2>
+                    <button @click="deselectComponent()" class="text-gray-400 hover:text-gray-700 text-2xl">&times;</button>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">Gambar Latar</label>
-                    <input type="file" @change="handleImageUpload($event)" class="w-full text-sm text-gray-500
-                        file:mr-4 file:py-2 file:px-4
-                        file:rounded-full file:border-0
-                        file:text-sm file:font-semibold
-                        file:bg-orange-50 file:text-orange-700
-                        hover:file:bg-orange-100
-                    ">
-                    <p x-show="selectedComponent.styles.backgroundImage" class="text-xs text-gray-500 mt-2 truncate" x-text="`URL: ${selectedComponent.styles.backgroundImage}`"></p>
+                <div class="border-b border-gray-200">
+                    <nav class="-mb-px flex space-x-6">
+                        <button @click="activeTab = 'content'" :class="{'border-orange-500 text-orange-600': activeTab === 'content', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'content'}" class="whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">Konten</button>
+                        <button @click="activeTab = 'style'" :class="{'border-orange-500 text-orange-600': activeTab === 'style', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'style'}" class="whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">Gaya</button>
+                    </nav>
                 </div>
                 
-                <template x-if="selectedComponent.type === 'video'">
-                    <div class="pt-2">
-                        <label class="block text-sm font-medium mb-1">Video Latar (URL)</label>
-                        <input type="text" x-model="selectedComponent.styles.videoUrl" placeholder="https://contoh-video.mp4" class="w-full p-2 border border-gray-300 rounded-md text-sm">
+                <div x-show="activeTab === 'content'" class="pt-6 space-y-4">
+                    <template x-if="selectedComponent.type === 'cover'">
+                        <div class="space-y-3">
+                             <div><label class="block text-sm font-medium mb-1">Teks Pembuka</label><input type="text" x-model="selectedComponent.data.openingText" class="w-full p-2 border border-gray-300 rounded-md text-sm"></div>
+                             <div><label class="block text-sm font-medium mb-1">Nama Mempelai Wanita</label><input type="text" x-model="selectedComponent.data.brideName" class="w-full p-2 border border-gray-300 rounded-md text-sm"></div>
+                             <div><label class="block text-sm font-medium mb-1">Nama Mempelai Pria</label><input type="text" x-model="selectedComponent.data.groomName" class="w-full p-2 border border-gray-300 rounded-md text-sm"></div>
+                             <div><label class="block text-sm font-medium mb-1">Tanggal Acara</label><input type="text" x-model="selectedComponent.data.date" class="w-full p-2 border border-gray-300 rounded-md text-sm"></div>
+                        </div>
+                    </template>
+                    <template x-if="selectedComponent.type === 'mempelai'">
+                         <div class="space-y-3">
+                            <h4 class="font-semibold border-b pb-2">Mempelai Wanita</h4>
+                            <div><label class="block text-sm font-medium mb-1">Nama Lengkap</label><input type="text" x-model="selectedComponent.data.brideName" class="w-full p-2 border border-gray-300 rounded-md text-sm"></div>
+                            <div><label class="block text-sm font-medium mb-1">Nama Orang Tua</label><input type="text" x-model="selectedComponent.data.brideParents" class="w-full p-2 border border-gray-300 rounded-md text-sm"></div>
+                            <div><label class="block text-sm font-medium mb-1">URL Foto</label><input type="text" x-model="selectedComponent.data.bridePhotoUrl" class="w-full p-2 border border-gray-300 rounded-md text-sm"></div>
+                            
+                            <h4 class="font-semibold border-b pb-2 pt-4">Mempelai Pria</h4>
+                            <div><label class="block text-sm font-medium mb-1">Nama Lengkap</label><input type="text" x-model="selectedComponent.data.groomName" class="w-full p-2 border border-gray-300 rounded-md text-sm"></div>
+                            <div><label class="block text-sm font-medium mb-1">Nama Orang Tua</label><input type="text" x-model="selectedComponent.data.groomParents" class="w-full p-2 border border-gray-300 rounded-md text-sm"></div>
+                            <div><label class="block text-sm font-medium mb-1">URL Foto</label><input type="text" x-model="selectedComponent.data.groomPhotoUrl" class="w-full p-2 border border-gray-300 rounded-md text-sm"></div>
+                        </div>
+                    </template>
+                    <template x-if="selectedComponent.type === 'acara'">
+                         <div class="space-y-3">
+                            <h4 class="font-semibold border-b pb-2">Akad Nikah</h4>
+                            <div><label class="block text-sm font-medium mb-1">Tanggal</label><input type="text" x-model="selectedComponent.data.akadDate" class="w-full p-2 border border-gray-300 rounded-md text-sm"></div>
+                            <div><label class="block text-sm font-medium mb-1">Waktu</label><input type="text" x-model="selectedComponent.data.akadTime" class="w-full p-2 border border-gray-300 rounded-md text-sm"></div>
+                            <div><label class="block text-sm font-medium mb-1">Lokasi</label><textarea x-model="selectedComponent.data.akadLocation" rows="2" class="w-full p-2 border border-gray-300 rounded-md text-sm"></textarea></div>
+                            
+                            <h4 class="font-semibold border-b pb-2 pt-4">Resepsi</h4>
+                            <div><label class="block text-sm font-medium mb-1">Tanggal</label><input type="text" x-model="selectedComponent.data.resepsiDate" class="w-full p-2 border border-gray-300 rounded-md text-sm"></div>
+                            <div><label class="block text-sm font-medium mb-1">Waktu</label><input type="text" x-model="selectedComponent.data.resepsiTime" class="w-full p-2 border border-gray-300 rounded-md text-sm"></div>
+                            <div><label class="block text-sm font-medium mb-1">Lokasi</label><textarea x-model="selectedComponent.data.resepsiLocation" rows="2" class="w-full p-2 border border-gray-300 rounded-md text-sm"></textarea></div>
+                        </div>
+                    </template>
+                    <template x-if="selectedComponent.type === 'galeri'">
+                         <div class="space-y-3">
+                            <h4 class="font-semibold">Kelola Foto</h4>
+                            <p class="text-xs text-gray-500">Masukkan satu URL per baris.</p>
+                            <textarea x-model="selectedComponent.data.photoList" rows="8" class="w-full p-2 border border-gray-300 rounded-md text-sm" placeholder="https://.../gambar1.jpg&#10;https://.../gambar2.jpg"></textarea>
+                        </div>
+                    </template>
+                    <div x-show="!['cover','mempelai','acara','galeri'].includes(selectedComponent.type)">
+                        <p class="text-sm text-gray-500 italic">Widget ini tidak memiliki pengaturan konten spesifik.</p>
                     </div>
-                </template>
-
-                <h3 class="font-semibold pt-4 border-t">Teks & Jarak</h3>
-                <div>
-                    <label class="block text-sm font-medium mb-1">Warna Teks</label>
-                    <input type="color" x-model="selectedComponent.styles.color" class="w-full h-10 p-1 border-gray-300 rounded-md">
                 </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1" x-text="`Jarak Dalam (Padding): ${selectedComponent.styles.padding}px`"></label>
-                    <input type="range" min="0" max="150" step="2" x-model="selectedComponent.styles.padding" class="w-full">
+
+                <div x-show="activeTab === 'style'" class="pt-6 space-y-4">
+                    <h3 class="font-semibold">Latar Belakang</h3>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Warna Latar</label>
+                        <input type="color" x-model="selectedComponent.styles.backgroundColor" class="w-full h-10 p-1 border-gray-300 rounded-md">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Gambar Latar</label>
+                         <input type="text" x-model="selectedComponent.styles.backgroundImage" placeholder="Masukkan URL gambar..." class="w-full p-2 border border-gray-300 rounded-md text-sm">
+                    </div>
+                     <h3 class="font-semibold pt-4 border-t">Teks & Jarak</h3>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Warna Teks</p>
+                        <input type="color" x-model="selectedComponent.styles.color" class="w-full h-10 p-1 border-gray-300 rounded-md">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1" x-text="`Jarak Dalam (Padding): ${selectedComponent.styles.padding}px`"></label>
+                        <input type="range" min="0" max="150" step="2" x-model.number="selectedComponent.styles.padding" class="w-full">
+                    </div>
                 </div>
             </div>
-        </div>
-    </template>
-</aside>
+        </template>
+    </aside>
 
-    <div x-show="showPreview" @click.away="showPreview = false" x-cloak class="fixed inset-0 bg-black/50 z-50 flex justify-center items-center p-4">
+    <div x-show="showPreview" @click.away="showPreview = false" x-cloak class="fixed inset-0 bg-black/70 z-50 flex justify-center items-center p-4">
+        <button @click="showPreview = false" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/20 text-white hover:bg-white/40 transition-colors flex items-center justify-center" aria-label="Tutup Preview">
+            <i class="fas fa-times text-xl"></i>
+        </button>
         <div x-show="showPreview" x-transition class="relative w-full max-w-sm mx-auto">
             <div class="relative mx-auto border-gray-800 bg-gray-800 border-[14px] rounded-[2.5rem] h-[720px] w-[360px] shadow-xl">
                 <div class="w-[148px] h-[18px] bg-gray-800 top-0 rounded-b-[1rem] left-1/2 -translate-x-1/2 absolute"></div>
                 <div class="rounded-[2rem] overflow-auto w-full h-full bg-white">
                     <template x-for="item in canvasComponents" :key="item.id">
                         <div :style="getComponentStyles(item)">
-                            <template x-if="item.type === 'cover'">
-                                <div class="text-center bg-cover bg-center">
-                                    <p class="text-sm tracking-widest">THE WEDDING OF</p>
-                                    <img :src="dummyData.photo_url" class="w-32 h-32 object-cover rounded-full mx-auto my-4 border-4 border-white/50">
-                                    <h2 class="text-4xl font-serif mt-2" x-text="`${dummyData.bride_name} & ${dummyData.groom_name}`"></h2>
-                                    <p class="mt-2 font-semibold" x-text="dummyData.date_formatted"></p>
-                                </div>
-                            </template>
-                            <template x-if="item.type === 'mempelai'">
-                                <div class="text-center">
-                                    <h3 class="font-serif text-4xl">The Beloved Couple</h3>
-                                    <p class="mt-4 text-sm">Dengan memohon rahmat dan ridho Allah SWT, kami bermaksud menyelenggarakan pernikahan putra-putri kami:</p>
-                                </div>
-                            </template>
-                            <template x-if="item.type === 'video'">
-                                <div class="relative h-48 flex items-center justify-center bg-cover bg-center" :style="`background-image: url('${item.styles.videoUrl || dummyData.video_placeholder_url}');`">
-                                    <div class="absolute inset-0 bg-black/50"></div>
-                                    <i class="fas fa-play-circle text-6xl text-white/70 z-10"></i>
-                                </div>
-                            </template>
-                            <template x-if="item.type === 'acara'">
-                                <div class="text-center">
-                                    <h3 class="font-serif text-4xl">Save The Date</h3>
-                                </div>
-                            </template>
-                            <template x-if="item.type === 'galeri'">
-                                <div class="text-center">
-                                    <h3 class="font-serif text-4xl">Our Moments</h3>
-                                </div>
-                            </template>
-                            <template x-if="item.type === 'ucapan'">
-                                <div class="text-center">
-                                    <h3 class="font-serif text-4xl">Ucapan & RSVP</h3>
-                                </div>
-                            </template>
-                            <template x-if="item.type === 'hadiah'">
-                                <div class="text-center">
-                                    <h3 class="font-serif text-4xl">Wedding Gift</h3>
-                                </div>
-                            </template>
+                            <div x-html="renderComponent(item)"></div>
                         </div>
                     </template>
                 </div>
             </div>
         </div>
     </div>
+
+    <div x-show="showSaveModal" @keydown.escape.window="showSaveModal = false" x-cloak class="fixed inset-0 bg-black/50 z-50 flex justify-center items-center">
+        <div @click.away="showSaveModal = false" class="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
+            <h2 class="text-2xl font-bold mb-4">Simpan Desain</h2>
+            <p class="text-sm text-gray-600 mb-6">Beri nama desain ini untuk menyimpannya sebagai template.</p>
+            <div>
+                <label for="design_name" class="block text-sm font-medium mb-1">Nama Desain</label>
+                <input type="text" id="design_name" x-model="designName" placeholder="Contoh: Desain Elegan Bunga Mawar" class="w-full p-2 border border-gray-300 rounded-md">
+            </div>
+            <div class="flex justify-end gap-4 mt-8">
+                <button @click="showSaveModal = false" class="bg-gray-200 text-gray-800 font-bold py-2 px-6 rounded-lg hover:bg-gray-300">Batal</button>
+                <button @click="saveDesign()" :disabled="!designName.trim()" class="bg-orange-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-orange-600 disabled:bg-orange-300 disabled:cursor-not-allowed">Simpan</button>
+            </div>
+        </div>
+    </div>
 </div>
+@endsection
 
+@push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js"></script>
-
 <script>
 function invitationEditor() {
     return {
         showPreview: false,
+        showSaveModal: false,
+        designId: null,
+        designName: '',
         dummyData: null,
         canvasComponents: [],
         selectedComponentId: null,
-        selectedComponent: null, // Properti baru untuk menyimpan komponen yang dipilih
-        availableComponents: [
-            { type: 'cover', name: 'Cover Utama', description: 'Judul, nama, tanggal.', icon: 'fas fa-book-open' },
-            { type: 'mempelai', name: 'Profil Mempelai', description: 'Foto & detail pasangan.', icon: 'fas fa-user-friends' },
-            { type: 'video', name: 'Video Latar', description: 'Video sinematik.', icon: 'fas fa-video' },
-            { type: 'acara', name: 'Detail Acara', description: 'Waktu & lokasi.', icon: 'fas fa-calendar-check' },
-            { type: 'galeri', name: 'Galeri Foto', description: 'Momen pre-wedding.', icon: 'fas fa-images' },
-            { type: 'ucapan', name: 'Ucapan & RSVP', description: 'Formulir kehadiran.', icon: 'fas fa-comments' },
-            { type: 'hadiah', name: 'Hadiah Pernikahan', description: 'Info rekening/alamat.', icon: 'fas fa-gift' },
-        ],
+        selectedComponent: null,
+        activeTab: 'content',
+        componentCategories: [ { name: 'Dasar', components: [ { type: 'cover', name: 'Cover Utama', description: 'Halaman pembuka undangan.', icon: 'fas fa-book-open' }, { type: 'mempelai', name: 'Profil Mempelai', description: 'Detail kedua pasangan.', icon: 'fas fa-user-friends' }, { type: 'acara', name: 'Detail Acara', description: 'Waktu & lokasi pernikahan.', icon: 'fas fa-calendar-check' }, ] }, { name: 'Media', components: [ { type: 'galeri', name: 'Galeri Foto', description: 'Album momen pre-wedding.', icon: 'fas fa-images' }, { type: 'video', name: 'Video Cinematic', description: 'Sematkan video dari YouTube.', icon: 'fas fa-video' }, ] }, { name: 'Interaktif', components: [ { type: 'ucapan', name: 'Ucapan & RSVP', description: 'Formulir kehadiran tamu.', icon: 'fas fa-comments' }, { type: 'hadiah', name: 'Hadiah Pernikahan', description: 'Informasi amplop digital.', icon: 'fas fa-gift' }, { type: 'countdown', name: 'Hitung Mundur', description: 'Timer menuju hari H.', icon: 'fas fa-stopwatch' }, ] } ],
         
-        init($el) {
+        init($el, existingDesign = null) {
             this.dummyData = JSON.parse($el.dataset.event);
+            this.initializeSortable();
+            this.componentDefinitions = {};
+            this.componentCategories.forEach(cat => {
+                cat.components.forEach(comp => {
+                    this.componentDefinitions[comp.type] = this.getComponentDefaults(comp.type);
+                });
+            });
 
+            if (existingDesign) {
+                this.designId = existingDesign.id;
+                this.designName = existingDesign.name;
+                this.canvasComponents = existingDesign.structure.map((item, index) => {
+                    const defaults = this.getComponentDefaults(item.type);
+                    return {
+                        ...defaults, 
+                        ...item,
+                        data: { ...defaults.data, ...item.data },
+                        styles: { ...defaults.styles, ...item.styles },
+                        id: Date.now() + index 
+                    };
+                });
+            }
+        },
+
+        initializeSortable() {
             const canvasEl = document.getElementById('invitation-canvas');
             new Sortable(canvasEl, {
                 animation: 150,
@@ -309,96 +266,126 @@ function invitationEditor() {
                 onEnd: (evt) => {
                     const component = this.canvasComponents.splice(evt.oldIndex, 1)[0];
                     this.canvasComponents.splice(evt.newIndex, 0, component);
-                    // Setelah re-order, pastikan selectedComponent tetap terbarui
-                    if (this.selectedComponent) {
-                         this.selectedComponent = this.canvasComponents.find(c => c.id === this.selectedComponentId);
-                    }
+                    this.refreshSelectedComponent();
                 },
             });
         },
         
-        isComponentAdded(type) {
-            return this.canvasComponents.some(c => c.type === type);
+        getComponentDefaults(type) {
+             const componentInfo = this.componentCategories.flatMap(c => c.components).find(c => c.type === type);
+             const defaults = { id: null, type: type, name: componentInfo.name, styles: { backgroundColor: '#FFFFFF', backgroundImage: '', color: '#334155', padding: 40, }, data: {} };
+             switch(type) {
+                case 'cover':
+                    defaults.data = { openingText: 'THE WEDDING OF', brideName: this.dummyData.bride_name, groomName: this.dummyData.groom_name, date: this.dummyData.date_formatted, };
+                    defaults.styles.backgroundImage = this.dummyData.cover_photo_url;
+                    defaults.styles.padding = 80;
+                    defaults.styles.color = '#FFFFFF';
+                    break;
+                case 'mempelai':
+                    defaults.data = { brideName: this.dummyData.bride_name, brideParents: this.dummyData.bride_parents, bridePhotoUrl: this.dummyData.couple_photo_url, groomName: this.dummyData.groom_name, groomParents: this.dummyData.groom_parents, groomPhotoUrl: this.dummyData.video_placeholder_url, };
+                    break;
+                case 'acara':
+                     defaults.data = { akadDate: this.dummyData.date_formatted, akadTime: this.dummyData.akad_time, akadLocation: this.dummyData.akad_location, resepsiDate: this.dummyData.date_formatted, resepsiTime: this.dummyData.resepsi_time, resepsiLocation: this.dummyData.resepsi_location, };
+                    break;
+                case 'galeri':
+                    defaults.data = { photoList: this.dummyData.gallery_photos.map(p => p.url).join('\n') };
+                    break;
+             }
+             return defaults;
         },
+
+        isComponentAdded(type) { return this.canvasComponents.some(c => c.type === type); },
         
         addComponent(type) {
-            if (this.isComponentAdded(type)) {
-                alert(`Komponen "${this.availableComponents.find(c => c.type === type).name}" sudah ada di kanvas.`);
-                return;
-            }
-        
-            const componentData = this.availableComponents.find(c => c.type === type);
-            const newComponent = {
-                id: Date.now(),
-                type: type,
-                name: componentData.name,
-                styles: {
-                    backgroundColor: '#FFFFFF',
-                    backgroundImage: '',
-                    color: '#334155',
-                    padding: 40,
-                    videoUrl: '', 
-                },
-            };
+            if (this.isComponentAdded(type)) return;
+            const defaults = this.componentDefinitions[type];
+            const newComponent = JSON.parse(JSON.stringify(defaults));
+            newComponent.id = Date.now();
             this.canvasComponents.push(newComponent);
             this.selectComponent(newComponent.id);
         },
         
-        handleImageUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                if (this.selectedComponent) {
-                    this.selectedComponent.styles.backgroundImage = e.target.result;
-                }
-            };
-            reader.readAsDataURL(file);
-        },
-
         deleteComponent(id) {
             if (!confirm('Anda yakin ingin menghapus komponen ini?')) return;
             this.canvasComponents = this.canvasComponents.filter(c => c.id !== id);
-            // Perbarui selectedComponent jika yang dihapus adalah yang terpilih
-            if (this.selectedComponentId === id) {
-                this.selectedComponentId = null;
-                this.selectedComponent = null;
-            }
+            if (this.selectedComponentId === id) this.deselectComponent();
         },
 
         selectComponent(id) {
             this.selectedComponentId = id;
-            this.selectedComponent = this.canvasComponents.find(c => c.id === id);
+            this.refreshSelectedComponent();
+            this.activeTab = 'content';
         },
-
+        
         deselectComponent() {
             this.selectedComponentId = null;
             this.selectedComponent = null;
         },
-
+        
+        refreshSelectedComponent() {
+            if (this.selectedComponentId) {
+                this.selectedComponent = this.canvasComponents.find(c => c.id === this.selectedComponentId);
+            }
+        },
+        
         getComponentStyles(item) {
-            let styles = {
-                backgroundColor: item.styles.backgroundColor,
-                color: item.styles.color,
-                padding: `${item.styles.padding}px`
-            };
+            let styles = { backgroundColor: item.styles.backgroundColor, color: item.styles.color, padding: `${item.styles.padding}px`, backgroundSize: 'cover', backgroundPosition: 'center', textAlign: 'center', };
             if (item.styles.backgroundImage) {
                 styles.backgroundImage = `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('${item.styles.backgroundImage}')`;
                 styles.color = '#FFFFFF';
             }
             return styles;
         },
+        
+        renderComponent(item) {
+            switch(item.type) {
+                case 'cover': return `<div class="flex flex-col items-center"><p class="text-sm tracking-widest uppercase">${item.data.openingText || 'THE WEDDING OF'}</p><h2 class="text-5xl font-serif my-6">${item.data.brideName || 'Bride'} & ${item.data.groomName || 'Groom'}</h2><p class="font-semibold text-lg">${item.data.date || 'Tanggal Acara'}</p></div>`;
+                case 'mempelai': return `<div class="px-4"><p class="text-sm mb-8 max-w-xl mx-auto">Dengan memohon rahmat dan ridho Allah SWT, kami bermaksud menyelenggarakan pernikahan putra-putri kami:</p><div class="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-16"><div class="w-64"><img src="${item.data.bridePhotoUrl}" class="w-40 h-40 object-cover rounded-full mx-auto border-4 border-white/50 shadow-lg"><h3 class="text-3xl font-serif mt-4">${item.data.brideName}</h3><p class="text-sm mt-2">${item.data.brideParents}</p></div><span class="text-5xl font-serif">&</span><div class="w-64"><img src="${item.data.groomPhotoUrl}" class="w-40 h-40 object-cover rounded-full mx-auto border-4 border-white/50 shadow-lg"><h3 class="text-3xl font-serif mt-4">${item.data.groomName}</h3><p class="text-sm mt-2">${item.data.groomParents}</p></div></div></div>`;
+                case 'acara': return `<div><h2 class="font-serif text-4xl mb-8">Save The Date</h2><div class="flex flex-col md:flex-row justify-center gap-8"><div class="border-2 border-current/20 p-6 rounded-lg flex-1"><h3 class="font-serif text-3xl">Akad Nikah</h3><p class="mt-4 font-semibold">${item.data.akadDate}</p><p>${item.data.akadTime}</p><p class="mt-4 text-sm">${item.data.akadLocation}</p></div><div class="border-2 border-current/20 p-6 rounded-lg flex-1"><h3 class="font-serif text-3xl">Resepsi</h3><p class="mt-4 font-semibold">${item.data.resepsiDate}</p><p>${item.data.resepsiTime}</p><p class="mt-4 text-sm">${item.data.resepsiLocation}</p></div></div></div>`;
+                case 'galeri':
+                    const photos = item.data.photoList ? item.data.photoList.split('\n').filter(url => url.trim() !== '') : [];
+                    let galleryHtml = `<h2 class="font-serif text-4xl mb-8">Our Moments</h2>`;
+                    if (photos.length > 0) {
+                        galleryHtml += `<div class="grid grid-cols-2 md:grid-cols-4 gap-4 px-4">`;
+                        photos.forEach(url => { galleryHtml += `<div class="aspect-square bg-gray-200 rounded-lg bg-cover bg-center" style="background-image: url('${url}')"></div>`; });
+                        galleryHtml += `</div>`;
+                    } else { galleryHtml += `<p class="text-sm italic text-current/70">Tambahkan URL foto di panel editor.</p>`; }
+                    return galleryHtml;
+                case 'video': return `<div><h2 class="font-serif text-4xl mb-8">Our Love Story</h2><div class="aspect-video bg-gray-900 rounded-lg flex items-center justify-center text-white/50"><i class="fas fa-play-circle text-6xl"></i><p class="ml-4">Placeholder Video</p></div></div>`;
+                case 'ucapan': return `<h2 class="font-serif text-4xl">Ucapan & RSVP</h2><p class="mt-4 text-sm">Formulir akan ditampilkan di sini.</p>`;
+                case 'hadiah': return `<h2 class="font-serif text-4xl">Wedding Gift</h2><p class="mt-4 text-sm">Informasi hadiah akan ditampilkan di sini.</p>`;
+                case 'countdown': return `<h2 class="font-serif text-4xl">Menuju Hari Bahagia</h2><p class="mt-4 text-3xl font-bold">00:00:00:00</p>`;
+                default: return `<p>Komponen tidak dikenal: ${item.type}</p>`;
+            }
+        },
 
         saveDesign() {
-            if (this.canvasComponents.length === 0) {
-                alert('Kanvas masih kosong.'); return;
-            }
+            if (!this.designName.trim()) { alert('Nama desain tidak boleh kosong.'); return; }
+            if (this.canvasComponents.length === 0) { alert('Kanvas masih kosong.'); return; }
             const designStructure = this.canvasComponents.map(({ id, ...rest }) => rest);
-            console.log('Menyimpan struktur:', JSON.stringify(designStructure, null, 2));
-            alert('Struktur desain disimpan! (Cek console log untuk melihat datanya)');
+            const payload = { name: this.designName, structure: JSON.stringify(designStructure) };
+            
+            let url = this.designId ? `/admin/design/${this.designId}/update` : '{{ route("admin.design.save") }}';
+            let method = this.designId ? 'PUT' : 'POST';
+
+            fetch(url, {
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'X-HTTP-Method-Override': method },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    window.location.href = data.redirect_url;
+                } else {
+                    alert(data.message || 'Gagal menyimpan desain.');
+                }
+            })
+            .catch(error => { console.error('Error:', error); alert('Terjadi kesalahan koneksi.'); })
+            .finally(() => { this.showSaveModal = false; });
         }
     }
 }
 </script>
-@endsection
+@endpush

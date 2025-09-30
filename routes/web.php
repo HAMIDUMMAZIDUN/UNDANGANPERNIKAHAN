@@ -76,6 +76,11 @@ Route::controller(ResetPasswordController::class)->group(function () {
 // --- Rute Katalog & Undangan Publik ---
 Route::get('/katalog', [KatalogController::class, 'index'])->name('katalog.index');
 Route::get('/katalog/demo/{id}', [KatalogController::class, 'showDemo'])->name('katalog.demo');
+Route::get('/katalog/{id}', [KatalogController::class, 'show'])->name('katalog.show');
+
+// RUTE BARU DITAMBAHKAN DI SINI
+Route::get('/designs/{design}/demo', [KatalogController::class, 'showDynamicDemo'])->name('katalog.design.demo');
+
 
 Route::post('/rsvp/{event:uuid}', [ReservasiController::class, 'store'])->name('rsvp.store');
 
@@ -179,12 +184,11 @@ Route::middleware('auth')->group(function () {
     });
 
     // ===================================================================
-    // RUTE ADMIN (HANYA MEMERLUKAN LOGIN)
+    // RUTE ADMIN
     // ===================================================================
 
     Route::get('/admin/dashboard', [DashboardAdminController::class, 'index'])->name('dashboard.admin.index');
 
-    // PERBAIKAN: Rute Request Client dipindahkan ke sini agar namanya benar
     Route::get('/admin/request-client', [RequestClientController::class, 'index'])->name('request.client.index');
     Route::post('/admin/request-client/{clientRequest}/generate-payment', [RequestClientController::class, 'generatePayment'])->name('request.generatePayment');
     Route::post('/admin/request-client/{clientRequest}/approve', [RequestClientController::class, 'approveRequest'])->name('request.approve');
@@ -195,10 +199,19 @@ Route::middleware('auth')->group(function () {
         Route::post('/clients', [ClientController::class, 'store'])->name('client.store');
         Route::delete('/clients/{client}', [ClientController::class, 'destroy'])->name('client.destroy');
         Route::patch('/clients/{client}/update-status', [ClientController::class, 'updateStatus'])->name('client.updateStatus');
-        Route::get('/design', [DesignController::class, 'index'])->name('design.index');
-        Route::post('/design/save', [DesignController::class, 'save'])->name('design.save');
-        Route::get('/design/saved', [DesignController::class, 'showSavedDesigns'])->name('design.saved_designs');
-        // Rute request-client sudah dipindahkan keluar dari grup ini
+        
+        Route::prefix('design')->name('design.')->group(function () {
+            Route::get('/', [DesignController::class, 'index'])->name('index');
+            Route::post('/save', [DesignController::class, 'save'])->name('save');
+            Route::get('/saved', [DesignController::class, 'showSavedDesigns'])->name('saved_designs');
+            Route::get('/{design}/edit', [DesignController::class, 'edit'])->name('edit');
+            Route::put('/{design}/update', [DesignController::class, 'update'])->name('update');
+            Route::delete('/{design}/delete', [DesignController::class, 'destroy'])->name('destroy');
+            Route::get('/{design}/preview', [DesignController::class, 'preview'])->name('preview');
+            Route::get('/{design}/export', [DesignController::class, 'export'])->name('export');
+            Route::post('/import', [DesignController::class, 'import'])->name('import');
+        });
+        
         Route::prefix('settings')->name('settings.')->group(function () {
             Route::post('/toggle-order-status', [AdminSettingController::class, 'toggleOrderStatus'])->name('toggleOrderStatus');
         });
