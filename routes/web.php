@@ -78,9 +78,7 @@ Route::get('/katalog', [KatalogController::class, 'index'])->name('katalog.index
 Route::get('/katalog/demo/{id}', [KatalogController::class, 'showDemo'])->name('katalog.demo');
 Route::get('/katalog/{id}', [KatalogController::class, 'show'])->name('katalog.show');
 
-// RUTE BARU DITAMBAHKAN DI SINI
 Route::get('/designs/{design}/demo', [KatalogController::class, 'showDynamicDemo'])->name('katalog.design.demo');
-
 
 Route::post('/rsvp/{event:uuid}', [ReservasiController::class, 'store'])->name('rsvp.store');
 
@@ -207,7 +205,16 @@ Route::middleware('auth')->group(function () {
             Route::get('/{design}/edit', [DesignController::class, 'edit'])->name('edit');
             Route::put('/{design}/update', [DesignController::class, 'update'])->name('update');
             Route::delete('/{design}/delete', [DesignController::class, 'destroy'])->name('destroy');
-            Route::get('/{design}/preview', [DesignController::class, 'preview'])->name('preview');
+            
+            // Route untuk melihat preview desain yang sudah tersimpan
+            Route::get('/{design}/show-preview', [DesignController::class, 'showPreview'])->name('show_preview');
+
+            // Route untuk live preview dari editor
+            Route::post('/live-preview', [DesignController::class, 'livePreview'])->name('live_preview');
+
+            // ### ROUTE UNGGAH GAMBAR SEHARUSNYA DI SINI ###
+            Route::post('/upload-image', [DesignController::class, 'uploadImage'])->name('upload_image');
+            
             Route::get('/{design}/export', [DesignController::class, 'export'])->name('export');
             Route::post('/import', [DesignController::class, 'import'])->name('import');
         });
@@ -220,4 +227,3 @@ Route::middleware('auth')->group(function () {
 
 // Rute 'catch-all' untuk slug event, harus diletakkan di paling akhir
 Route::get('/{event:slug}', [EventController::class, 'publicShow'])->name('events.public.show');
-

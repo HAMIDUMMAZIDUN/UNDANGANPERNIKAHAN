@@ -90,7 +90,7 @@
                                     <a href="{{ route('order.start', ['template_id' => $design->id]) }}" class="w-full text-center bg-orange-500 text-white text-sm font-semibold py-2 px-3 rounded-md hover:bg-orange-600 transition-colors">Gunakan Template</a>
                                 @else
                                     <div class="flex-grow flex items-center gap-2">
-                                        <a href="{{ route('admin.design.preview', ['design' => $design->id]) }}" target="_blank" class="flex-1 text-center bg-orange-500 text-white text-sm font-semibold py-2 px-3 rounded-md hover:bg-orange-600 transition-colors">Lihat</a>
+                                        <a href="{{ route('admin.design.show_preview', ['design' => $design->id]) }}" target="_blank" class="flex-1 text-center bg-orange-500 text-white text-sm font-semibold py-2 px-3 rounded-md hover:bg-orange-600 transition-colors">Lihat</a>
                                         <a href="{{ route('admin.design.edit', ['design' => $design->id]) }}" class="flex-1 text-center bg-gray-100 text-gray-800 text-sm font-semibold py-2 px-3 rounded-md hover:bg-gray-200 transition-colors">Edit</a>
                                     </div>
                                     <div class="flex items-center flex-shrink-0">
