@@ -12,8 +12,8 @@ use App\Http\Controllers\ReservasiController;
 
 // --- Controller Otentikasi Kustom & Profil ---
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ResetPasswordController;
-use App\Http\Controllers\ForgotPasswordController;
+use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;

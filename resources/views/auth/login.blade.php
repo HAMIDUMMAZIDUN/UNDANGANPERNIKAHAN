@@ -1,112 +1,48 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <title>Login</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    {{-- Ikon Font Awesome --}}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
-    {{-- Script Google reCAPTCHA --}}
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-</head>
-<body class="min-h-screen flex items-center justify-center bg-cover bg-center" style="background-image: url('{{ asset('images/bg-pernikahan.png') }}');">
-    
-    <div class="w-full max-w-sm bg-white rounded-xl shadow-lg p-6">
-        <h2 class="text-xl font-semibold text-center text-gray-700 mb-6">Login Aplikasi</h2>
-        
-        {{-- Notifikasi Sukses atau Error --}}
-        @if(session('success'))
-            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded-md" role="alert">
-                <p>{{ session('success') }}</p>
-            </div>
-        @endif
-        
-        @if(session('error') && !session('success')) {{-- Hanya tampilkan jika tidak ada notif sukses --}}
-            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded-md" role="alert">
-                <p>{{ session('error') }}</p>
-            </div>
-        @endif
+<x-guest-layout>
+    <!-- Session Status -->
+    <x-auth-session-status class="mb-4" :status="session('status')" />
 
-        {{-- Formulir Login --}}
-        <form id="loginForm" method="POST" action="{{ route('login') }}" class="space-y-4">
-            @csrf
+    <form method="POST" action="{{ route('login') }}">
+        @csrf
 
-            <div>
-                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                <input type="email" name="email" id="email" required value="{{ old('email') }}"
-                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
-            </div>
+        <!-- Alamat Email -->
+        <div>
+            <x-input-label for="email" :value="__('Email')" />
+            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
+            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        </div>
 
-            <div>
-                <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                <div class="relative">
-                    <input type="password" name="password" id="password" required
-                        class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
-                    <span id="togglePassword" class="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer">
-                        <i class="fa-solid fa-eye text-gray-400"></i>
-                    </span>
-                </div>
-            </div>
+        <!-- Kata Sandi -->
+        <div class="mt-4">
+            <x-input-label for="password" :value="__('Password')" />
 
-            <div class="flex items-center justify-between text-sm">
-                <label class="flex items-center text-gray-700">
-                    <input type="checkbox" name="remember" class="h-4 w-4 text-green-600 border-gray-300 rounded">
-                    <span class="ml-2">Remember me</span>
-                </label>
-                <a href="{{ route('password.request') }}" class="text-green-500 hover:underline">Lupa Password?</a>
-            </div>
+            <x-text-input id="password" class="block mt-1 w-full"
+                            type="password"
+                            name="password"
+                            required autocomplete="current-password" />
 
-            <div class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"></div>
+            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+        </div>
 
-            <button type="submit"
-                class="w-full bg-black text-white py-2 px-4 rounded hover:bg-gray-800 transition">
-                LOGIN
-            </button>
-        </form>
-        
-        <p class="text-center text-sm text-gray-500 mt-6">
-            Belum punya akun? <a href="{{ route('katalog.index') }}" class="font-semibold text-green-600 hover:underline">Daftar di sini</a>
-        </p>
-    </div>
+        <!-- Ingat Saya -->
+        <div class="block mt-4">
+            <label for="remember_me" class="inline-flex items-center">
+                <input id="remember_me" type="checkbox" class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800" name="remember">
+                <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">{{ __('Remember me') }}</span>
+            </label>
+        </div>
 
-    <script>
-        // Script untuk SweetAlert error dari backend (untuk error login)
-        @if(session('error') && request()->isMethod('post'))
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: '{{ session('error') }}',
-                confirmButtonColor: '#d33', 
-            });
-        @endif
+        <div class="flex items-center justify-end mt-4">
+            @if (Route::has('password.request'))
+                <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('password.request') }}">
+                    {{ __('Forgot your password?') }}
+                </a>
+            @endif
 
-        // Script untuk toggle password
-        document.getElementById('togglePassword').addEventListener('click', function () {
-            const passwordInput = document.getElementById('password');
-            const icon = this.querySelector('i');
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordInput.setAttribute('type', type);
-            icon.classList.toggle('fa-eye');
-            icon.classList.toggle('fa-eye-slash');
-        });
+            <x-primary-button class="ms-3">
+                {{ __('Log in') }}
+            </x-primary-button>
+        </div>
+    </form>
+</x-guest-layout>
 
-        // Script untuk validasi reCAPTCHA sebelum submit
-        document.getElementById('loginForm').addEventListener('submit', function (event) {
-            const recaptchaResponse = grecaptcha.getResponse();
-            
-            if (recaptchaResponse.length === 0) {
-                event.preventDefault(); 
-                
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Verifikasi Diperlukan',
-                    text: 'Harap centang kotak "Saya bukan robot" terlebih dahulu.',
-                });
-            }
-        });
-    </script>
-</body>
-</html>
