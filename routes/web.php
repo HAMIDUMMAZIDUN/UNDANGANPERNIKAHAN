@@ -3,9 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 // --- Controller Otentikasi ---
-// Controller kustom Anda telah ditambahkan
 use App\Http\Controllers\CustomLoginController;
-// Controller standar yang masih digunakan (untuk reset password & verifikasi email)
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
@@ -115,7 +113,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/verify-email/{id}/{hash}', [VerifyEmailController::class, '__invoke'])->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
 
     // --- Rute Utama Pengguna ---
-    // DIPERBAIKI: Nama rute diubah agar sesuai standar redirect Laravel
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/status-akun', [OrderController::class, 'status'])->name('user.status');
     Route::get('/order-history', [OrderHistoryController::class, 'index'])->name('order.history.index');
@@ -200,18 +197,20 @@ Route::middleware('auth')->group(function () {
         Route::patch('/clients/{client}/update-status', [ClientController::class, 'updateStatus'])->name('client.updateStatus');
         Route::prefix('design')->name('design.')->group(function () {
             Route::get('/', [DesignController::class, 'index'])->name('index');
+            Route::get('/create', [DesignController::class, 'create'])->name('create');
             Route::post('/save', [DesignController::class, 'save'])->name('save');
             Route::get('/saved', [DesignController::class, 'showSavedDesigns'])->name('saved_designs');
-            Route::get('/{design}/edit', [DesignController::class, 'edit'])->name('edit');
+            Route::get('/{design}/edit', [DesignController::class, 'edit'])->name('editor');
             Route::put('/{design}/update', [DesignController::class, 'update'])->name('update');
             Route::delete('/{design}/delete', [DesignController::class, 'destroy'])->name('destroy');
-            Route::get('/{design}/show-preview', [DesignController::class, 'showPreview'])->name('show_preview');
+            Route::get('/{design}/preview', [DesignController::class, 'showPreview'])->name('preview');
             Route::post('/live-preview', [DesignController::class, 'livePreview'])->name('live_preview');
             Route::post('/upload-image', [DesignController::class, 'uploadImage'])->name('upload_image');
             Route::get('/{design}/export', [DesignController::class, 'export'])->name('export');
             Route::post('/import', [DesignController::class, 'import'])->name('import');
         });
         Route::prefix('settings')->name('settings.')->group(function () {
+            Route::get('/', [AdminSettingController::class, 'index'])->name('index');
             Route::post('/toggle-order-status', [AdminSettingController::class, 'toggleOrderStatus'])->name('toggleOrderStatus');
         });
     });
@@ -220,3 +219,4 @@ Route::middleware('auth')->group(function () {
 
 // Rute 'catch-all' untuk slug event, harus diletakkan di paling akhir
 Route::get('/{event:slug}', [EventController::class, 'publicShow'])->name('events.public.show');
+

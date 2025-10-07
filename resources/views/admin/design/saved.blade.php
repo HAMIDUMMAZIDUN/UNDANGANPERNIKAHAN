@@ -1,118 +1,83 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Kelola Desain Tersimpan')
+@section('title', 'Saved Designs')
 
 @push('styles')
 <style>
-    .design-card-preview {
-        background-size: cover;
-        background-position: center;
+    .design-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .design-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
     }
 </style>
 @endpush
 
 @section('content')
-<div class="container mx-auto p-6">
-    <div class="bg-white p-8 rounded-lg shadow-lg">
-        <div class="flex justify-between items-center mb-6 pb-4 border-b">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-800">Pustaka Desain</h1>
-                <p class="text-sm text-gray-500">Pilih template siap pakai atau kelola desain kustom Anda.</p>
+<div class="p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">Saved Designs</h1>
+        <a href="{{ route('admin.design.create') }}" class="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 flex items-center gap-2">
+            <i class="fas fa-plus"></i>
+            <span>New Design</span>
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @forelse($designs as $design)
+        <div class="design-card bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="aspect-[4/3] bg-gray-100 relative">
+                @if($design->thumbnail)
+                <img src="{{ $design->thumbnail }}" alt="{{ $design->name }}" class="w-full h-full object-cover">
+                @else
+                <div class="w-full h-full flex items-center justify-center text-gray-400">
+                    <i class="fas fa-image text-4xl"></i>
+                </div>
+                @endif
+                <div class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-50 transition-all flex items-center justify-center opacity-0 hover:opacity-100">
+                    <div class="flex gap-2">
+                        <a href="{{ route('admin.design.preview', $design->id) }}" class="bg-white text-gray-800 p-2 rounded-full hover:bg-orange-500 hover:text-white transition-colors">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="{{ route('admin.design.editor', $design->id) }}" class="bg-white text-gray-800 p-2 rounded-full hover:bg-orange-500 hover:text-white transition-colors">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <form action="{{ route('admin.design.destroy', $design->id) }}" method="POST" class="inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" onclick="return confirm('Are you sure?')" class="bg-white text-gray-800 p-2 rounded-full hover:bg-red-500 hover:text-white transition-colors">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
             </div>
-            <div class="flex items-center gap-4">
-                <form action="{{ route('admin.design.import') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <label for="design_file" class="cursor-pointer bg-white border border-gray-300 text-gray-800 font-bold py-2 px-5 rounded-lg shadow-sm hover:bg-gray-100 transition-colors flex items-center gap-2">
-                        <i class="fas fa-upload"></i>
-                        <span>Impor Desain</span>
-                    </label>
-                    <input type="file" name="design_file" id="design_file" class="hidden" onchange="this.form.submit()" accept=".json">
-                </form>
-                <a href="{{ route('admin.design.index') }}" class="bg-orange-500 text-white font-bold py-2 px-5 rounded-lg shadow-md hover:bg-orange-600 transition-colors flex items-center gap-2">
-                    <i class="fas fa-plus"></i>
-                    <span>Buat Desain Baru</span>
-                </a>
+            <div class="p-4">
+                <h3 class="font-bold text-lg mb-1">{{ $design->name }}</h3>
+                <p class="text-sm text-gray-500">Last modified: {{ $design->updated_at->diffForHumans() }}</p>
             </div>
         </div>
-
-        @if(session('success'))
-            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-md" role="alert">
-                <p>{{ session('success') }}</p>
+        @empty
+        <div class="col-span-3 text-center py-12">
+            <div class="text-gray-400 mb-4">
+                <i class="fas fa-folder-open text-6xl"></i>
             </div>
-        @endif
-        @if($errors->has('design_file'))
-            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-md" role="alert">
-                <p>{{ $errors->first('design_file') }}</p>
-            </div>
-        @endif
-        
-        @if($designs->isEmpty())
-            <div class="text-center py-16 text-gray-500">
-                <i class="fas fa-folder-open text-5xl mb-4"></i>
-                <p class="text-lg font-semibold">Belum Ada Desain</p>
-                <p>Klik tombol "Buat Desain Baru" atau "Impor Desain" untuk memulai.</p>
-            </div>
-        @else
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                @foreach ($designs as $design)
-                    <div class="border rounded-lg shadow-sm overflow-hidden group flex flex-col">
-                        @php
-                            $previewStyle = '';
-                            if (isset($design->is_file_template) && $design->is_file_template) {
-                                $previewStyle = "background-image: url('{$design->preview_image}');";
-                            } else {
-                                $firstComponent = $design->structure[0] ?? null;
-                                if ($firstComponent) {
-                                    $bgColor = $firstComponent['styles']['backgroundColor'] ?? '#f3f4f6';
-                                    $bgImage = $firstComponent['styles']['backgroundImage'] ?? null;
-                                    $previewStyle = "background-color: {$bgColor};";
-                                    if ($bgImage) {
-                                        $previewStyle .= "background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.2)), url('{$bgImage}');";
-                                    }
-                                }
-                            }
-                        @endphp
-                        <div class="design-card-preview h-40 w-full transition-transform group-hover:scale-105" style="{{ $previewStyle }}"></div>
-                        <div class="p-4 bg-white flex-grow flex flex-col justify-between">
-                            <div>
-                                <h3 class="font-bold text-gray-800 truncate">{{ $design->name }}</h3>
-                                <p class="text-xs text-gray-500">
-                                    @if(isset($design->is_file_template) && $design->is_file_template)
-                                        Template Siap Pakai
-                                    @else
-                                        Dibuat: {{ $design->created_at->isoFormat('D MMM YYYY') }}
-                                    @endif
-                                </p>
-                            </div>
-                            
-                            <div class="flex items-center gap-2 mt-4">
-                                @if(isset($design->is_file_template) && $design->is_file_template)
-                                    <a href="{{ route('order.start', ['template_id' => $design->id]) }}" class="w-full text-center bg-orange-500 text-white text-sm font-semibold py-2 px-3 rounded-md hover:bg-orange-600 transition-colors">Gunakan Template</a>
-                                @else
-                                    <div class="flex-grow flex items-center gap-2">
-                                        <a href="{{ route('admin.design.show_preview', ['design' => $design->id]) }}" target="_blank" class="flex-1 text-center bg-orange-500 text-white text-sm font-semibold py-2 px-3 rounded-md hover:bg-orange-600 transition-colors">Lihat</a>
-                                        <a href="{{ route('admin.design.edit', ['design' => $design->id]) }}" class="flex-1 text-center bg-gray-100 text-gray-800 text-sm font-semibold py-2 px-3 rounded-md hover:bg-gray-200 transition-colors">Edit</a>
-                                    </div>
-                                    <div class="flex items-center flex-shrink-0">
-                                        <a href="{{ route('admin.design.export', ['design' => $design->id]) }}" class="text-gray-400 hover:text-green-600 p-2" title="Ekspor">
-                                            <i class="fas fa-download"></i>
-                                        </a>
-                                        <form action="{{ route('admin.design.destroy', ['design' => $design->id]) }}" method="POST" onsubmit="return confirm('Anda yakin ingin menghapus desain ini?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-gray-400 hover:text-red-600 p-2" title="Hapus">
-                                                <i class="fas fa-trash-alt"></i>
-                                            </button>
-                                        </form>
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-        @endif
+            <h3 class="text-xl font-medium text-gray-600 mb-2">No Designs Yet</h3>
+            <p class="text-gray-500 mb-4">Start creating your first design template</p>
+            <a href="{{ route('admin.design.create') }}" class="inline-flex items-center gap-2 bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600">
+                <i class="fas fa-plus"></i>
+                <span>Create New Design</span>
+            </a>
+        </div>
+        @endforelse
     </div>
+
+    @if($designs->hasPages())
+    <div class="mt-6">
+        {{ $designs->links() }}
+    </div>
+    @endif
 </div>
 @endsection
 
