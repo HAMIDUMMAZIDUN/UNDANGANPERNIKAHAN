@@ -2,6 +2,15 @@
 
 use Illuminate\Support\Facades\Route;
 
+// --- Controller Otentikasi Standar Laravel ---
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\EmailVerificationNotificationController;
+use App\Http\Controllers\Auth\EmailVerificationPromptController;
+use App\Http\Controllers\Auth\VerifyEmailController;
+
 // --- Controller Utama & Publik ---
 use App\Http\Controllers\KatalogController;
 use App\Http\Controllers\UndanganController;
@@ -10,15 +19,9 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ReservasiController;
 
-// --- Controller Otentikasi Kustom & Profil ---
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\Auth\ResetPasswordController;
-use App\Http\Controllers\Auth\ForgotPasswordController;
+// --- Controller Profil & Password ---
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PasswordController;
-use App\Http\Controllers\Auth\EmailVerificationNotificationController;
-use App\Http\Controllers\Auth\EmailVerificationPromptController;
-use App\Http\Controllers\Auth\VerifyEmailController;
 
 // --- Controller Dasbor Pengguna ---
 use App\Http\Controllers\DashboardController;
@@ -40,7 +43,6 @@ use App\Http\Controllers\RequestClientController;
 use App\Http\Controllers\Admin\DesignController;
 use App\Http\Controllers\Admin\AdminSettingController;
 
-
 /*
 |--------------------------------------------------------------------------
 | Rute Web Aplikasi
@@ -53,23 +55,23 @@ use App\Http\Controllers\Admin\AdminSettingController;
 
 Route::get('/', fn() => view('welcome'))->name('home');
 
-// --- Rute Otentikasi & Reset Sandi ---
-Route::controller(AuthController::class)->group(function () {
-    Route::get('/login', 'showLoginForm')->name('login');
-    Route::post('/login', 'login');
-    Route::post('/logout', 'logout')->name('logout');
-    Route::get('/register', 'showRegisterForm')->name('register');
-    Route::post('/register', 'register');
-});
+// --- Rute Otentikasi Standar (untuk Guest) ---
+Route::middleware('guest')->group(function () {
+    // Register
+    Route::get('register', [RegisteredUserController::class, 'create'])->name('register');
+    Route::post('register', [RegisteredUserController::class, 'store']);
 
-Route::controller(ForgotPasswordController::class)->group(function () {
-    Route::get('/forgot-password', 'showForgotForm')->name('password.request');
-    Route::post('/forgot-password', 'sendResetLink')->name('password.email');
-});
+    // Login
+    Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
+    Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
-Route::controller(ResetPasswordController::class)->group(function () {
-    Route::get('/reset-password/{token}', 'showResetForm')->name('password.reset');
-    Route::post('/reset-password', 'reset')->name('password.update.new');
+    // Forgot Password
+    Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])->name('password.request');
+    Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
+
+    // Reset Password
+    Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
+    Route::post('reset-password', [NewPasswordController::class, 'store'])->name('password.update');
 });
 
 
@@ -104,13 +106,17 @@ Route::post('/order/process', [OrderController::class, 'processOrder'])->name('o
 
 Route::middleware('auth')->group(function () {
 
+    // --- Logout ---
+    Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+    
     // --- Rute Verifikasi Email ---
     Route::get('/verify-email', [EmailVerificationPromptController::class, '__invoke'])->name('verification.notice');
     Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])->middleware('throttle:6,1')->name('verification.send');
     Route::get('/verify-email/{id}/{hash}', [VerifyEmailController::class, '__invoke'])->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
 
     // --- Rute Utama Pengguna ---
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
+    // DIPERBAIKI: Nama rute diubah agar sesuai standar redirect Laravel
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/status-akun', [OrderController::class, 'status'])->name('user.status');
     Route::get('/order-history', [OrderHistoryController::class, 'index'])->name('order.history.index');
 
@@ -119,7 +125,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-        Route::put('/password', [PasswordController::class, 'update'])->name('password.update');
+        Route::put('/password', [PasswordController::class, 'update'])->name('user-password.update');
     });
 
     // --- Manajemen Event & Tamu ---
@@ -143,7 +149,7 @@ Route::middleware('auth')->group(function () {
 
     // --- Fitur-fitur Event ---
     Route::get('/check-in', [CheckInController::class, 'index'])->name('check-in.index');
-    Route::post('/check-in/qr-process', [CheckinController::class, 'processQrCheckIn'])->name('check-in.process');
+    Route::post('/check-in/qr-process', [CheckInController::class, 'processQrCheckIn'])->name('check-in.process');
     Route::get('/cari-tamu', [CariTamuController::class, 'index'])->name('cari-tamu.index');
     Route::get('/tamu/search', [CariTamuController::class, 'search'])->name('api.tamu.search');
     Route::post('/guests/{guestId}/checkin', [CariTamuController::class, 'checkIn'])->name('guests.checkin');
@@ -181,23 +187,17 @@ Route::middleware('auth')->group(function () {
         Route::delete('/gallery/{photo}', [SettingController::class, 'deletePhoto'])->name('gallery.delete');
     });
 
-    // ===================================================================
-    // RUTE ADMIN
-    // ===================================================================
-
+    // --- RUTE ADMIN ---
     Route::get('/admin/dashboard', [DashboardAdminController::class, 'index'])->name('dashboard.admin.index');
-
     Route::get('/admin/request-client', [RequestClientController::class, 'index'])->name('request.client.index');
     Route::post('/admin/request-client/{clientRequest}/generate-payment', [RequestClientController::class, 'generatePayment'])->name('request.generatePayment');
     Route::post('/admin/request-client/{clientRequest}/approve', [RequestClientController::class, 'approveRequest'])->name('request.approve');
-
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/clients', [ClientController::class, 'index'])->name('client.index');
         Route::get('/clients/create', [ClientController::class, 'create'])->name('client.create');
         Route::post('/clients', [ClientController::class, 'store'])->name('client.store');
         Route::delete('/clients/{client}', [ClientController::class, 'destroy'])->name('client.destroy');
         Route::patch('/clients/{client}/update-status', [ClientController::class, 'updateStatus'])->name('client.updateStatus');
-        
         Route::prefix('design')->name('design.')->group(function () {
             Route::get('/', [DesignController::class, 'index'])->name('index');
             Route::post('/save', [DesignController::class, 'save'])->name('save');
@@ -205,24 +205,17 @@ Route::middleware('auth')->group(function () {
             Route::get('/{design}/edit', [DesignController::class, 'edit'])->name('edit');
             Route::put('/{design}/update', [DesignController::class, 'update'])->name('update');
             Route::delete('/{design}/delete', [DesignController::class, 'destroy'])->name('destroy');
-            
-            // Route untuk melihat preview desain yang sudah tersimpan
             Route::get('/{design}/show-preview', [DesignController::class, 'showPreview'])->name('show_preview');
-
-            // Route untuk live preview dari editor
             Route::post('/live-preview', [DesignController::class, 'livePreview'])->name('live_preview');
-
-            // ### ROUTE UNGGAH GAMBAR SEHARUSNYA DI SINI ###
             Route::post('/upload-image', [DesignController::class, 'uploadImage'])->name('upload_image');
-            
             Route::get('/{design}/export', [DesignController::class, 'export'])->name('export');
             Route::post('/import', [DesignController::class, 'import'])->name('import');
         });
-        
         Route::prefix('settings')->name('settings.')->group(function () {
             Route::post('/toggle-order-status', [AdminSettingController::class, 'toggleOrderStatus'])->name('toggleOrderStatus');
         });
     });
+
 });
 
 // Rute 'catch-all' untuk slug event, harus diletakkan di paling akhir

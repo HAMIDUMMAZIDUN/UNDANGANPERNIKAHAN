@@ -5,7 +5,8 @@
     x-cloak>
     
     <div class="px-4 pt-8 pb-4">
-        <a href="{{ route('dashboard.index') }}" class="text-2xl font-bold text-white tracking-wider">
+        {{-- DIPERBAIKI: Nama rute diubah menjadi 'dashboard' --}}
+        <a href="{{ route('dashboard') }}" class="text-2xl font-bold text-white tracking-wider">
         Menu
         </a>
     </div>
@@ -15,7 +16,8 @@
             $firstEvent = Auth::user()->events()->first();
             
             $menuItems = [
-                'dashboard' => ['label' => 'Dashboard', 'icon' => 'fa-home', 'route' => 'dashboard.index'],
+                // DIPERBAIKI: Nama rute diubah menjadi 'dashboard'
+                'dashboard' => ['label' => 'Dashboard', 'icon' => 'fa-home', 'route' => 'dashboard'],
                 'tamu' => ['label' => 'Tamu', 'icon' => 'fa-users', 'route' => 'events.tamu.index'],
                 'kehadiran' => ['label' => 'Kehadiran', 'icon' => 'fa-clipboard-check', 'route' => 'kehadiran.index'],
                 'rsvp' => ['label' => 'RSVP', 'icon' => 'fa-envelope-open-text', 'route' => 'rsvp.index'],
@@ -48,14 +50,11 @@
                 // Handle regular routes
                 else {
                     $url = route($data['route']);
-                    // Check if the current route name matches the menu item's route name pattern
-                    // Example: 'user.setting.index' will match 'user.setting.*'
                     $isActive = request()->routeIs($key . '*');
 
-                    // A more specific check for the main setting page itself
-                     if ($key === 'setting') {
+                    if ($key === 'setting') {
                          $isActive = request()->routeIs('user.setting.*');
-                     }
+                    }
                 }
             @endphp
 
@@ -76,4 +75,3 @@
         </form>
     </div>
 </aside>
-
