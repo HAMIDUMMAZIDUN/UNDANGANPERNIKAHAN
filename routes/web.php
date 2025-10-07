@@ -2,10 +2,10 @@
 
 use Illuminate\Support\Facades\Route;
 
-// --- Controller Otentikasi Standar Laravel ---
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\Auth\RegisteredUserController;
-use App\Http\Controllers\Auth\PasswordResetLinkController;
+// --- Controller Otentikasi ---
+// Controller kustom Anda telah ditambahkan
+use App\Http\Controllers\CustomLoginController;
+// Controller standar yang masih digunakan (untuk reset password & verifikasi email)
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
@@ -55,21 +55,21 @@ use App\Http\Controllers\Admin\AdminSettingController;
 
 Route::get('/', fn() => view('welcome'))->name('home');
 
-// --- Rute Otentikasi Standar (untuk Guest) ---
+// --- Rute Otentikasi Kustom (untuk Guest) ---
 Route::middleware('guest')->group(function () {
     // Register
-    Route::get('register', [RegisteredUserController::class, 'create'])->name('register');
-    Route::post('register', [RegisteredUserController::class, 'store']);
+    Route::get('register', [CustomLoginController::class, 'showRegisterForm'])->name('register');
+    Route::post('register', [CustomLoginController::class, 'register']);
 
     // Login
-    Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
-    Route::post('login', [AuthenticatedSessionController::class, 'store']);
+    Route::get('login', [CustomLoginController::class, 'showLoginForm'])->name('login');
+    Route::post('login', [CustomLoginController::class, 'login']);
 
     // Forgot Password
-    Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])->name('password.request');
-    Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
+    Route::get('forgot-password', [CustomLoginController::class, 'showForgotForm'])->name('password.request');
+    Route::post('forgot-password', [CustomLoginController::class, 'sendResetLink'])->name('password.email');
 
-    // Reset Password
+    // Reset Password (Tetap menggunakan controller bawaan Laravel)
     Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
     Route::post('reset-password', [NewPasswordController::class, 'store'])->name('password.update');
 });
@@ -107,7 +107,7 @@ Route::post('/order/process', [OrderController::class, 'processOrder'])->name('o
 Route::middleware('auth')->group(function () {
 
     // --- Logout ---
-    Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+    Route::post('logout', [CustomLoginController::class, 'logout'])->name('logout');
     
     // --- Rute Verifikasi Email ---
     Route::get('/verify-email', [EmailVerificationPromptController::class, '__invoke'])->name('verification.notice');

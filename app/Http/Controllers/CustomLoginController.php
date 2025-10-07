@@ -10,7 +10,7 @@ use App\Models\User;
 use App\Models\Activity;
 use Illuminate\Support\Facades\Http;
 
-class AuthenticatedSessionController extends Controller
+class CustomLoginController extends Controller
 {
     public function showLoginForm()
     {
@@ -51,7 +51,7 @@ class AuthenticatedSessionController extends Controller
             $user = Auth::user();
 
             Activity::create([
-                'user_id'     => $user->id,
+                'user_id'   => $user->id,
                 'description' => 'telah login ke sistem.'
             ]);
 
@@ -129,4 +129,3 @@ class AuthenticatedSessionController extends Controller
         }
     }
 }
-
