@@ -132,6 +132,16 @@
     <!-- Main Canvas -->
     <div class="elementor-canvas" @click="deselectElement()">
         <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-sm p-8">
+            <!-- Add to the top of your canvas section -->
+            <div class="flex justify-end mb-4">
+                <button @click="togglePreview()" 
+                        class="px-4 py-2 rounded-lg text-sm font-medium"
+                        :class="{'bg-orange-500 text-white': isPreview, 'bg-gray-100': !isPreview}">
+                    <i class="fas" :class="isPreview ? 'fa-edit' : 'fa-eye'"></i>
+                    <span x-text="isPreview ? 'Edit Mode' : 'Preview'"></span>
+                </button>
+            </div>
+
             <template x-for="(element, index) in elements" :key="element.id">
                 <div class="canvas-element"
                      :class="{'selected': selectedElement?.id === element.id}"
@@ -210,6 +220,9 @@ function elementorEditor() {
         elements: [],
         selectedElement: null,
         settingsTab: 'content',
+        draggedElement: null,
+        isDragging: false,
+        isPreview: false,
         categories: [
             {
                 name: 'Wedding Components',
@@ -285,7 +298,37 @@ function elementorEditor() {
         ],
 
         init() {
-            // Initialize editor
+            // Initialize drag and drop functionality
+            const canvas = document.querySelector('.elementor-canvas');
+            
+            canvas.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                const draggable = document.querySelector('.dragging');
+                if (draggable) {
+                    const afterElement = this.getDragAfterElement(canvas, e.clientY);
+                    if (afterElement) {
+                        canvas.insertBefore(draggable, afterElement);
+                    } else {
+                        canvas.appendChild(draggable);
+                    }
+                }
+            });
+
+            this.setupKeyboardShortcuts();
+        },
+
+        // Add this new method
+        getComponentDefaults(type) {
+            const element = this.categories
+                .flatMap(category => category.elements)
+                .find(element => element.type === type);
+            
+            if (!element) {
+                console.error(`No defaults found for component type: ${type}`);
+                return {};
+            }
+
+            return element.defaultSettings;
         },
 
         addElement(elementType) {
@@ -293,7 +336,7 @@ function elementorEditor() {
                 id: Date.now(),
                 type: elementType.type,
                 name: elementType.name,
-                settings: { ...elementType.defaultSettings }
+                settings: this.getComponentDefaults(elementType.type) // Use the new method here
             };
             this.elements.push(newElement);
             this.selectElement(newElement);
@@ -332,6 +375,32 @@ function elementorEditor() {
                 this.elements.splice(index, 1);
                 this.elements.splice(newIndex, 0, element);
             }
+        },
+
+        dragStart(e, element) {
+            this.draggedElement = element;
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        },
+
+        dragEnd(e) {
+            e.target.classList.remove('dragging');
+            this.draggedElement = null;
+        },
+
+        getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.canvas-element:not(.dragging)')];
+            
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
         },
 
         renderElement(element) {
@@ -400,7 +469,92 @@ function elementorEditor() {
                                 Unknown element type: ${element.type}
                             </div>`;
             }
-        }
+        },
+
+        // Simplify to just track changes
+        hasUnsavedChanges: false,
+
+        // Update the saveDesign method to be manual only
+        async saveDesign() {
+            try {
+                const payload = {
+                    name: this.designName || 'Untitled Design',
+                    elements: this.elements
+                };
+
+                const response = await fetch('{{ route("admin.design.save") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    this.hasUnsavedChanges = false;
+                    this.showNotification('Design saved successfully', 'success');
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                this.showNotification('Failed to save design: ' + error.message, 'error');
+            }
+        },
+
+        setupKeyboardShortcuts() {
+            document.addEventListener('keydown', (e) => {
+                // Undo: Ctrl/Cmd + Z
+                if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+                    e.preventDefault();
+                    this.history.undo();
+                }
+                
+                // Redo: Ctrl/Cmd + Shift + Z
+                if ((e.ctrlKey || e.metaKey) && e.key === 'z' && e.shiftKey) {
+                    e.preventDefault();
+                    this.history.redo();
+                }
+                
+                // Delete selected element
+                if (e.key === 'Delete' && this.selectedElement) {
+                    e.preventDefault();
+                    this.removeElement(this.selectedElement);
+                }
+                
+                // Copy element: Ctrl/Cmd + C
+                if ((e.ctrlKey || e.metaKey) && e.key === 'c' && this.selectedElement) {
+                    e.preventDefault();
+                    this.duplicateElement(this.selectedElement);
+                }
+            });
+        },
+
+        togglePreview() {
+            this.isPreview = !this.isPreview;
+            if (this.isPreview) {
+                this.deselectElement();
+            }
+        },
+
+        showNotification(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white transform transition-all duration-300 ${
+                type === 'error' ? 'bg-red-500' : 
+                type === 'success' ? 'bg-green-500' : 
+                'bg-blue-500'
+            }`;
+            
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        },
     };
 }
 </script>

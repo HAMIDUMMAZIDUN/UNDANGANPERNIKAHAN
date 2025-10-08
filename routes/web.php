@@ -219,4 +219,6 @@ Route::middleware('auth')->group(function () {
 
 // Rute 'catch-all' untuk slug event, harus diletakkan di paling akhir
 Route::get('/{event:slug}', [EventController::class, 'publicShow'])->name('events.public.show');
+Route::get('/admin/designs', [DesignController::class, 'showSavedDesigns'])
+    ->name('admin.design.saved_designs');
 
