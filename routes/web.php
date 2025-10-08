@@ -189,7 +189,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/request-client', [RequestClientController::class, 'index'])->name('request.client.index');
     Route::post('/admin/request-client/{clientRequest}/generate-payment', [RequestClientController::class, 'generatePayment'])->name('request.generatePayment');
     Route::post('/admin/request-client/{clientRequest}/approve', [RequestClientController::class, 'approveRequest'])->name('request.approve');
-    Route::prefix('admin')->name('admin.')->group(function () {
+    Route::prefix('admin')->middleware(['auth'])->name('admin.')->group(function () {
         Route::get('/clients', [ClientController::class, 'index'])->name('client.index');
         Route::get('/clients/create', [ClientController::class, 'create'])->name('client.create');
         Route::post('/clients', [ClientController::class, 'store'])->name('client.store');
@@ -198,16 +198,13 @@ Route::middleware('auth')->group(function () {
         Route::prefix('design')->name('design.')->group(function () {
             Route::get('/', [DesignController::class, 'index'])->name('index');
             Route::get('/create', [DesignController::class, 'create'])->name('create');
+            Route::get('/{design}/edit', [DesignController::class, 'edit'])->name('edit');
+            Route::delete('/{design}', [DesignController::class, 'destroy'])->name('destroy');
+            Route::get('/{design}/preview', [DesignController::class, 'preview'])->name('preview');
+            Route::post('/', [DesignController::class, 'store'])->name('store');
+            Route::put('/{design}', [DesignController::class, 'update'])->name('update');
             Route::post('/save', [DesignController::class, 'save'])->name('save');
-            Route::get('/saved', [DesignController::class, 'showSavedDesigns'])->name('saved_designs');
-            Route::get('/{design}/edit', [DesignController::class, 'edit'])->name('editor');
-            Route::put('/{design}/update', [DesignController::class, 'update'])->name('update');
-            Route::delete('/{design}/delete', [DesignController::class, 'destroy'])->name('destroy');
-            Route::get('/{design}/preview', [DesignController::class, 'showPreview'])->name('preview');
             Route::post('/live-preview', [DesignController::class, 'livePreview'])->name('live_preview');
-            Route::post('/upload-image', [DesignController::class, 'uploadImage'])->name('upload_image');
-            Route::get('/{design}/export', [DesignController::class, 'export'])->name('export');
-            Route::post('/import', [DesignController::class, 'import'])->name('import');
         });
         Route::prefix('settings')->name('settings.')->group(function () {
             Route::get('/', [AdminSettingController::class, 'index'])->name('index');

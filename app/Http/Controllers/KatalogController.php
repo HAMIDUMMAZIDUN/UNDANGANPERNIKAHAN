@@ -65,8 +65,27 @@ class KatalogController extends Controller
 
     public function index(): View
     {
+        $heroImages = [
+            [
+                'image' => 'images/hero/slide1.jpg',
+                'title' => 'Undangan Digital Modern',
+                'subtitle' => 'Solusi undangan pernikahan di era digital'
+            ],
+            [
+                'image' => 'images/hero/slide2.jpg',
+                'title' => 'Desain Eksklusif',
+                'subtitle' => 'Pilihan tema yang elegan dan menarik'
+            ],
+            [
+                'image' => 'images/hero/slide3.jpg',
+                'title' => 'Fitur Lengkap',
+                'subtitle' => 'Dilengkapi dengan fitur-fitur modern dan interaktif'
+            ]
+        ];
+
         $katalogData = $this->getKatalogData();
-        return view('katalog.index', ['katalogData' => $katalogData]);
+
+        return view('katalog.index', compact('katalogData', 'heroImages'));
     }
 
     public function show(int $id): View

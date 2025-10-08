@@ -16,8 +16,10 @@ class Design extends Model
      */
     protected $fillable = [
         'name',
+        'preview_image',
         'structure',
-        'thumbnail_url',
+        'is_published',
+        'category'
     ];
 
     /**
@@ -27,5 +29,6 @@ class Design extends Model
      */
     protected $casts = [
         'structure' => 'array',
+        'is_published' => 'boolean',
     ];
 }

@@ -35,6 +35,7 @@
             background: #555; 
         }
     </style>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 
 <body x-data="{ isSidebarOpen: true }" class="flex min-h-screen">

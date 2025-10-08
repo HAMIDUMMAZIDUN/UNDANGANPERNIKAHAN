@@ -21,7 +21,8 @@ class DesignController extends Controller
 
     public function index()
     {
-        return view('admin.design.index');
+        $designs = Design::latest()->paginate(12);
+        return view('admin.design.list', compact('designs'));
     }
 
     public function create()
@@ -138,31 +139,54 @@ class DesignController extends Controller
 
     public function save(Request $request)
     {
+        $validated = $request->validate([
+            'id' => 'nullable|exists:designs,id',
+            'name' => 'required|string|max:255',
+            'structure' => 'required|array',
+            'preview_image' => 'nullable|string',
+            'category' => 'required|string|in:basic,premium,exclusive'
+        ]);
+
         try {
-            $validated = $request->validate([
-                'name' => 'required|string|max:255',
-                'structure' => 'required|json'
-            ]);
-
-            $design = Design::create($validated);
-            
-            if (method_exists($design, 'addMediaFromUrl')) {
-                $design->addMediaFromUrl($this->generateThumbnailUrl($validated['name']))
-                       ->toMediaCollection('thumbnail');
+            if (isset($validated['id'])) {
+                $design = Design::findOrFail($validated['id']);
+                $design->update($validated);
+            } else {
+                $design = Design::create($validated);
             }
-
-            Cache::tags(['designs'])->flush();
-
+            
             return response()->json([
                 'success' => true,
-                'message' => 'Desain berhasil disimpan!',
-                'redirect_url' => route('admin.design.saved_designs')
+                'message' => 'Design saved successfully',
+                'design' => $design
             ]);
-        } catch (Exception $e) {
-            Log::error('Error saving design: ' . $e->getMessage());
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menyimpan desain. Silakan coba lagi.'
+                'message' => 'Failed to save design: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'structure' => 'required|array',
+            'preview_image' => 'nullable|string',
+            'category' => 'required|string|in:basic,premium,exclusive'
+        ]);
+
+        try {
+            $design = Design::create($validated);
+            
+            return response()->json([
+                'message' => 'Desain berhasil disimpan',
+                'design' => $design
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Gagal menyimpan desain'
             ], 500);
         }
     }
@@ -176,135 +200,63 @@ class DesignController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'structure' => 'required|json'
+            'structure' => 'required|array',
+            'preview_image' => 'nullable|string',
+            'category' => 'required|string|in:basic,premium,exclusive'
         ]);
 
-        $design->update($validated);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Desain berhasil diperbarui!',
-            'redirect_url' => route('admin.design.saved_designs')
-        ]);
+        try {
+            $design->update($validated);
+            
+            return response()->json([
+                'message' => 'Desain berhasil diperbarui',
+                'design' => $design
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Gagal memperbarui desain'
+            ], 500);
+        }
     }
 
     public function destroy(Design $design)
     {
-        $design->delete();
-        return redirect()->route('admin.design.saved_designs')->with('success', 'Desain berhasil dihapus.');
+        try {
+            $design->delete();
+            return response()->json([
+                'message' => 'Desain berhasil dihapus'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Gagal menghapus desain'
+            ], 500);
+        }
     }
 
-    public function showPreview(Design $design)
+    public function preview(Design $design)
     {
-        return view('admin.design.preview', [
-            'design' => $design,
-            'renderedContent' => 'Konten dirender di sini'
-        ]);
+        // Implementation for preview
+        return view('admin.design.preview', compact('design'));
     }
 
     public function livePreview(Request $request)
     {
-        $request->validate([
-            'name' => 'nullable|string',
-            'structure' => 'required|json',
+        $validated = $request->validate([
+            'structure' => 'required|array',
+            'event_data' => 'required|array'
         ]);
 
-        $design = (object)[
-            'id' => null,
-            'name' => $request->input('name', 'Live Preview'),
-        ];
-
-        $structure = json_decode($request->input('structure'), true);
-
-        $renderedContent = '';
-        if (is_array($structure)) {
-            foreach ($structure as $component) {
-                $renderedContent .= $this->renderComponentToHtml($component);
-            }
-        }
-
-        return view('admin.design.preview', compact('design', 'renderedContent'));
-    }
-
-    private function renderComponentToHtml(array $item): string
-    {
         try {
-            $data = $item['data'] ?? [];
-            $styles = $item['styles'] ?? [];
-            $type = $item['type'] ?? 'unknown';
-            
-            $styleString = $this->buildStyleString($styles);
-            $content = $this->renderComponentContent($type, $data);
-            
-            return $this->wrapComponent($content, $styleString, $styles['padding'] ?? 48);
-        } catch (Exception $e) {
-            Log::error("Error rendering component: {$e->getMessage()}");
-            return '<div class="p-4 text-red-500">Error rendering component</div>';
+            // Render the preview with the current structure and event data
+            return view('preview.invitation', [
+                'structure' => $validated['structure'],
+                'event' => (object) $validated['event_data']
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to generate preview: ' . $e->getMessage()
+            ], 500);
         }
-    }
-
-    protected function buildStyleString(array $styles): string
-    {
-        $baseStyles = [
-            'backgroundColor' => '#FFFFFF',
-            'color' => '#334155',
-            'textAlign' => 'center',
-            'backgroundSize' => 'cover',
-            'backgroundPosition' => 'center'
-        ];
-
-        $styleString = '';
-        foreach ($baseStyles as $property => $defaultValue) {
-            $value = $styles[$property] ?? $defaultValue;
-            $styleString .= "{$property}: " . htmlspecialchars($value) . "; ";
-        }
-
-        if (!empty($styles['backgroundImage'])) {
-            $imageUrl = htmlspecialchars($styles['backgroundImage']);
-            $styleString .= "background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('{$imageUrl}'); ";
-            $styleString .= "color: #FFFFFF; ";
-        }
-
-        return $styleString;
-    }
-    
-    public function uploadImage(Request $request)
-    {
-        $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-        ]);
-
-        if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('designs', 'public');
-            $url = Storage::url($path);
-            return response()->json([ 'success' => true, 'url' => asset($url) ]);
-        }
-
-        return response()->json(['success' => false, 'message' => 'File tidak ditemukan.'], 400);
-    }
-
-    public function export(Design $design)
-    {
-        $jsonContent = json_encode($design->structure, JSON_PRETTY_PRINT);
-        $fileName = Str::slug($design->name) . '.json';
-        return response()->streamDownload(function () use ($jsonContent) {
-            echo $jsonContent;
-        }, $fileName, [ 'Content-Type' => 'application/json' ]);
-    }
-
-    public function import(Request $request)
-    {
-        $request->validate([ 'design_file' => 'required|file|mimes:json' ]);
-        $file = $request->file('design_file');
-        $content = $file->get();
-        $structure = json_decode($content, true);
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            return back()->withErrors(['design_file' => 'File JSON tidak valid.']);
-        }
-
-        $fileName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-        $name = Str::of($fileName)->replace(['-', '_'], ' ')->title();
-        Design::create([ 'name' => $name, 'structure' => $structure ]);
-        return redirect()->route('admin.design.saved_designs')->with('success', "Desain '{$name}' berhasil diimpor.");
     }
 }
