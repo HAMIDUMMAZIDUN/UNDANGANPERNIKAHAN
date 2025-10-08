@@ -27,7 +27,7 @@ class DesignController extends Controller
 
     public function create()
     {
-        return view('admin.design.index');
+        return view('admin.design.editor');
     }
     
     public function showSavedDesigns(Request $request)
@@ -137,36 +137,6 @@ class DesignController extends Controller
         ]);
     }
 
-    public function save(Request $request)
-    {
-        $validated = $request->validate([
-            'id' => 'nullable|exists:designs,id',
-            'name' => 'required|string|max:255',
-            'structure' => 'required|array',
-            'preview_image' => 'nullable|string',
-            'category' => 'required|string|in:basic,premium,exclusive'
-        ]);
-
-        try {
-            if (isset($validated['id'])) {
-                $design = Design::findOrFail($validated['id']);
-                $design->update($validated);
-            } else {
-                $design = Design::create($validated);
-            }
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Design saved successfully',
-                'design' => $design
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to save design: ' . $e->getMessage()
-            ], 500);
-        }
-    }
 
     public function store(Request $request)
     {

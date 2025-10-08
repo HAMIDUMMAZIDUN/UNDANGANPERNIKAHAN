@@ -199,11 +199,11 @@ Route::middleware('auth')->group(function () {
             Route::get('/', [DesignController::class, 'index'])->name('index');
             Route::get('/create', [DesignController::class, 'create'])->name('create');
             Route::get('/{design}/edit', [DesignController::class, 'edit'])->name('edit');
+            Route::get('/{design}/editor', [DesignController::class, 'edit'])->name('editor');
             Route::delete('/{design}', [DesignController::class, 'destroy'])->name('destroy');
             Route::get('/{design}/preview', [DesignController::class, 'preview'])->name('preview');
             Route::post('/', [DesignController::class, 'store'])->name('store');
             Route::put('/{design}', [DesignController::class, 'update'])->name('update');
-            Route::post('/save', [DesignController::class, 'save'])->name('save');
             Route::post('/live-preview', [DesignController::class, 'livePreview'])->name('live_preview');
         });
         Route::prefix('settings')->name('settings.')->group(function () {

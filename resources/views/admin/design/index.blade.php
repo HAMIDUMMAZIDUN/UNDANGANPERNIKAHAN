@@ -20,19 +20,6 @@
     .spinner { border: 2px solid #f3f3f3; border-top: 2px solid var(--primary-color); border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     
-    /* Remove autosave related styles */
-    /*
-    .autosave-indicator { 
-        position: fixed;
-        bottom: 1rem;
-        right: 1rem;
-        padding: 0.5rem 1rem;
-        border-radius: 0.5rem;
-        background: rgba(0,0,0,0.8);
-        color: white;
-        z-index: 50;
-    }
-    */
     
     .preview-loading {
         position: fixed;
@@ -60,7 +47,7 @@
 @endphp
 
 <div x-data="invitationEditor()" 
-     x-init="init($el, @json($existingDesign))"
+     x-init="init($el, @json($existingDesign ?? null))"
      data-event='@json($dummyEvent)'
      @before-unload.window="handleBeforeUnload($event)"
      class="flex h-[calc(100vh-4rem)] bg-gray-100 font-sans text-gray-800">
@@ -185,9 +172,6 @@ function invitationEditor() {
     return {
         // Remove these properties
         /*
-        autosaveTimeout: null,
-        isAutosaving: false,
-        autosaveMessage: '',
         */
 
         // Keep existing properties
@@ -225,7 +209,21 @@ function invitationEditor() {
         ],
 
         init($el, existingDesign = null) {
-            this.dummyData = JSON.parse($el.dataset.event);
+            // Get the element that has the data-event attribute
+            const element = $el || document.querySelector('[data-event]');
+            
+            if (!element) {
+                console.error('Element not found');
+                this.dummyData = {};
+                return;
+            }
+            
+            try {
+                this.dummyData = JSON.parse(element.dataset.event || '{}');
+            } catch (e) {
+                console.error('Error parsing event data:', e);
+                this.dummyData = {};
+            }
             this.initializeSortable();
             this.setupKeyboardShortcuts();
             
@@ -328,8 +326,8 @@ function invitationEditor() {
             this.hasUnsavedChanges = true;
         },
 
-        async saveDesign(isAutosave = false) {
-            if (!isAutosave && !this.designName.trim()) {
+        async saveDesign() {
+            if (!this.designName.trim()) {
                 this.showNotification('error', 'Nama desain tidak boleh kosong.');
                 this.showSaveModal = true;
                 return;
@@ -341,17 +339,16 @@ function invitationEditor() {
             }
 
             try {
-                if (!isAutosave) this.isSaving = true;
+                this.isSaving = true;
                 
                 const payload = {
                     name: this.designName || 'Desain Tanpa Judul',
-                    structure: JSON.stringify(this.canvasComponents.map(({ id, ...rest }) => rest)),
-                    is_autosave: isAutosave
+                    structure: JSON.stringify(this.canvasComponents.map(({ id, ...rest }) => rest))
                 };
 
                 const url = this.designId ? 
-                    `/admin/design/${this.designId}/update` : 
-                    '{{ route("admin.design.save") }}';
+                    `/admin/design/${this.designId}` : 
+                    '{{ route("admin.design.store") }}';
                     
                 const response = await fetch(url, {
                     method: 'POST',
@@ -367,26 +364,19 @@ function invitationEditor() {
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.message || 'Terjadi kesalahan');
 
-                if (!isAutosave) {
-                    this.showNotification('success', data.message);
-                    if(data.redirect_url) {
-                        setTimeout(() => window.location.href = data.redirect_url, 1500);
-                    }
+                if(data.redirect_url) {
+                    setTimeout(() => window.location.href = data.redirect_url, 1500);
                 }
 
                 this.lastSavedState = JSON.stringify(this.canvasComponents);
                 this.hasUnsavedChanges = false;
 
             } catch (error) {
-                if (!isAutosave) {
-                    this.showNotification('error', `Gagal menyimpan: ${error.message}`);
-                }
+                this.showNotification('error', `Gagal menyimpan: ${error.message}`);
                 throw error;
             } finally {
-                if (!isAutosave) {
-                    this.isSaving = false;
-                    this.showSaveModal = false;
-                }
+                this.isSaving = false;
+                this.showSaveModal = false;
             }
         },
 
