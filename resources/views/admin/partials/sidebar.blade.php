@@ -37,31 +37,6 @@
                         <i class="fas fa-history w-5 text-center text-lg"></i>
                         <span class="transition-opacity duration-200" :class="isSidebarOpen ? 'opacity-100' : 'lg:opacity-0 lg:hidden'">Order History</span>
                     </a>
-                </li>
-                <li class="mb-4">
-                    <a href="{{ route('request.client.index') }}"
-                        class="flex items-center gap-3 text-sm p-3 rounded-lg transition-colors {{ request()->routeIs('request.client.index') ? 'font-semibold text-gray-700 bg-orange-100' : 'font-medium text-gray-500 hover:bg-gray-100' }}"
-                        :class="isSidebarOpen ? '' : 'lg:justify-center'">
-                        <i class="fas fa-file-alt w-5 text-center text-lg"></i>
-                        <span class="transition-opacity duration-200" :class="isSidebarOpen ? 'opacity-100' : 'lg:opacity-0 lg:hidden'">Request Client</span>
-                    </a>
-                </li>
-                <li class="mb-4">
-                    <a href="{{ route('admin.design.index') }}"
-                        class="flex items-center gap-3 text-sm p-3 rounded-lg transition-colors {{ request()->routeIs('admin.design.index') ? 'font-semibold text-gray-700 bg-orange-100' : 'font-medium text-gray-500 hover:bg-gray-100' }}"
-                        :class="isSidebarOpen ? '' : 'lg:justify-center'">
-                        <i class="fas fa-palette w-5 text-center text-lg"></i>
-                        <span class="transition-opacity duration-200" :class="isSidebarOpen ? 'opacity-100' : 'lg:opacity-0 lg:hidden'">Desain Undangan</span>
-                    </a>
-                </li>
-                <li class="mb-4">
-                    <a href="{{ route('admin.design.saved_designs') }}"
-                        class="flex items-center gap-3 text-sm p-3 rounded-lg transition-colors {{ request()->routeIs('admin.design.saved_designs') ? 'font-semibold text-gray-700 bg-orange-100' : 'font-medium text-gray-500 hover:bg-gray-100' }}"
-                        :class="isSidebarOpen ? '' : 'lg:justify-center'">
-                        <i class="fas fa-save w-5 text-center text-lg"></i>
-                        <span class="transition-opacity duration-200" :class="isSidebarOpen ? 'opacity-100' : 'lg:opacity-0 lg:hidden'">Kelola Desain</span>
-                    </a>
-                </li>
             </ul>
         </nav>
     </div>

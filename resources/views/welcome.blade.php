@@ -24,8 +24,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
     
+    <style>
+        .bg-pernikahan {
+            background-image: url('{{ asset('images/bg-pernikahan.png') }}');
+        }
+    </style>
 </head>
-<body class="font-sans text-stone-800 antialiased min-h-screen flex items-center justify-center bg-cover bg-center" style="background-image: url('{{ asset('images/bg-pernikahan.png') }}');">
+<body class="font-sans text-stone-800 antialiased min-h-screen flex items-center justify-center bg-cover bg-center bg-pernikahan">
 
     <div class="min-h-screen flex items-center justify-center p-6">
         
@@ -39,14 +44,41 @@
             </p>
             
             <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-                <a href="{{ route('katalog.index') }}" 
-                   class="w-full sm:w-auto bg-amber-500 text-white font-semibold px-8 py-3 rounded-full shadow-lg hover:bg-amber-600 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-opacity-50">
-                    Lihat Katalog
-                </a>
-                <a href="{{ route('login') }}" 
-                   class="w-full sm:w-auto border-2 border-white text-white font-semibold px-8 py-3 rounded-full bg-black/20 backdrop-blur-sm hover:bg-white hover:text-amber-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-white">
-                    Masuk
-                </a>
+                
+                @guest
+                    <!-- Tampilkan "Masuk" jika pengguna adalah tamu -->
+                    <a href="{{ route('login') }}" 
+                       class="w-full sm:w-auto border-2 border-white text-white font-semibold px-8 py-3 rounded-full bg-black/20 backdrop-blur-sm hover:bg-white hover:text-amber-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-white">
+                        Masuk
+                    </a>
+                @endguest
+
+                @auth
+                    <!-- Tampilkan "Dashboard" dan "Keluar" jika pengguna sudah login -->
+                    
+                    <!-- Tombol Dashboard (sesuai role) -->
+                    @if(Auth::user()->role === 'admin')
+                        <a href="{{ route('dashboard.admin.index') }}" 
+                           class="w-full sm:w-auto bg-amber-500 text-white font-semibold px-8 py-3 rounded-full shadow-lg hover:bg-amber-600 transition-all duration-300 transform hover:scale-105">
+                            Buka Dashboard Admin
+                        </a>
+                    @else
+                        <a href="{{ route('dashboard.index') }}" 
+                           class="w-full sm:w-auto bg-amber-500 text-white font-semibold px-8 py-3 rounded-full shadow-lg hover:bg-amber-600 transition-all duration-300 transform hover:scale-105">
+                            Buka Dashboard
+                        </a>
+                    @endif
+
+                    <!-- Tombol Keluar -->
+                    <form method="POST" action="{{ route('logout') }}" class="w-full sm:w-auto">
+                        @csrf
+                        <button type="submit" 
+                                class="w-full sm:w-auto border-2 border-white text-white font-semibold px-8 py-3 rounded-full bg-black/20 backdrop-blur-sm hover:bg-white hover:text-amber-700 transition-colors duration-300">
+                            Keluar
+                        </button>
+                    </form>
+                @endauth
+
             </div>
             
         </div>
@@ -54,3 +86,4 @@
 
 </body>
 </html>
+

@@ -5,8 +5,8 @@
     x-cloak>
     
     <div class="px-4 pt-8 pb-4">
-        {{-- DIPERBAIKI: Nama rute diubah menjadi 'dashboard' --}}
-        <a href="{{ route('dashboard') }}" class="text-2xl font-bold text-white tracking-wider">
+        {{-- Tautan ini sudah benar --}}
+        <a href="{{ route('dashboard.index') }}" class="text-2xl font-bold text-white tracking-wider">
         Menu
         </a>
     </div>
@@ -16,8 +16,8 @@
             $firstEvent = Auth::user()->events()->first();
             
             $menuItems = [
-                // DIPERBAIKI: Nama rute diubah menjadi 'dashboard'
-                'dashboard' => ['label' => 'Dashboard', 'icon' => 'fa-home', 'route' => 'dashboard'],
+                // PERBAIKAN: Nama rute diubah dari 'dashboard' menjadi 'dashboard.index'
+                'dashboard' => ['label' => 'Dashboard', 'icon' => 'fa-home', 'route' => 'dashboard.index'],
                 'tamu' => ['label' => 'Tamu', 'icon' => 'fa-users', 'route' => 'events.tamu.index'],
                 'kehadiran' => ['label' => 'Kehadiran', 'icon' => 'fa-clipboard-check', 'route' => 'kehadiran.index'],
                 'rsvp' => ['label' => 'RSVP', 'icon' => 'fa-envelope-open-text', 'route' => 'rsvp.index'],
@@ -25,8 +25,6 @@
                 'cari-tamu' => ['label' => 'Cari Tamu', 'icon' => 'fa-search', 'route' => 'cari-tamu.index'],
                 'check-in' => ['label' => 'Check-in', 'icon' => 'fa-qrcode', 'route' => 'check-in.index'],
                 'manual' => ['label' => 'Manual', 'icon' => 'fa-edit', 'route' => 'manual.index'],
-                'souvenir' => ['label' => 'Souvenir', 'icon' => 'fa-gift', 'route' => 'souvenir.index'],
-                'gift' => ['label' => 'Gift', 'icon' => 'fa-box-open', 'route' => 'gift.index'],
                 'setting' => ['label' => 'Setting', 'icon' => 'fa-cog', 'route' => 'user.setting.index'],
             ];
         @endphp
@@ -50,6 +48,9 @@
                 // Handle regular routes
                 else {
                     $url = route($data['route']);
+                    
+                    // Logika $isActive untuk 'dashboard' akan menggunakan $key 'dashboard'
+                    // request()->routeIs('dashboard*') akan cocok dengan 'dashboard.index'
                     $isActive = request()->routeIs($key . '*');
 
                     if ($key === 'setting') {

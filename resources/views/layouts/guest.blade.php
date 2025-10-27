@@ -11,12 +11,19 @@
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+        <!-- PERBAIKAN: Memindahkan style inline ke tag <style> -->
+        <style>
+            .bg-pernikahan {
+                background-image: url('{{ asset('images/bg-pernikahan.png') }}');
+            }
+        </style>
     </head>
     <body class="font-sans text-gray-900 antialiased">
         
         <div 
-            class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-cover bg-center" 
-            style="background-image: url('{{ asset('images/bg-pernikahan.png') }}');">
+            class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-cover bg-center bg-pernikahan" 
+            >
             
             {{-- DIPERBARUI: Kartu diubah menjadi solid putih, efek glassmorphism dihapus --}}
             <div class="w-full sm:max-w-md mt-6 px-8 py-10 bg-white shadow-xl overflow-hidden sm:rounded-lg">

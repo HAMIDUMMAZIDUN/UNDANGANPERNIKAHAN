@@ -15,7 +15,6 @@
                 'kehadiran' => ['label' => 'Kehadiran'], 'rsvp' => ['label' => 'RSVP'],
                 'sapa' => ['label' => 'Sapa'], 'cari-tamu' => ['label' => 'Cari Tamu'],
                 'check-in' => ['label' => 'Check-in'], 'manual' => ['label' => 'Manual'],
-                'souvenir' => ['label' => 'Souvenir'], 'gift' => ['label' => 'Gift'],
                 'setting' => ['label' => 'Setting'],
             ];
 
