@@ -30,6 +30,18 @@
                         <span class="transition-opacity duration-200" :class="isSidebarOpen ? 'opacity-100' : 'lg:opacity-0 lg:hidden'">Client</span>
                     </a>
                 </li>
+                
+                {{-- === LINK BARU DITAMBAHKAN DI SINI === --}}
+                <li class="mb-4">
+                    <a href="{{ route('admin.events.index') }}" 
+                        class="flex items-center gap-3 text-sm p-3 rounded-lg transition-colors {{ request()->routeIs('admin.events.index') ? 'font-semibold text-gray-700 bg-orange-100' : 'font-medium text-gray-500 hover:bg-gray-100' }}"
+                        :class="isSidebarOpen ? '' : 'lg:justify-center'">
+                        <i class="fas fa-calendar-alt w-5 text-center text-lg"></i> {{-- Menggunakan ikon kalender --}}
+                        <span class="transition-opacity duration-200" :class="isSidebarOpen ? 'opacity-100' : 'lg:opacity-0 lg:hidden'">Daftar Event</span>
+                    </a>
+                </li>
+                {{-- ======================================= --}}
+
                 <li class="mb-4">
                     <a href="{{ route('order.history.index') }}"
                         class="flex items-center gap-3 text-sm p-3 rounded-lg transition-colors {{ request()->routeIs('order.history.index') ? 'font-semibold text-gray-700 bg-orange-100' : 'font-medium text-gray-500 hover:bg-gray-100' }}"
@@ -37,6 +49,7 @@
                         <i class="fas fa-history w-5 text-center text-lg"></i>
                         <span class="transition-opacity duration-200" :class="isSidebarOpen ? 'opacity-100' : 'lg:opacity-0 lg:hidden'">Order History</span>
                     </a>
+                </li>
             </ul>
         </nav>
     </div>

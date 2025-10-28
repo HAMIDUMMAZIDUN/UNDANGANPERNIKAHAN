@@ -33,7 +33,7 @@ class DashboardAdminController extends Controller
                 $serverStatus = 'Maintenance';
                 $serverStatusColor = 'red';
             }
-            $totalUsers = User::count();
+            $totalUsers = User::where('role', 'user')->count();
             $booking = 0;
             $totalRequest = 0; 
             $requestFromUsers = 0;   

@@ -30,11 +30,12 @@
                     </div>
                     <i class="fas fa-server text-4xl text-{{ $serverStatusColor }}-300"></i>
                 </div>
-                <!-- Card Total Users -->
+                <!-- Card Total Clients (Diubah dari Users) -->
                 <div class="bg-teal-500 text-white p-6 rounded-2xl flex justify-between items-center">
                     <div>
                         <p class="text-4xl font-bold">{{ $totalUsers }}</p>
-                        <p class="text-sm font-medium mt-1">TOTAL USERS</p>
+                        {{-- Perubahan di baris berikut --}}
+                        <p class="text-sm font-medium mt-1">TOTAL CLIENTS</p> 
                     </div>
                     <i class="fas fa-user-friends text-4xl text-teal-300"></i>
                 </div>
@@ -112,9 +113,9 @@
                             <div class="mt-2 text-xs text-gray-500">
                                 <p>{{ $activity['details']['text'] }}</p>
                                 <div class="flex gap-2 mt-2">
-                                        @foreach($activity['details']['images'] as $image)
-                                        <img src="{{ $image }}" alt="Activity Image" class="w-16 h-16 object-cover rounded-md">
-                                        @endforeach
+                                    @foreach($activity['details']['images'] as $image)
+                                    <img src="{{ $image }}" alt="Activity Image" class="w-16 h-16 object-cover rounded-md">
+                                    @endforeach
                                 </div>
                             </div>
                             @endif

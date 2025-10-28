@@ -21,7 +21,6 @@
                 'tamu' => ['label' => 'Tamu', 'icon' => 'fa-users', 'route' => 'events.tamu.index'],
                 'kehadiran' => ['label' => 'Kehadiran', 'icon' => 'fa-clipboard-check', 'route' => 'kehadiran.index'],
                 'rsvp' => ['label' => 'RSVP', 'icon' => 'fa-envelope-open-text', 'route' => 'rsvp.index'],
-                'sapa' => ['label' => 'Sapa', 'icon' => 'fa-smile-beam', 'route' => 'sapa.index'],
                 'cari-tamu' => ['label' => 'Cari Tamu', 'icon' => 'fa-search', 'route' => 'cari-tamu.index'],
                 'check-in' => ['label' => 'Check-in', 'icon' => 'fa-qrcode', 'route' => 'check-in.index'],
                 'manual' => ['label' => 'Manual', 'icon' => 'fa-edit', 'route' => 'manual.index'],
@@ -40,7 +39,17 @@
                     if ($firstEvent) {
                         $params = ['event' => $firstEvent->uuid];
                         $url = route($data['route'], $params);
-                        $isActive = request()->routeIs('events.tamu.*') || request()->is('sapa*');
+                        
+                        // --- PERBAIKAN LOGIKA AKTIF ---
+                        // Logika dipisah agar tidak tumpang tindih
+                        if ($key === 'tamu') {
+                            $isActive = request()->routeIs('events.tamu.*');
+                        } elseif ($key === 'sapa') {
+                            // Gunakan routeIs('sapa.*') sesuai dengan definisi route Anda
+                            $isActive = request()->routeIs('sapa.*');
+                        }
+                        // --- AKHIR PERBAIKAN ---
+
                     } else {
                         continue; // Skip if no event exists
                     }
@@ -51,10 +60,21 @@
                     
                     // Logika $isActive untuk 'dashboard' akan menggunakan $key 'dashboard'
                     // request()->routeIs('dashboard*') akan cocok dengan 'dashboard.index'
-                    $isActive = request()->routeIs($key . '*');
-
-                    if ($key === 'setting') {
+                    
+                    // Gunakan 'dashboard.index' untuk pengecekan dashboard agar lebih spesifik
+                    if ($key === 'dashboard') {
+                        $isActive = request()->routeIs('dashboard.index');
+                    }
+                    // Untuk setting, gunakan pola 'user.setting.*'
+                    elseif ($key === 'setting') {
                          $isActive = request()->routeIs('user.setting.*');
+                    }
+                    // Untuk sisanya, gunakan pola nama route
+                    else {
+                        // Menggunakan $data['route'] (nama rute) sebagai pola dasar
+                        // Misal: 'kehadiran.index' -> pola 'kehadiran.*'
+                        $baseRouteName = explode('.', $data['route'])[0];
+                        $isActive = request()->routeIs($baseRouteName . '.*');
                     }
                 }
             @endphp
@@ -76,3 +96,4 @@
         </form>
     </div>
 </aside>
+

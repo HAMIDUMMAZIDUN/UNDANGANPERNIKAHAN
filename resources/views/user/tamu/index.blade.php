@@ -31,7 +31,11 @@
     </div>
 
     <div class="bg-white shadow-md rounded-lg">
-        <div class="overflow-x-auto">
+        {{-- 
+          PERBAIKAN: Kelas 'overflow-x-auto' dihapus dari div di bawah ini
+          untuk mengizinkan dropdown 'Aksi' tampil di luar tabel.
+        --}}
+        <div class="">
             <table class="min-w-full divide-y divide-slate-200">
                 <thead class="bg-slate-50">
                     <tr>
@@ -55,7 +59,7 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 guest-affiliation">{{ $guest->affiliation }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
                                 <div class="relative inline-block text-left">
-                                    <button type="button" class="inline-flex items-center justify-center p-2 rounded-full text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors dropdown-toggle">
+                                    <button type="button" class="inline-flex items-center justify-center p-2 rounded-full text-slate-500 hover:bg-slate-100 hover:text-slate-700 dropdown-toggle">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" /></svg>
                                     </button>
                                     <div class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10 hidden dropdown-menu">

@@ -35,6 +35,9 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\RequestClientController;
 use App\Http\Controllers\Admin\AdminSettingController;
 
+// --- TAMBAHKAN IMPORT INI ---
+use App\Http\Controllers\Admin\AdminEventController;
+
 Route::get('/', fn() => view('welcome'))->name('home');
 
 Route::middleware('guest')->group(function () {
@@ -148,6 +151,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/request-client/{clientRequest}/generate-payment', [RequestClientController::class, 'generatePayment'])->name('request.generatePayment');
     Route::post('/admin/request-client/{clientRequest}/approve', [RequestClientController::class, 'approveRequest'])->name('request.approve');
     Route::prefix('admin')->middleware(['auth'])->name('admin.')->group(function () {
+        
+        // --- TAMBAHKAN RUTE BARU INI ---
+        Route::get('/events', [AdminEventController::class, 'index'])->name('events.index');
+        // ---------------------------------
+
         Route::get('/clients', [ClientController::class, 'index'])->name('client.index');
         Route::get('/clients/create', [ClientController::class, 'create'])->name('client.create');
         Route::post('/clients', [ClientController::class, 'store'])->name('client.store');
@@ -163,4 +171,3 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/{event:slug}', [EventController::class, 'publicShow'])->name('events.public.show');
-

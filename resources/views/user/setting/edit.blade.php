@@ -45,15 +45,6 @@
                         @enderror
                     </div>
 
-                    {{-- Menampilkan template (tidak bisa diedit) --}}
-                    <div>
-                        <label for="template_name" class="block text-sm font-medium text-slate-700">Template Digunakan</label>
-                        <div class="mt-1">
-                            <input type="text" value="{{ ucwords(str_replace('-', ' ', $event->template_name)) }}" class="shadow-sm block w-full sm:text-sm border-slate-300 rounded-md bg-slate-100 text-slate-500 cursor-not-allowed" disabled>
-                        </div>
-                        <p class="mt-2 text-xs text-slate-500">Template tidak dapat diubah karena kamu memilih paket ini</p>
-                    </div>
-
                     {{-- Lokasi Event --}}
                     <div class="border-t border-slate-200 pt-6 mt-6">
                         <h2 class="text-xl font-bold text-slate-800">Detail Acara (Akad & Resepsi)</h2>

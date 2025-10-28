@@ -2,26 +2,14 @@
 
 @section('page_title', 'Dashboard')
 
-@if (session('error'))
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops!',
-                text: '{{ session('error') }}',
-                confirmButtonColor: '#d33'
-            });
-        });
-    </script>
-@endif
-
 @section('content')
     <div>
         {{-- BAGIAN 1: HEADER --}}
         <div class="relative mb-16"> {{-- Beri margin bawah agar tidak tertimpa konten --}}
             {{-- Gambar Header --}}
             <div class="rounded-lg overflow-hidden">
-                <img src="{{ $event->photo_url ? asset('storage/' . $event->photo_url) : 'https://placehold.co/1200x600/f59e0b/f59e0b' }}" alt="Wedding Header" class="w-full h-48 sm:h-64 object-cover">
+                {{-- PERBAIKAN: URL Placeholder diubah agar teks terlihat --}}
+                <img src="{{ $event->photo_url ? asset('storage/' . $event->photo_url) : 'https://placehold.co/1200x600/f59e0b/ffffff?text=Event+Photo' }}" alt="Wedding Header" class="w-full h-48 sm:h-64 object-cover">
             </div>
 
             {{-- Kotak Info Acara --}}
@@ -63,8 +51,8 @@
                     </p>
                 </div>
                 
-                {{-- DIPERBAIKI: Nama rute diubah dari 'dashboard.index' menjadi 'dashboard' --}}
-                <form action="{{ route('dashboard') }}" method="GET" class="relative mb-4">
+                {{-- PERBAIKAN: Komentar disesuaikan, 'dashboard.index' sudah benar --}}
+                <form action="{{ route('dashboard.index') }}" method="GET" class="relative mb-4">
                     <input type="text" name="search" placeholder="Cari nama tamu..." value="{{ request('search') }}" class="w-full pl-4 pr-10 py-2 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500">
                     <button type="submit" class="absolute inset-y-0 right-0 flex items-center pr-3">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-stone-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.76l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" /></svg>
@@ -114,3 +102,19 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+{{-- PERBAIKAN: Blok script dipindahkan ke sini agar dimuat oleh layout --}}
+@if (session('error'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops!',
+                text: '{{ session(error) }}',
+                confirmButtonColor: '#d33'
+            });
+        });
+    </script>
+@endif
+@endpush
