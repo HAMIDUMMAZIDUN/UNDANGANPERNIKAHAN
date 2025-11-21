@@ -18,7 +18,6 @@ Route::get('/', function () {
 });
 
 // 2. RUTE LOGIN MANUAL
-// Mengarahkan tombol "Login" di welcome page langsung ke view login
 Route::middleware('guest')->get('/login', function () {
     return view('auth.login'); 
 })->name('login');
@@ -56,10 +55,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // C. SERVER 1 & 2
     Route::get('/server-1', [GuestController::class, 'server1'])->name('server1');
-    Route::get('/server-2', [GuestController::class, 'server2'])->name('server2');
+    Route::get('/server-2', [GuestController::class, 'server2'])->name('server2'); // Pastikan Server 2 ada
 
-    // D. TAMU HADIR (Attendance)
+    // D. TAMU HADIR (Attendance) & PDF
     Route::get('/tamu-hadir', [GuestController::class, 'attendance'])->name('attendance');
+    Route::get('/tamu-hadir/pdf', [GuestController::class, 'exportPdf'])->name('attendance.pdf'); // <-- RUTE PDF BARU
 
     // E. PROFIL PENGGUNA
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

@@ -16,74 +16,73 @@
         }
     </script>
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white pb-24">
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white pb-24 antialiased font-sans">
     
-    <!-- TOP NAVIGATION -->
-    <nav class="bg-white dark:bg-gray-800 p-4 shadow flex justify-between items-center fixed top-0 w-full z-40">
-        <!-- Logo -->
-        <h1 class="text-xl font-bold text-blue-600">DIGITAL GUESTBOOK BY BIRU ID</h1>
-        
-        <!-- Right Side Buttons -->
-        <div class="flex items-center gap-2">
-            <!-- 2. Profile Button -->
-            <a href="{{ route('profile.edit') }}" class="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-600 transition" title="Edit Profile">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                </svg>
-            </a>
-
-            <!-- 3. Logout Button -->
-            <form method="POST" action="{{ route('logout') }}" class="inline">
-                @csrf
-                <button type="submit" class="p-2 rounded-lg bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-800 transition" title="Logout" onclick="return confirm('Apakah anda yakin ingin keluar?');">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+    <!-- TOP NAVIGATION (Glass Effect) -->
+    <nav class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 p-4 fixed top-0 w-full z-40 transition-colors duration-300">
+        <div class="max-w-screen-xl mx-auto flex justify-between items-center">
+            <!-- Logo -->
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-8 bg-blue-600 rounded-full"></div>
+                <h1 class="text-lg md:text-xl font-bold tracking-tight text-gray-900 dark:text-white">
+                    DIGITAL <span class="text-blue-600">GUESTBOOK</span>
+                </h1>
+            </div>
+            
+            <!-- Right Side Buttons -->
+            <div class="flex items-center gap-1 sm:gap-2">
+                <!-- Profile Button -->
+                <a href="{{ route('profile.edit') }}" class="p-2 rounded-full text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 transition-colors" title="Edit Profile">
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                     </svg>
-                </button>
-            </form>
+                </a>
 
+                <!-- Logout Button -->
+                <form method="POST" action="{{ route('logout') }}" class="inline">
+                    @csrf
+                    <button type="submit" class="p-2 rounded-full text-red-500 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30 transition-colors" title="Logout" onclick="return confirm('Apakah anda yakin ingin keluar?');">
+                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                        </svg>
+                    </button>
+                </form>
+            </div>
         </div>
     </nav>
 
     <!-- MAIN CONTENT -->
-    <main class="p-4 pt-20">
+    <main class="p-4 pt-24 max-w-screen-xl mx-auto min-h-screen">
         {{ $slot }}
     </main>
 
     <!-- BOTTOM NAVIGATION -->
-    <div class="fixed bottom-0 left-0 z-50 w-full h-16 bg-white border-t border-gray-200 dark:bg-gray-700 dark:border-gray-600">
-        <div class="grid h-full max-w-lg grid-cols-4 mx-auto font-medium">
+    <div class="fixed bottom-0 left-0 z-50 w-full h-20 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+        <div class="grid h-full max-w-lg grid-cols-3 mx-auto font-medium">
             
             <!-- 1. LIST TAMU -->
-            <a href="{{ route('guests.index') }}" class="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group {{ request()->routeIs('guests.index') ? 'text-blue-600' : 'text-gray-500 dark:text-gray-400' }}">
-                <svg class="w-6 h-6 mb-1 group-hover:text-blue-600 {{ request()->routeIs('guests.index') ? 'text-blue-600' : 'text-gray-500 dark:text-gray-400' }}" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+            <a href="{{ route('guests.index') }}" class="flex flex-col items-center justify-center h-full w-full px-2 hover:bg-gray-50 dark:hover:bg-gray-700 group transition-colors {{ request()->routeIs('guests.index') ? 'text-blue-600 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400' }}">
+                <svg class="w-6 h-6 mb-1 group-hover:text-blue-600 dark:group-hover:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
                 </svg>
-                <span class="text-xs group-hover:text-blue-600">List Tamu</span>
+                <span class="text-xs font-semibold text-center">List Tamu</span>
             </a>
             
-            <!-- 2. SERVER 1 -->
-            <a href="{{ route('server1') }}" class="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group {{ request()->routeIs('server1') ? 'text-blue-600' : 'text-gray-500 dark:text-gray-400' }}">
-                <svg class="w-6 h-6 mb-1 group-hover:text-blue-600 {{ request()->routeIs('server1') ? 'text-blue-600' : 'text-gray-500 dark:text-gray-400' }}" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM2 16a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 01-2 2H4a2 2 0 01-2-2v-2z"></path>
+            <!-- 2. SCAN BACAAN (Ex-Server 1) -->
+            <a href="{{ route('server1') }}" class="flex flex-col items-center justify-center h-full w-full px-2 hover:bg-gray-50 dark:hover:bg-gray-700 group transition-colors {{ request()->routeIs('server1') ? 'text-blue-600 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400' }}">
+                <!-- Icon QR Code / Scan -->
+                <svg class="w-6 h-6 mb-1 group-hover:text-blue-600 dark:group-hover:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 16v1m0 0l3-3m-3 3l-3-3M12 16V4m-4 12H6m2-16H4a2 2 0 00-2 2v12a2 2 0 002 2h4m8-16h4a2 2 0 012 2v12a2 2 0 01-2 2h-4"></path>
                 </svg>
-                <span class="text-xs group-hover:text-blue-600">Server 1</span>
-            </a>
-
-            <!-- 3. SERVER 2 -->
-            <a href="{{ route('server2') }}" class="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group {{ request()->routeIs('server2') ? 'text-blue-600' : 'text-gray-500 dark:text-gray-400' }}">
-                <svg class="w-6 h-6 mb-1 group-hover:text-blue-600 {{ request()->routeIs('server2') ? 'text-blue-600' : 'text-gray-500 dark:text-gray-400' }}" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm14 1.5a1 1 0 11-2 0 1 1 0 012 0zM2 13a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 01-2 2H4a2 2 0 01-2-2v-2zm14 1.5a1 1 0 11-2 0 1 1 0 012 0z" clip-rule="evenodd"></path>
-                </svg>
-                <span class="text-xs group-hover:text-blue-600">Server 2</span>
+                <span class="text-xs font-semibold text-center">Scan Bacaan</span>
             </a>
 
             <!-- 4. TAMU HADIR -->
-            <a href="{{ route('attendance') }}" class="inline-flex flex-col items-center justify-center px-5 hover:bg-gray-50 dark:hover:bg-gray-800 group {{ request()->routeIs('attendance') ? 'text-blue-600' : 'text-gray-500 dark:text-gray-400' }}">
-                <svg class="w-6 h-6 mb-1 group-hover:text-blue-600 {{ request()->routeIs('attendance') ? 'text-blue-600' : 'text-gray-500 dark:text-gray-400' }}" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+            <a href="{{ route('attendance') }}" class="flex flex-col items-center justify-center h-full w-full px-2 hover:bg-gray-50 dark:hover:bg-gray-700 group transition-colors {{ request()->routeIs('attendance') ? 'text-blue-600 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400' }}">
+                <svg class="w-6 h-6 mb-1 group-hover:text-blue-600 dark:group-hover:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
                 </svg>
-                <span class="text-xs group-hover:text-blue-600 text-center leading-none">Tamu Hadir</span>
+                <span class="text-xs font-semibold text-center leading-none">Tamu Hadir</span>
             </a>
 
         </div>
