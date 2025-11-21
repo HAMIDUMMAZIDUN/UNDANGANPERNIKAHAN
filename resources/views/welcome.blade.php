@@ -30,7 +30,7 @@
             position: relative;
         }
 
-        /* === HEADER NAVIGASI (UPDATE: CENTERED ABSOLUTE) === */
+        /* === HEADER NAVIGASI === */
         .global-header {
             position: absolute;
             top: 0;
@@ -124,6 +124,7 @@
         .right-section {
             width: 45%;
             position: relative;
+            /* Ganti gambar background di sini jika perlu */
             background-image: url("{{ asset('img/bgpernikahan.jpg') }}");
             background-size: cover;
             background-position: center;
@@ -278,7 +279,15 @@
             </nav>
 
             <div class="auth-container">
-                <a href="{{ route('login') }}" class="btn-login">Login</a>
+                @if (Route::has('login'))
+                    @auth
+                        <!-- Jika user sudah login, tombol menjadi Dashboard -->
+                        <a href="{{ route('dashboard') }}" class="btn-login">Dashboard</a>
+                    @else
+                        <!-- Jika belum login, tombol menjadi Login -->
+                        <a href="{{ route('login') }}" class="btn-login">Login</a>
+                    @endauth
+                @endif
             </div>
         </header>
         
@@ -304,6 +313,7 @@
 
         <section class="right-section">
             <div class="wave-container">
+                <!-- SVG Gelombang pembatas -->
                 <svg class="wave-svg" viewBox="0 0 100 500" preserveAspectRatio="none">
                     <path d="M0,0 L0,500 L20,500 C80,350 90,150 20,0 Z" />
                 </svg>

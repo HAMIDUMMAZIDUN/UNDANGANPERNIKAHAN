@@ -2,17 +2,28 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AttendanceController;
-use App\Http\Controllers\GuestController;
-use App\Http\Controllers\GuestbookController;
+use App\Http\Controllers\GuestController; 
 use Illuminate\Support\Facades\Auth;
-use App\Models\Guest; // 1. PENTING: Import Model Guest
+use App\Models\Guest; 
 
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+*/
+
+// 1. HALAMAN DEPAN (LANDING PAGE)
 Route::get('/', function () {
     return view('welcome');
 });
 
-// --- LOGIC REDIRECT DASHBOARD ---
+// 2. RUTE LOGIN MANUAL
+// Mengarahkan tombol "Login" di welcome page langsung ke view login
+Route::middleware('guest')->get('/login', function () {
+    return view('auth.login'); 
+})->name('login');
+
+// 3. LOGIC REDIRECT DASHBOARD
 Route::get('/dashboard', function () {
     $user = Auth::user();
 
@@ -20,11 +31,12 @@ Route::get('/dashboard', function () {
         return redirect()->route('admin.dashboard');
     } 
     
-    return redirect()->route('user.dashboard');
+    // User biasa diarahkan ke List Tamu
+    return redirect()->route('guests.index');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 
-// --- GROUP ROUTE ADMIN ---
+// 4. GROUP ROUTE ADMIN
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', function () {
         return view('admin.dashboard'); 
@@ -32,38 +44,28 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 });
 
 
-// --- GROUP ROUTE USER (YANG DIPERBAIKI) ---
-Route::middleware(['auth', 'verified'])->prefix('user')->name('user.')->group(function () {
-    Route::get('/dashboard', function () {
-        // 2. PERBAIKAN: Ambil data tamu dulu sebelum load view
-        $guests = Guest::all(); 
+// 5. GROUP ROUTE USER / TAMU (UTAMA)
+Route::middleware(['auth', 'verified'])->group(function () {
 
-        // 3. Kirim data ke view menggunakan compact
-        return view('user.dashboard.index', compact('guests')); 
-    })->name('dashboard');
-});
+    // A. LIST TAMU & CRUD
+    Route::resource('guests', GuestController::class);
+    
+    // B. FITUR IMPOR & EKSPOR EXCEL
+    Route::get('/guests-export', [GuestController::class, 'export'])->name('guests.export');
+    Route::post('/guests-import', [GuestController::class, 'import'])->name('guests.import');
 
+    // C. SERVER 1 & 2
+    Route::get('/server-1', [GuestController::class, 'server1'])->name('server1');
+    Route::get('/server-2', [GuestController::class, 'server2'])->name('server2');
 
-// --- GLOBAL AUTH ROUTES ---
-Route::middleware('auth')->group(function () {
-    // Profile
+    // D. TAMU HADIR (Attendance)
+    Route::get('/tamu-hadir', [GuestController::class, 'attendance'])->name('attendance');
+
+    // E. PROFIL PENGGUNA
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-    // Guests CRUD
-    Route::resource('guests', GuestController::class);
-    
-    // Guestbook Dashboard (Excel Style)
-    Route::get('/guestbook', [GuestbookController::class, 'index'])->name('guestbook.index');
-
-    // Scanning
-    Route::get('/scan', function () {
-        return view('user.scan'); 
-    })->name('scan.page');
-    
-    Route::get('/guests/{id}/barcode', [GuestController::class, 'barcode'])->name('guests.barcode');
-    Route::post('/api/scan', [AttendanceController::class, 'scan'])->name('scan.process');
 });
 
+// Memuat rute auth bawaan (Login post, Register, Logout, dll)
 require __DIR__.'/auth.php';

@@ -10,19 +10,16 @@ class UserSeeder extends Seeder
 {
     public function run()
     {
-        // 1. Buat Akun Admin
         User::create([
             'name' => 'Admin Sistem',
             'email' => 'admin@wedding.com',
-            'password' => Hash::make('password'), // Password: password
+            'password' => Hash::make('password'),
             'role' => 'admin',
         ]);
-
-        // 2. Buat Akun User (Contoh: Mempelai)
         User::create([
             'name' => 'Rizky & Lesti (Mempelai)',
             'email' => 'mempelai@wedding.com',
-            'password' => Hash::make('password'), // Password: password
+            'password' => Hash::make('password'), 
             'role' => 'user',
         ]);
     }
