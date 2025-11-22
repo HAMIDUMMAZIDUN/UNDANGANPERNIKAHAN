@@ -30,7 +30,6 @@ Route::get('/dashboard', function () {
         return redirect()->route('admin.dashboard');
     } 
     
-    // User biasa diarahkan ke List Tamu
     return redirect()->route('guests.index');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -46,26 +45,33 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 // 5. GROUP ROUTE USER / TAMU (UTAMA)
 Route::middleware(['auth', 'verified'])->group(function () {
 
-    // A. LIST TAMU & CRUD
-    Route::resource('guests', GuestController::class);
+    // --- A. RUTE API (AJAX) ---
+    Route::get('/api/guests/search', [GuestController::class, 'ajaxSearch'])->name('guests.ajax_search');
+
+    // --- B. RUTE KHUSUS (HARUS DI ATAS RESOURCE) ---
     
-    // B. FITUR IMPOR & EKSPOR EXCEL
+    // Fitur Hapus Banyak (Bulk Delete)
+    Route::delete('/guests/bulk-delete', [GuestController::class, 'bulkDestroy'])->name('guests.bulk_destroy');
+
+    // Fitur Impor & Ekspor Excel
     Route::get('/guests-export', [GuestController::class, 'export'])->name('guests.export');
     Route::post('/guests-import', [GuestController::class, 'import'])->name('guests.import');
 
-    // C. SERVER 1 & 2
+    // --- C. LIST TAMU & CRUD (RESOURCE) ---
+    Route::resource('guests', GuestController::class);
+    
+    // --- D. SERVER 1 (SCAN) & SERVER 2 ---
     Route::get('/server-1', [GuestController::class, 'server1'])->name('server1');
-    Route::get('/server-2', [GuestController::class, 'server2'])->name('server2'); // Pastikan Server 2 ada
+    Route::get('/server-2', [GuestController::class, 'server2'])->name('server2');
 
-    // D. TAMU HADIR (Attendance) & PDF
+    // --- E. TAMU HADIR (REKAP & PDF) ---
     Route::get('/tamu-hadir', [GuestController::class, 'attendance'])->name('attendance');
-    Route::get('/tamu-hadir/pdf', [GuestController::class, 'exportPdf'])->name('attendance.pdf'); // <-- RUTE PDF BARU
+    Route::get('/tamu-hadir/pdf', [GuestController::class, 'exportPdf'])->name('attendance.pdf');
 
-    // E. PROFIL PENGGUNA
+    // --- F. PROFIL PENGGUNA ---
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Memuat rute auth bawaan (Login post, Register, Logout, dll)
 require __DIR__.'/auth.php';

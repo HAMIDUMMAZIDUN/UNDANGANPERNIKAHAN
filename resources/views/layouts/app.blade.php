@@ -1,10 +1,19 @@
+<!-- Tambahkan props title dengan default value -->
+@props(['title' => 'Digital Guestbook'])
+
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>WeddingPass</title>
     
+    <!-- 1. TITLE DINAMIS -->
+    <title>{{ $title }} - By Biru ID</title>
+    
+    <!-- 2. FAVICON (ICON TITLE) -->
+    <!-- Pastikan file gambar ada di public/images/bybiru.jpg -->
+    <link rel="icon" href="{{ asset('img/bybiru.png') }}">
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
     <script>
@@ -21,11 +30,16 @@
     <!-- TOP NAVIGATION (Glass Effect) -->
     <nav class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 p-4 fixed top-0 w-full z-40 transition-colors duration-300">
         <div class="max-w-screen-xl mx-auto flex justify-between items-center">
-            <!-- Logo -->
-            <div class="flex items-center gap-2">
-                <div class="w-2 h-8 bg-blue-600 rounded-full"></div>
-                <h1 class="text-lg md:text-xl font-bold tracking-tight text-gray-900 dark:text-white">
-                    DIGITAL <span class="text-blue-600">GUESTBOOK</span>
+            <!-- Logo Area -->
+            <div class="flex items-center gap-3">
+                <!-- ICON LOGO DI SINI -->
+                <img src="{{ asset('img/bybiru.png') }}" alt="Logo Biru ID" class="w-8 h-8 md:w-10 md:h-10 rounded-full object-cover border border-gray-200 dark:border-gray-600 shadow-sm">
+                
+                <h1 class="text-lg md:text-xl font-bold tracking-tight text-gray-900 dark:text-white leading-tight">
+                    DIGITAL GUESTBOOK BY BIRU ID 
+                    <span class="block md:inline text-xs md:text-sm font-normal text-blue-600 md:ml-2">
+                        IG : BY BIRU ID - WA : 0895-2621-6334
+                    </span>
                 </h1>
             </div>
             

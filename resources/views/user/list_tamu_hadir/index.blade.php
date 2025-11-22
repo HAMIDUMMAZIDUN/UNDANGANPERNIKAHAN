@@ -1,9 +1,10 @@
 <x-app-layout>
-    <x-slot name="header">
+     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('List Tamu Hadir') }}
         </h2>
     </x-slot>
+
 
     <div class="py-8 bg-white min-h-screen font-sans text-sm md:text-base">
         <div class="max-w-[98%] mx-auto px-1">
@@ -80,7 +81,7 @@
             <!-- BAGIAN 3: TABEL DATA TAMU (Tanpa Kolom Server) -->
             <div class="w-full overflow-x-auto">
                 <div class="flex justify-end mb-1">
-                    <span class="text-white text-xs bg-black px-2 py-1">Terakhir Diperbarui: {{ now()->format('d/m/Y H:i:s') }}</span>
+                    <span class="text-white text-xs bg-black px-2 py-1">Terakhir Diperbarui: {{ now()->timezone('Asia/Jakarta')->format('d/m/Y H:i:s') }}</span>
                 </div>
                 
                 <table class="w-full border-collapse border border-black text-sm">
@@ -89,8 +90,7 @@
                             <th class="border border-white w-12">No.</th>
                             <th class="border border-white text-left px-4">Nama Lengkap</th>
                             <th class="border border-white w-32 leading-tight px-2">Jumlah Tamu<br>(Orang)</th>
-                            <!-- Kolom Server dihapus karena hanya 1 server -->
-                            <th class="border border-white w-40 leading-tight px-2">Waktu Masuk</th>
+                            <th class="border border-white w-40 leading-tight px-2">Waktu Masuk (WIB)</th>
                         </tr>
                     </thead>
                     <tbody class="bg-[#d1e7dd] text-black">
@@ -109,7 +109,8 @@
                             </td>
                             
                             <td class="text-center border-r border-black">
-                                {{ $guest->check_in_at ? \Carbon\Carbon::parse($guest->check_in_at)->format('d/m/Y H:i:s') : '-' }}
+                                <!-- UPDATE WAKTU DI SINI -->
+                                {{ $guest->check_in_at ? \Carbon\Carbon::parse($guest->check_in_at)->timezone('Asia/Jakarta')->format('d/m/Y H:i:s') : '-' }}
                             </td>
                         </tr>
                         @empty
